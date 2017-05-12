@@ -11,7 +11,4 @@ object Util {
     Tool.`type`, Vulnerability.`type`, Relationship.`type`, Sighting.`type`, MarkingDefinition.`type`,
     KillChainPhase.`type`)
 
-
-
-
 }

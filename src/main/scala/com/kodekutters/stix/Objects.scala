@@ -111,7 +111,6 @@ object TLPlevels {
   implicit val encodeTLPlevels: Encoder[TLPlevels] = (v: TLPlevels) => v.value.toString.asJson
 
   implicit val decodeTLPlevels: Decoder[TLPlevels] = (c: HCursor) => for {s <- c.value.as[String]} yield TLPlevels.fromString(s)
-
 }
 
 /**
@@ -226,7 +225,6 @@ case class AttackPattern(id: Identifier = Identifier(AttackPattern.`type`),
                          created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = AttackPattern.`type`
-
 }
 
 object AttackPattern {
