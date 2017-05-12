@@ -167,8 +167,8 @@ case class ExternalReference(source_name: String, description: Option[String] = 
 /**
   * The marking-definition object represents a specific marking.
   */
-case class MarkingDefinition(id: Identifier,
-                             created: Timestamp,
+case class MarkingDefinition(id: Identifier = Identifier(AttackPattern.`type`),
+                             created: Timestamp = Timestamp.now(),
                              definition_type: String,
                              definition: MarkingObject,
                              external_references: Option[List[ExternalReference]] = None,
@@ -177,13 +177,6 @@ case class MarkingDefinition(id: Identifier,
                              created_by_ref: Option[Identifier] = None) {
 
   val `type` = MarkingDefinition.`type`
-
-  def this(created: Timestamp, definition_type: String, definition: MarkingObject) =
-    this(Identifier(MarkingDefinition.`type`), created, definition_type, definition)
-
-  def this(definition_type: String, definition: MarkingObject) =
-    this(Identifier(MarkingDefinition.`type`), Timestamp.now(), definition_type, definition)
-
 }
 
 object MarkingDefinition {
@@ -217,7 +210,10 @@ sealed trait SDO {
 /**
   * Attack Patterns are a type of TTP that describe ways that adversaries attempt to compromise targets.
   */
-case class AttackPattern(id: Identifier, created: Timestamp, modified: Timestamp, name: String,
+case class AttackPattern(id: Identifier = Identifier(AttackPattern.`type`),
+                         created: Timestamp = Timestamp.now(),
+                         modified: Timestamp = Timestamp.now(),
+                         name: String,
                          description: Option[String] = None,
                          kill_chain_phases: Option[KillChainPhase] = None,
                          revoked: Option[Boolean] = None,
@@ -231,11 +227,6 @@ case class AttackPattern(id: Identifier, created: Timestamp, modified: Timestamp
 
   val `type` = AttackPattern.`type`
 
-  def this(created: Timestamp, modified: Timestamp, name: String) =
-    this(Identifier(AttackPattern.`type`), created, modified, name)
-
-  def this(name: String) = this(Identifier(AttackPattern.`type`), Timestamp.now(), Timestamp.now(), name)
-
 }
 
 object AttackPattern {
@@ -246,7 +237,10 @@ object AttackPattern {
   * Identities can represent actual individuals, organizations, or groups (e.g., ACME, Inc.) as well as
   * classes of individuals, organizations, or groups (e.g., the finance sector).
   */
-case class Identity(id: Identifier, created: Timestamp, modified: Timestamp, name: String, identity_class: String,
+case class Identity(id: Identifier = Identifier(Identity.`type`),
+                    created: Timestamp = Timestamp.now(),
+                    modified: Timestamp = Timestamp.now(),
+                    name: String, identity_class: String,
                     sectors: Option[List[String]] = None,
                     contact_information: Option[String] = None,
                     description: Option[String] = None,
@@ -260,13 +254,6 @@ case class Identity(id: Identifier, created: Timestamp, modified: Timestamp, nam
                     created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = Identity.`type`
-
-  def this(created: Timestamp, modified: Timestamp, name: String, identity_class: String) =
-    this(Identifier(Identity.`type`), created, modified, name, identity_class)
-
-  def this(name: String, identity_class: String) =
-    this(Identifier(Identity.`type`), Timestamp.now(), Timestamp.now(), name, identity_class)
-
 }
 
 object Identity {
@@ -278,7 +265,10 @@ object Identity {
   * attacks (sometimes called waves) that occur over a period of time against a specific set of targets.
   * Campaigns usually have well defined objectives and may be part of an Intrusion Set.
   */
-case class Campaign(id: Identifier, created: Timestamp, modified: Timestamp, name: String,
+case class Campaign(id: Identifier = Identifier(Campaign.`type`),
+                    created: Timestamp = Timestamp.now(),
+                    modified: Timestamp = Timestamp.now(),
+                    name: String,
                     description: Option[String] = None, aliases: Option[List[String]] = None,
                     first_seen: Option[Timestamp] = None, last_seen: Option[Timestamp] = None, objective: Option[String] = None,
                     revoked: Option[Boolean] = None,
@@ -291,12 +281,6 @@ case class Campaign(id: Identifier, created: Timestamp, modified: Timestamp, nam
                     created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = Campaign.`type`
-
-  def this(created: Timestamp, modified: Timestamp, name: String) =
-    this(Identifier(Campaign.`type`), created, modified, name)
-
-  def this(name: String) = this(Identifier(Campaign.`type`), Timestamp.now(), Timestamp.now(), name)
-
 }
 
 object Campaign {
@@ -306,7 +290,10 @@ object Campaign {
 /**
   * A Course of Action is an action taken either to prevent an attack or to respond to an attack that is in progress.
   */
-case class CourseOfAction(id: Identifier, created: Timestamp, modified: Timestamp, name: String,
+case class CourseOfAction(id: Identifier = Identifier(CourseOfAction.`type`),
+                          created: Timestamp = Timestamp.now(),
+                          modified: Timestamp = Timestamp.now(),
+                          name: String,
                           description: Option[String] = None,
                           revoked: Option[Boolean] = None,
                           labels: Option[List[String]] = None,
@@ -318,12 +305,6 @@ case class CourseOfAction(id: Identifier, created: Timestamp, modified: Timestam
                           created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = CourseOfAction.`type`
-
-  def this(created: Timestamp, modified: Timestamp, name: String) =
-    this(Identifier(CourseOfAction.`type`), created, modified, name)
-
-  def this(name: String) = this(Identifier(CourseOfAction.`type`), Timestamp.now(), Timestamp.now(), name)
-
 }
 
 object CourseOfAction {
@@ -333,7 +314,9 @@ object CourseOfAction {
 /**
   * Indicators contain a pattern that can be used to detect suspicious or malicious cyber activity.
   */
-case class Indicator(id: Identifier, created: Timestamp, modified: Timestamp,
+case class Indicator(id: Identifier = Identifier(Indicator.`type`),
+                     created: Timestamp = Timestamp.now(),
+                     modified: Timestamp = Timestamp.now(),
                      pattern: String, valid_from: Timestamp, valid_until: Timestamp,
                      kill_chain_phases: Option[KillChainPhase] = None,
                      labels: Option[List[String]] = None, // todo ---> should not be optional
@@ -348,13 +331,6 @@ case class Indicator(id: Identifier, created: Timestamp, modified: Timestamp,
                      created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = Indicator.`type`
-
-  def this(created: Timestamp, modified: Timestamp, pattern: String, valid_from: Timestamp, valid_until: Timestamp) =
-    this(Identifier(Indicator.`type`), created, modified, pattern, valid_from, valid_until)
-
-  def this(pattern: String, valid_from: Timestamp, valid_until: Timestamp) =
-    this(Identifier(Indicator.`type`), Timestamp.now(), Timestamp.now(), pattern, valid_from, valid_until)
-
 }
 
 object Indicator {
@@ -365,7 +341,10 @@ object Indicator {
   * An Intrusion Set is a grouped set of adversarial behaviors and resources with common properties that is believed
   * to be orchestrated by a single organization.
   */
-case class IntrusionSet(id: Identifier, created: Timestamp, modified: Timestamp, name: String,
+case class IntrusionSet(id: Identifier = Identifier(IntrusionSet.`type`),
+                        created: Timestamp = Timestamp.now(),
+                        modified: Timestamp = Timestamp.now(),
+                        name: String,
                         description: Option[String] = None,
                         first_seen: Option[Timestamp] = None, last_seen: Option[Timestamp] = None, goals: Option[List[String]] = None,
                         resource_level: Option[String] = None,
@@ -380,12 +359,6 @@ case class IntrusionSet(id: Identifier, created: Timestamp, modified: Timestamp,
                         created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = IntrusionSet.`type`
-
-  def this(created: Timestamp, modified: Timestamp, name: String) =
-    this(Identifier(IntrusionSet.`type`), created, modified, name)
-
-  def this(name: String) = this(Identifier(IntrusionSet.`type`), Timestamp.now(), Timestamp.now(), name)
-
 }
 
 object IntrusionSet {
@@ -399,7 +372,10 @@ object IntrusionSet {
   * the victim's data, applications, or operating system (OS) or of otherwise annoying or
   * disrupting the victim.
   */
-case class Malware(id: Identifier, created: Timestamp, modified: Timestamp, name: String,
+case class Malware(id: Identifier = Identifier(Malware.`type`),
+                   created: Timestamp = Timestamp.now(),
+                   modified: Timestamp = Timestamp.now(),
+                   name: String,
                    description: Option[String] = None,
                    kill_chain_phases: Option[KillChainPhase] = None,
                    revoked: Option[Boolean] = None,
@@ -412,12 +388,6 @@ case class Malware(id: Identifier, created: Timestamp, modified: Timestamp, name
                    created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = Malware.`type`
-
-  def this(created: Timestamp, modified: Timestamp, name: String) =
-    this(Identifier(Malware.`type`), created, modified, name)
-
-  def this(name: String) = this(Identifier(Malware.`type`), Timestamp.now(), Timestamp.now(), name)
-
 }
 
 object Malware {
@@ -428,7 +398,10 @@ object Malware {
   * Observed Data conveys information that was observed on systems and networks using the Cyber Observable specification
   * defined in parts 3 and 4 of this specification.
   */
-case class ObservedData(id: Identifier, created: Timestamp, modified: Timestamp, name: String,
+case class ObservedData(id: Identifier = Identifier(ObservedData.`type`),
+                        created: Timestamp = Timestamp.now(),
+                        modified: Timestamp = Timestamp.now(),
+                        name: String,
                         first_observed: Timestamp, last_observed: Timestamp, number_observed: Int,
                         objects: Map[String, String], // todo ObservableObjects
                         description: Option[String] = None,
@@ -442,14 +415,6 @@ case class ObservedData(id: Identifier, created: Timestamp, modified: Timestamp,
                         created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = ObservedData.`type`
-
-  def this(created: Timestamp, modified: Timestamp, name: String, first_observed: Timestamp,
-           last_observed: Timestamp, number_observed: Int, objects: Map[String, String]) =
-    this(Identifier(ObservedData.`type`), created, modified, name, first_observed, last_observed, number_observed, objects)
-
-  def this(name: String, first_observed: Timestamp, last_observed: Timestamp, number_observed: Int, objects: Map[String, String]) =
-    this(Identifier(ObservedData.`type`), Timestamp.now(), Timestamp.now(), name, first_observed, last_observed, number_observed, objects)
-
 }
 
 object ObservedData {
@@ -460,7 +425,9 @@ object ObservedData {
   * Reports are collections of threat intelligence focused on one or more topics, such as a description of
   * a threat actor, malware, or attack technique, including context and related details.
   */
-case class Report(id: Identifier, created: Timestamp, modified: Timestamp,
+case class Report(id: Identifier = Identifier(Report.`type`),
+                  created: Timestamp = Timestamp.now(),
+                  modified: Timestamp = Timestamp.now(),
                   name: String, published: Timestamp,
                   object_refs: Option[List[Identifier]] = None,
                   description: Option[String] = None,
@@ -474,12 +441,6 @@ case class Report(id: Identifier, created: Timestamp, modified: Timestamp,
                   created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = Report.`type`
-
-  def this(created: Timestamp, modified: Timestamp, name: String, published: Timestamp) =
-    this(Identifier(Report.`type`), created, modified, name, published)
-
-  def this(name: String, published: Timestamp) = this(Identifier(Report.`type`), Timestamp.now(), Timestamp.now(), name, published)
-
 }
 
 object Report {
@@ -490,7 +451,10 @@ object Report {
   * Threat Actors are actual individuals, groups,
   * or organizations believed to be operating with malicious intent.
   */
-case class ThreatActor(id: Identifier, created: Timestamp, modified: Timestamp, name: String,
+case class ThreatActor(id: Identifier = Identifier(ThreatActor.`type`),
+                       created: Timestamp = Timestamp.now(),
+                       modified: Timestamp = Timestamp.now(),
+                       name: String,
                        labels: Option[List[String]] = None, // todo ---> should not be optional
                        description: Option[String] = None,
                        aliases: Option[String] = None,
@@ -509,11 +473,6 @@ case class ThreatActor(id: Identifier, created: Timestamp, modified: Timestamp, 
                        created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = ThreatActor.`type`
-
-  def this(created: Timestamp, modified: Timestamp, name: String) = this(Identifier(ThreatActor.`type`), created, modified, name)
-
-  def this(name: String) = this(Identifier(ThreatActor.`type`), Timestamp.now(), Timestamp.now(), name)
-
 }
 
 object ThreatActor {
@@ -523,7 +482,10 @@ object ThreatActor {
 /**
   * Tools are legitimate software that can be used by threat actors to perform attacks.
   */
-case class Tool(id: Identifier, created: Timestamp, modified: Timestamp, name: String,
+case class Tool(id: Identifier = Identifier(Tool.`type`),
+                created: Timestamp = Timestamp.now(),
+                modified: Timestamp = Timestamp.now(),
+                name: String,
                 labels: Option[List[String]] = None, // todo ---> should not be optional
                 description: Option[String] = None,
                 kill_chain_phases: Option[List[KillChainPhase]] = None,
@@ -537,11 +499,6 @@ case class Tool(id: Identifier, created: Timestamp, modified: Timestamp, name: S
                 created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = Tool.`type`
-
-  def this(name: String, created: Timestamp, modified: Timestamp) = this(Identifier(Tool.`type`), created, modified, name)
-
-  def this(name: String) = this(Identifier(Tool.`type`), Timestamp.now(), Timestamp.now(), name)
-
 }
 
 object Tool {
@@ -552,7 +509,10 @@ object Tool {
   * A Vulnerability is "a mistake in software that can be directly used by a hacker
   * to gain access to a system or network"
   */
-case class Vulnerability(id: Identifier, created: Timestamp, modified: Timestamp, name: String,
+case class Vulnerability(id: Identifier = Identifier(Vulnerability.`type`),
+                         created: Timestamp = Timestamp.now(),
+                         modified: Timestamp = Timestamp.now(),
+                         name: String,
                          description: Option[String] = None,
                          revoked: Option[Boolean] = None,
                          labels: Option[List[String]] = None,
@@ -564,12 +524,6 @@ case class Vulnerability(id: Identifier, created: Timestamp, modified: Timestamp
                          created_by_ref: Option[Identifier] = None) extends SDO {
 
   val `type` = Vulnerability.`type`
-
-  def this(created: Timestamp, modified: Timestamp, name: String) =
-    this(Identifier(Vulnerability.`type`), created, modified, name)
-
-  def this(name: String) = this(Identifier(Vulnerability.`type`), Timestamp.now(), Timestamp.now(), name)
-
 }
 
 object Vulnerability {
@@ -587,7 +541,9 @@ sealed trait SRO
   * they are related to each other. If SDOs are considered "nodes" or "vertices" in the graph,
   * the Relationship Objects (SROs) represent "edges".
   */
-case class Relationship(id: Identifier, created: Timestamp, modified: Timestamp,
+case class Relationship(id: Identifier = Identifier(Relationship.`type`),
+                        created: Timestamp = Timestamp.now(),
+                        modified: Timestamp = Timestamp.now(),
                         source_ref: Identifier,
                         relationship_type: String,
                         target_ref: Identifier,
@@ -602,13 +558,6 @@ case class Relationship(id: Identifier, created: Timestamp, modified: Timestamp,
                         created_by_ref: Option[Identifier] = None) extends SDO with SRO {
 
   val `type` = Relationship.`type`
-
-  def this(created: Timestamp, modified: Timestamp, source_ref: Identifier, relationship_type: String, target_ref: Identifier) =
-    this(Identifier(Relationship.`type`), created, modified, source_ref, relationship_type, target_ref)
-
-  def this(source_ref: Identifier, relationship_type: String, target_ref: Identifier) =
-    this(Identifier(Relationship.`type`), Timestamp.now(), Timestamp.now(), source_ref, relationship_type, target_ref)
-
 }
 
 object Relationship {
@@ -618,7 +567,9 @@ object Relationship {
 /**
   * A Sighting denotes the belief that something in CTI (e.g., an indicator, malware, tool, threat actor, etc.) was seen.
   */
-case class Sighting(id: Identifier, created: Timestamp, modified: Timestamp,
+case class Sighting(id: Identifier = Identifier(Sighting.`type`),
+                    created: Timestamp = Timestamp.now(),
+                    modified: Timestamp = Timestamp.now(),
                     relationship_type: String, sighting_of_ref: Identifier,
                     first_seen: Option[Timestamp] = None, last_seen: Option[Timestamp] = None,
                     count: Option[Int] = None,
@@ -636,13 +587,6 @@ case class Sighting(id: Identifier, created: Timestamp, modified: Timestamp,
                     created_by_ref: Option[Identifier] = None) extends SDO with SRO {
 
   val `type` = Sighting.`type`
-
-  def this(created: Timestamp, modified: Timestamp, relationship_type: String, sighting_of_ref: Identifier) =
-    this(Identifier(Sighting.`type`), created, modified, relationship_type, sighting_of_ref)
-
-  def this(relationship_type: String, sighting_of_ref: Identifier) =
-    this(Identifier(Sighting.`type`), Timestamp.now(), Timestamp.now(), relationship_type, sighting_of_ref)
-
 }
 
 object Sighting {

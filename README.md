@@ -23,11 +23,8 @@ The "type" parameter of the classes, is set to a constant with the required type
 
 All SDO classes have their required parameters listed first, followed by the optionals. 
 
-Classes have a number of overridden constructors such that:
-
-All SDO and SRO base constructors start with their "id" parameter, and if omitted, a random id with the correct type is generated.
- 
-This is followed by the "created" and "modified" parameters, if omitted the timestamp now is generated.
+All SDO and SRO constructors start with their "id" parameter, and if omitted, a random id with the correct type is generated.
+ This is followed by the "created" and "modified" parameters, if omitted a timestamp now is generated.
  
  
 ## Usage
