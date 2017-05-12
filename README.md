@@ -19,7 +19,16 @@ See also the build.sbt file.
  
 ### Conventions
 
+The "type" parameter of the classes, is set to a constant with the required type name.
+
 All SDO classes have their required parameters listed first, followed by the optionals. 
+
+Classes have a number of overridden constructors such that:
+
+All SDO and SRO base constructors start with their "id" parameter. If omitted, a random id with the correct type is generated.
+ 
+This is followed by the "created" and "modified" parameters. If omitted the timestamp now is generated.
+ 
  
 ## Usage
 
