@@ -556,6 +556,10 @@ case class Relationship(id: Identifier = Identifier(Relationship.`type`),
                         created_by_ref: Option[Identifier] = None) extends SDO with SRO {
 
   val `type` = Relationship.`type`
+
+  def this(source_ref: Identifier, relationship_type: String, target_ref: Identifier) =
+    this(Identifier(Relationship.`type`), Timestamp.now(), Timestamp.now(),
+      source_ref, relationship_type, target_ref)
 }
 
 object Relationship {
@@ -655,10 +659,18 @@ object SDO {
 case class Bundle(id: Identifier, objects: List[SDO]) {
   val `type` = Bundle.`type`
   val spec_version = Bundle.spec_version
+
+  def this(objects: List[SDO]) = this(Identifier(Bundle.`type`), objects)
+
+  def this(objects: SDO*) = this(objects.toList)
 }
 
 object Bundle {
   val `type` = "bundle"
   val spec_version = "2.1"
+
+  def apply(objects: List[SDO]) = new Bundle(objects)
+
+  def apply(objects: SDO*) = new Bundle(objects.toList)
 }
 
