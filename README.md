@@ -25,9 +25,9 @@ All SDO classes have their required parameters listed first, followed by the opt
 
 Classes have a number of overridden constructors such that:
 
-All SDO and SRO base constructors start with their "id" parameter. If omitted, a random id with the correct type is generated.
+All SDO and SRO base constructors start with their "id" parameter, and if omitted, a random id with the correct type is generated.
  
-This is followed by the "created" and "modified" parameters. If omitted the timestamp now is generated.
+This is followed by the "created" and "modified" parameters, if omitted the timestamp now is generated.
  
  
 ## Usage
