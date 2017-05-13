@@ -204,8 +204,17 @@
           "external_id": "CVE-2016-1234"
         }
       ]
-    }
+    },
 
+    {
+      "type": "marking-definition",
+      "id": "marking-definition--34098fce-860f-48ae-8e50-ebd3cc5e41da",
+      "created": "2016-05-12T08:17:27.000Z",
+      "definition_type": "tlp",
+      "definition": {
+        "tlp": "green"
+      }
+    }
 
   ]
 }

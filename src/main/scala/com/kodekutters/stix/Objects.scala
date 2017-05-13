@@ -167,7 +167,6 @@ case class GranularMarking(selectors: List[String], marking_ref: Option[String] 
   */
 case class ExternalReference(source_name: String, description: Option[String] = None, url: Option[String] = None, external_id: Option[String] = None)
 
-
 /**
   * a general STIX object represents the SDOs, SROs, and MarkingDefinition
   */
