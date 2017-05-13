@@ -630,7 +630,7 @@ object StixObj {
         case s: MarkingDefinition => sdo.asInstanceOf[MarkingDefinition].asJson
         case _ => Json.obj() // an empty json
       }
-      jsVal //.deepMerge(Json.obj("type" -> Json.fromString(sdo.`type`)))
+      jsVal
     }
   }
 

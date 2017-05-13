@@ -14,7 +14,7 @@ It includes all SDO, SRO, OpenVocab, Markings and supporting data types.
 
 ### Dependencies
 
-1) [circe JSON library](https://github.com/circe/circe)
+1) [circe library](https://github.com/circe/circe) providing the JSON io for Scala and Scala.js (i.e. --> Javascript))
  
  
 ### Conventions
