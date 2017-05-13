@@ -3,7 +3,7 @@
 [1] "Structured Threat Information Expression (STIX™) is a language and serialization format used to exchange cyber threat intelligence (CTI). STIX enables organizations to share CTI with one another in a consistent and machine readable manner, allowing security communities to better understand what computer-based attacks they are most likely to see and to anticipate and/or respond to those attacks faster and more effectively. STIX is designed to improve many different capabilities, such as collaborative threat analysis, automated threat exchange, automated detection and response, and more."
 
 This library **ScalaStix** is a [Scala](https://www.scala-lang.org/) library of classes and methods 
-for interfacing to STIX Domain Objects (SDO) and associated data types. 
+for STIX Domain Objects (SDO) and associated data types. 
 It is an API for serializing and de-serializing STIX 2.1 JSON content.
 It includes all SDO, SRO, OpenVocab, Markings and supporting data types.
 
@@ -21,11 +21,11 @@ It includes all SDO, SRO, OpenVocab, Markings and supporting data types.
 
 All SDO classes have their required parameters listed first, followed by the optionals. 
 
-All SDO and SRO constructors start with the "type" parameter of the class, if omitted, a correct type is generated. 
-Then the "id" parameter, if omitted, a random id with the correct type is generated.
- This is followed by the "created" and "modified" parameters, if omitted a timestamp now is generated for those.
+All SDO and SRO constructors start with the "type" parameter of the class, if omitted, the type is auto-generated. 
+The "id" parameter is second, if omitted a random id is auto-generated.
+ This is followed by the "created" and "modified" parameters, if omitted a current timestamp is auto-generated for those.
  
-Similarly for Bundle, "type" and "spec_version" are set automatically, "id" can also be auto-generated if desired.  
+Similarly for bundle, "type" and "spec_version" are set automatically, "id" can also be auto-generated if desired.  
  
 ### Usage
                          

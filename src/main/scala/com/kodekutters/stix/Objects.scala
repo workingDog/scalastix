@@ -189,8 +189,6 @@ object MarkingDefinition {
 //------------------STIX Domain Objects----------------------------------
 //-----------------------------------------------------------------------
 
-// todo default values for all SDO, e.g. id, created, modified, etc...
-
 /**
   * common properties of all SDO and SRO
   */
