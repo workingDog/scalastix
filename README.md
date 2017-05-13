@@ -2,8 +2,10 @@
 
 [1] "Structured Threat Information Expression (STIX™) is a language and serialization format used to exchange cyber threat intelligence (CTI). STIX enables organizations to share CTI with one another in a consistent and machine readable manner, allowing security communities to better understand what computer-based attacks they are most likely to see and to anticipate and/or respond to those attacks faster and more effectively. STIX is designed to improve many different capabilities, such as collaborative threat analysis, automated threat exchange, automated detection and response, and more."
 
-This library **ScalaStix** is an API for serializing and de-serializing STIX 2.1 JSON content.
-It includes all SDO, SRO, OpenVocab, Markings and supporting data types
+This library **ScalaStix** is a [Scala](https://www.scala-lang.org/) library of classes and methods 
+for interfacing to STIX Domain Objects (SDO) and associated data types. 
+It is an API for serializing and de-serializing STIX 2.1 JSON content.
+It includes all SDO, SRO, OpenVocab, Markings and supporting data types.
 
 ### References
  
@@ -12,7 +14,7 @@ It includes all SDO, SRO, OpenVocab, Markings and supporting data types
 
 ### Dependencies
 
- [circe JSON library](https://github.com/circe/circe)
+1) [circe JSON library](https://github.com/circe/circe)
  
  
 ### Conventions
@@ -31,7 +33,7 @@ Creating a STIX domain object:
 
     import StixImplicits._
     
-    // create an SDO, the type, id, created and modified are generated
+    // create an SDO, the type, id, created and modified are auto-generated
     val attack = new AttackPattern(name = "Spear Phishing",
                       kill_chain_phases = KillChainPhase("Kill", "Bill"),
                       external_references = List(new ExternalReference("a-source-name")),
