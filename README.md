@@ -18,13 +18,13 @@ It includes all SDO, SRO, OpenVocab, Markings and supporting data types
  
 ### Conventions
 
-The "type" parameter of the classes, is set to a constant with the required type name.
-
 All SDO classes have their required parameters listed first, followed by the optionals. 
 
-All SDO and SRO constructors start with their "id" parameter, if omitted, a random id with the correct type is generated.
+All SDO and SRO constructors start with the "type" parameter of the classe, if omitted, a correct type is generated. 
+Then the "id" parameter, if omitted, a random id with the correct type is generated.
  This is followed by the "created" and "modified" parameters, if omitted a timestamp now is generated for those.
  
+Similarly for Bundle, "type" and "spec_version" are set automatically, "id" can also be generated if desired.  
  
 ## Usage
 
