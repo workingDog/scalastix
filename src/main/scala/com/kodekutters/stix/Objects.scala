@@ -7,7 +7,7 @@ import io.circe.syntax._
 import io.circe.{Json, _}
 import io.circe.generic.auto._
 import io.circe.Decoder._
-import io.circe.parser.decode
+import io.circe._
 
 /**
   * STIX-2.1 protocol
@@ -649,9 +649,5 @@ object Bundle {
   def apply(objects: List[SDO]) = new Bundle(objects)
 
   def apply(objects: SDO*) = new Bundle(objects.toList)
-
-  // todo is this correct ?
-  def apply(doc: String): Bundle = decode[Bundle](doc).getOrElse(new Bundle(List.empty))
-
 }
 
