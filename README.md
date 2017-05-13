@@ -1,6 +1,6 @@
 ## STIX 2.1 protocol in Scala
 
-[1] "Structured Threat Information Expression (STIX™) is a language and serialization format used to exchange cyber threat intelligence (CTI). STIX enables organizations to share CTI with one another in a consistent and machine readable manner, allowing security communities to better understand what computer-based attacks they are most likely to see and to anticipate and/or respond to those attacks faster and more effectively. STIX is designed to improve many different capabilities, such as collaborative threat analysis, automated threat exchange, automated detection and response, and more."
+[[1]](https://docs.google.com/document/d/1yvqWaPPnPW-2NiVCLqzRszcx91ffMowfT5MmE9Nsy_w/edit#) "Structured Threat Information Expression (STIX™) is a language and serialization format used to exchange cyber threat intelligence (CTI). STIX enables organizations to share CTI with one another in a consistent and machine readable manner, allowing security communities to better understand what computer-based attacks they are most likely to see and to anticipate and/or respond to those attacks faster and more effectively. STIX is designed to improve many different capabilities, such as collaborative threat analysis, automated threat exchange, automated detection and response, and more."
 
 This library **ScalaStix** is a [Scala](https://www.scala-lang.org/) library of classes and methods 
 for STIX Domain Objects (SDO) and associated data types. 
@@ -14,7 +14,7 @@ It includes all SDO, SRO, OpenVocab, Markings and supporting data types.
 
 ### Dependencies
 
-1) [circe library](https://github.com/circe/circe) providing the JSON io for Scala and Scala.js (i.e. --> Javascript))
+1) [circe library](https://github.com/circe/circe) providing the JSON io for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/) (i.e. --> Javascript))
  
  
 ### Conventions
