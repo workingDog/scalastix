@@ -48,4 +48,4 @@ Creating a STIX domain object:
  
 ### Status
 
-A place holder, work in progress, not yet finished.
+Work in progress, not yet finished.

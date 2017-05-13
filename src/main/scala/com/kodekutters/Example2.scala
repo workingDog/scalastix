@@ -4,7 +4,7 @@ import com.kodekutters.stix._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import StixImplicits._
-import io.circe.Json
+import io.circe.{Json, Printer}
 import io.circe.parser.parse
 
 /**
@@ -12,6 +12,9 @@ import io.circe.parser.parse
   */
 object Example2 {
   def main(args: Array[String]): Unit = {
+    // removes the output of "null" for empty fields
+    implicit val myPrinter = Printer.spaces2.copy(dropNullKeys = true)
+
     // create a sdo
     val attackPattern = new AttackPattern(
       name = "Spear Phishing",
@@ -21,11 +24,11 @@ object Example2 {
 
     println("\n----> attackPattern: " + attackPattern)
     // convert to json
-    println("\n----> attackPattern.asJson: " + attackPattern.asJson)
+    println("\n----> attackPattern.asJson: " + myPrinter.pretty(attackPattern.asJson))
     // add to a bundle
     val bundle = Bundle(attackPattern)
     println("\n----> bundle: " + bundle)
-    println("\n----> bundle.asJson: " + bundle.asJson)
+    println("\n----> bundle.asJson: " + myPrinter.pretty(bundle.asJson))
     //
     // starting with a string
     val theString =
