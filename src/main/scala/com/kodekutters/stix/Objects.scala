@@ -71,8 +71,7 @@ object Identifier {
   */
 case class KillChainPhase(`type`: String = KillChainPhase.`type`, kill_chain_name: String, phase_name: String) {
 
-  def this(kill_chain_name: String, phase_name: String) =
-    this(KillChainPhase.`type`, kill_chain_name, phase_name)
+  def this(kill_chain_name: String, phase_name: String) = this(KillChainPhase.`type`, kill_chain_name, phase_name)
 }
 
 object KillChainPhase {
@@ -578,7 +577,7 @@ object Sighting {
 }
 
 //-----------------------------------------------------------------------
-//------------------STIX and Bundle object----------------------------------------
+//------------------STIX and Bundle object-------------------------------
 //-----------------------------------------------------------------------
 
 object StixObj {
