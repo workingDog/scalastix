@@ -1,5 +1,15 @@
 package com.kodekutters.stix
 
+import java.time.{ZoneId, ZonedDateTime}
+import java.util.UUID
+
+import io.circe.syntax._
+import io.circe.{Json, _}
+import io.circe.generic.auto._
+import io.circe.Decoder._
+import io.circe._
+
+
 /**
   * STIX-2.1 protocol, Cyber Observable Objects
   *
@@ -12,5 +22,57 @@ package com.kodekutters.stix
   *
   */
 
-  // todo
+// todo  <-----------
+
+/**
+  * common properties of Observables
+  */
+sealed trait Observable {
+  val `type`: String
+  val description: Option[String]
+  val extensions: Option[Map[String, String]] // todo Map[String, Any]
+}
+
+/**
+  * The Artifact Object permits capturing an array of bytes (8-bits), as a base64-encoded string,
+  * or linking to a file-like payload.
+  */
+// todo hashes-type
+case class Artifact private(`type`: String = Artifact.`type`,
+                            mime_type: Option[String] = None,
+                            payload_bin: Option[String] = None, // base64-encoded string
+                            url: Option[String] = None,
+                            hashes: Option[String] = None,
+                            description: Option[String] = None,
+                            extensions: Option[Map[String, String]] = None) extends Observable {
+
+  def this(mime_type: Option[String], payload_bin: String, description: Option[String], extensions: Option[Map[String, String]]) =
+    this(Artifact.`type`, mime_type, Option(payload_bin), None, None, description, extensions)
+
+  def this(mime_type: Option[String], url: String, hashes: String, description: Option[String], extensions: Option[Map[String, String]]) =
+    this(Artifact.`type`, mime_type, None, Option(url), Option(hashes), description, extensions)
+
+}
+
+object Artifact {
+  val `type` = "artifact"
+}
+
+/**
+  * The AS object represents the properties of an Autonomous System (AS).
+  */
+case class ASObject(`type`: String = ASObject.`type`,
+                    number: Int,
+                    name: Option[String] = None,
+                    rir: Option[String] = None,
+                    description: Option[String] = None,
+                    extensions: Option[Map[String, String]] = None) extends Observable
+
+object ASObject {
+  val `type` = "autonomous-system"
+}
+
+
+
+
 

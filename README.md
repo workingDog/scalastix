@@ -29,7 +29,7 @@ Similarly for bundle, "type" and "spec_version" are set automatically, "id" can 
  
 ### Usage
                          
-Creating a STIX domain object:
+In a Scala application the creation of a STIX domain object can be done as:
 
     import StixImplicits._
     
@@ -41,11 +41,17 @@ Creating a STIX domain object:
                       
     // convert to json
     val attackjs = attackPattern.asJson
-                      
-                      
- 
- See also the Examples.
+    // add to a bundle
+    val bundle = Bundle(arrack)
+    // convert to json
+    bundle.asJson
+            
+Similarly when using Scala.js, that is compiling to javascript.            
+                                         
+See also the Examples.
  
 ### Status
 
 Work in progress, not yet finished.
+
+No testing done.
