@@ -28,6 +28,21 @@ Similarly for Bundle, "type" and "spec_version" are set automatically, "id" can 
  
 ## Usage
 
+Creating a STIX domain object:
+
+    import StixImplicits._
+    
+    val attack = new AttackPattern(name = "Spear Phishing",
+                      kill_chain_phases = KillChainPhase("Kill", "Bill"),
+                      external_references = List(new ExternalReference("a-source-name")),
+                      object_marking_refs = List(Identifier("campaign")))
+                      
+    // convert to json
+    val attackjs = attackPattern.asJson
+                      
+                      
+ 
+ See also the Examples.
  
 ## Status
 
