@@ -54,6 +54,7 @@ object Identifier {
 
   implicit val decodeIdentifier: Decoder[Identifier] = (c: HCursor) => for {s <- c.value.as[String]} yield stringToIdentifier(s)
 
+  // todo catch errors
   def stringToIdentifier(s: String): Identifier = {
     val part = s.split("--")
     new Identifier(part(0), part(1))
@@ -146,15 +147,13 @@ object MarkingObject {
 
   implicit val encodeMarkingObject: Encoder[MarkingObject] = new Encoder[MarkingObject] {
     final def apply(mObj: MarkingObject): Json = {
-      val jsVal: Json = mObj match {
+      mObj match {
         case s: TPLMarking => mObj.asInstanceOf[TPLMarking].asJson
         case s: StatementMarking => mObj.asInstanceOf[StatementMarking].asJson
         case _ => Json.obj() // an empty json
       }
-      jsVal
     }
   }
-
 }
 
 /**
@@ -168,18 +167,24 @@ case class GranularMarking(selectors: List[String], marking_ref: Option[String] 
   */
 case class ExternalReference(source_name: String, description: Option[String] = None, url: Option[String] = None, external_id: Option[String] = None)
 
+
+/**
+  * a general STIX object represents the SDOs, SROs, and MarkingDefinition
+  */
+sealed trait StixObj
+
 /**
   * The marking-definition object represents a specific marking.
   */
 case class MarkingDefinition(`type`: String = MarkingDefinition.`type`,
-                             id: Identifier = Identifier(AttackPattern.`type`),
+                             id: Identifier = Identifier(MarkingDefinition.`type`),
                              created: Timestamp = Timestamp.now(),
                              definition_type: String,
                              definition: MarkingObject,
                              external_references: Option[List[ExternalReference]] = None,
                              object_marking_refs: Option[List[Identifier]] = None,
                              granular_markings: Option[List[GranularMarking]] = None,
-                             created_by_ref: Option[Identifier] = None)
+                             created_by_ref: Option[Identifier] = None) extends StixObj
 
 object MarkingDefinition {
   val `type` = "marking-definition"
@@ -192,7 +197,7 @@ object MarkingDefinition {
 /**
   * common properties of all SDO and SRO
   */
-sealed trait SDO {
+sealed trait SDO extends StixObj {
   val `type`: String
   val id: Identifier
   val created: Timestamp
@@ -574,17 +579,19 @@ object Sighting {
 }
 
 //-----------------------------------------------------------------------
-//------------------SDO and Bundle object----------------------------------------
+//------------------STIX and Bundle object----------------------------------------
 //-----------------------------------------------------------------------
 
-object SDO {
+object StixObj {
 
   import Timestamp.decodeTimestamp
   import Timestamp.encodeTimestamp
   import Identifier.decodeIdentifier
   import Identifier.encodeIdentifier
+  import MarkingObject.decodeMarkingObject
+  import MarkingObject.encodeMarkingObject
 
-  implicit val decodeSDO: Decoder[SDO] = Decoder.instance(c =>
+  implicit val decodeSDO: Decoder[StixObj] = Decoder.instance(c =>
     c.downField("type").as[String].right.flatMap {
       case AttackPattern.`type` => c.as[AttackPattern]
       case Identity.`type` => c.as[Identity]
@@ -600,11 +607,12 @@ object SDO {
       case Vulnerability.`type` => c.as[Vulnerability]
       case Relationship.`type` => c.as[Relationship]
       case Sighting.`type` => c.as[Sighting]
+      case MarkingDefinition.`type` => c.as[MarkingDefinition]
       //  case err => c.as[SDOError]
     })
 
-  implicit val encodeSDO: Encoder[SDO] = new Encoder[SDO] {
-    final def apply(sdo: SDO): Json = {
+  implicit val encodeSDO: Encoder[StixObj] = new Encoder[StixObj] {
+    final def apply(sdo: StixObj): Json = {
       val jsVal: Json = sdo match {
         case s: AttackPattern => sdo.asInstanceOf[AttackPattern].asJson
         case s: Identity => sdo.asInstanceOf[Identity].asJson
@@ -620,6 +628,7 @@ object SDO {
         case s: Vulnerability => sdo.asInstanceOf[Vulnerability].asJson
         case s: Relationship => sdo.asInstanceOf[Relationship].asJson
         case s: Sighting => sdo.asInstanceOf[Sighting].asJson
+        case s: MarkingDefinition => sdo.asInstanceOf[MarkingDefinition].asJson
         case _ => Json.obj() // an empty json
       }
       jsVal //.deepMerge(Json.obj("type" -> Json.fromString(sdo.`type`)))
@@ -637,19 +646,19 @@ object SDO {
 case class Bundle(`type`: String = Bundle.`type`,
                   spec_version: String = Bundle.spec_version,
                   id: Identifier = Identifier(Bundle.`type`),
-                  objects: List[SDO]) {
+                  objects: List[StixObj]) {
 
-  def this(objects: List[SDO]) = this(Bundle.`type`, Bundle.spec_version, Identifier(Bundle.`type`), objects)
+  def this(objects: List[StixObj]) = this(Bundle.`type`, Bundle.spec_version, Identifier(Bundle.`type`), objects)
 
-  def this(objects: SDO*) = this(objects.toList)
+  def this(objects: StixObj*) = this(objects.toList)
 }
 
 object Bundle {
   val `type` = "bundle"
   val spec_version = "2.1"
 
-  def apply(objects: List[SDO]) = new Bundle(objects)
+  def apply(objects: List[StixObj]) = new Bundle(objects)
 
-  def apply(objects: SDO*) = new Bundle(objects.toList)
+  def apply(objects: StixObj*) = new Bundle(objects.toList)
 }
 
