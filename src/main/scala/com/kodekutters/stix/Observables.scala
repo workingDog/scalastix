@@ -39,14 +39,16 @@ case class HashesType(kvList: List[Tuple2[String, String]]) {
 
   def this(kv: Tuple2[String, String]) = this(List(kv))
 
-  def this(kvList: Tuple2[String, String]*) = this(kvList.toList)
+  def this(kvArgs: Tuple2[String, String]*) = this(kvArgs.toList)
 
 }
 
 object HashesType {
 
   implicit val encodeHashesType: Encoder[HashesType] = (hash: HashesType) => {
-    val theList = for {h <- hash.kvList} yield { h._1 -> Json.fromString(h._2) }
+    val theList = for {h <- hash.kvList} yield {
+      h._1 -> Json.fromString(h._2)
+    }
     Json.obj(theList: _*)
   }
 
@@ -102,7 +104,21 @@ object ASObject {
   val `type` = "autonomous-system"
 }
 
+/**
+  * The Directory Object represents the properties common to a file system directory.
+  */
+case class Directory(`type`: String = Directory.`type`, path: String,
+                     path_enc: Option[String] = None,
+                     created: Option[Timestamp] = None,
+                     modified: Option[Timestamp] = None,
+                     accessed: Option[Timestamp] = None,
+                     contains_refs: Option[List[String]] = None, // todo object-ref must be file or directory type
+                     description: Option[String] = None,
+                     extensions: Option[Map[String, String]] = None) extends Observable
 
+object Directory {
+  val `type` = "directory"
+}
 
 
 
