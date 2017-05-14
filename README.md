@@ -46,7 +46,7 @@ In a Scala application the creation of a STIX domain object can be done as:
     // convert to json
     bundle.asJson
             
-Similarly when using Scala.js, that is compiling to javascript.            
+Similarly when building a web browser App using Scala.js, that is compiling to javascript.            
                                          
 See also the Examples.
  

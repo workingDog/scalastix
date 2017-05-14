@@ -9,6 +9,12 @@ import io.circe.generic.auto._
 import io.circe.Decoder._
 import io.circe._
 
+import io.circe.parser._
+import io.circe.parser.decode
+
+import scala.language.implicitConversions
+import scala.collection.mutable
+
 
 /**
   * STIX-2.1 protocol, Cyber Observable Objects
@@ -22,7 +28,32 @@ import io.circe._
   *
   */
 
-// todo  <-----------
+// -----------> todo  <-----------
+
+/**
+  * The Hashes type represents 1 or more cryptographic hashes, as a special set of key/value pairs.
+  *
+  * @param kvList a list of (k,v) tuples
+  */
+case class HashesType(kvList: List[Tuple2[String, String]]) {
+
+  def this(kv: Tuple2[String, String]) = this(List(kv))
+
+  def this(kvList: Tuple2[String, String]*) = this(kvList.toList)
+
+}
+
+object HashesType {
+
+  implicit val encodeHashesType: Encoder[HashesType] = (hash: HashesType) => {
+    val theList = for {h <- hash.kvList} yield { h._1 -> Json.fromString(h._2) }
+    Json.obj(theList: _*)
+  }
+
+  implicit val decodeHashesType: Decoder[HashesType] = (c: HCursor) =>
+    for {s <- c.value.as[List[Tuple2[String, String]]]} yield new HashesType(s)
+
+}
 
 /**
   * common properties of Observables
@@ -37,19 +68,18 @@ sealed trait Observable {
   * The Artifact Object permits capturing an array of bytes (8-bits), as a base64-encoded string,
   * or linking to a file-like payload.
   */
-// todo hashes-type
 case class Artifact private(`type`: String = Artifact.`type`,
                             mime_type: Option[String] = None,
                             payload_bin: Option[String] = None, // base64-encoded string
                             url: Option[String] = None,
-                            hashes: Option[String] = None,
+                            hashes: Option[HashesType] = None,
                             description: Option[String] = None,
                             extensions: Option[Map[String, String]] = None) extends Observable {
 
   def this(mime_type: Option[String], payload_bin: String, description: Option[String], extensions: Option[Map[String, String]]) =
     this(Artifact.`type`, mime_type, Option(payload_bin), None, None, description, extensions)
 
-  def this(mime_type: Option[String], url: String, hashes: String, description: Option[String], extensions: Option[Map[String, String]]) =
+  def this(mime_type: Option[String], url: String, hashes: HashesType, description: Option[String], extensions: Option[Map[String, String]]) =
     this(Artifact.`type`, mime_type, None, Option(url), Option(hashes), description, extensions)
 
 }
