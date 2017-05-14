@@ -46,9 +46,7 @@ case class HashesType(kvList: List[Tuple2[String, String]]) {
 object HashesType {
 
   implicit val encodeHashesType: Encoder[HashesType] = (hash: HashesType) => {
-    val theList = for {h <- hash.kvList} yield {
-      h._1 -> Json.fromString(h._2)
-    }
+    val theList = for {h <- hash.kvList} yield h._1 -> Json.fromString(h._2)
     Json.obj(theList: _*)
   }
 
