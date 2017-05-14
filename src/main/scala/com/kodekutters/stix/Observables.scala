@@ -120,5 +120,57 @@ object Directory {
   val `type` = "directory"
 }
 
+/**
+  * The Domain Name represents the properties of a network domain name.
+  */
+case class DomainName(`type`: String = DomainName.`type`, value: String,
+                      resolves_to_refs: Option[List[String]] = None, // todo object-ref must be ipv4-addr or ipv6-addr or domain-name
+                      description: Option[String] = None,
+                      extensions: Option[Map[String, String]] = None) extends Observable
+
+object DomainName {
+  val `type` = "domain-name"
+}
+
+/**
+  * The Email Address Object represents a single email address.
+  */
+case class EmailAddress(`type`: String = EmailAddress.`type`, value: String,
+                        display_name: Option[String] = None,
+                        belongs_to_ref: Option[String] = None, // todo  must be of type user-account
+                        description: Option[String] = None,
+                        extensions: Option[Map[String, String]] = None) extends Observable
+
+object EmailAddress {
+  val `type` = "email-addr"
+}
+
+/**
+  * The Email Message Object represents an instance of an email message, corresponding to the internet message format
+  * described in [RFC5322] and related RFCs.
+  */
+case class EmailMessage(`type`: String = EmailMessage.`type`,
+                        is_multipart: Boolean,
+                        body_multipart: Option[List[String]] = None, // todo mime-part-type and only if is_multipart=true
+                        body: Option[String] = None, // todo only if is_multipart=false
+                        date: Option[Timestamp] = None,
+                        content_type: Option[String] = None,
+                        from_ref: Option[String] = None, // todo must be of type email-address
+                        sender_ref: Option[String] = None, // todo must be of type email-address
+                        to_refs: Option[List[String]] = None, // todo must be of type email-address
+                        cc_refs: Option[List[String]] = None, // todo must be of type email-address
+                        bcc_refs: Option[List[String]] = None, // todo must be of type email-address
+                        subject: Option[String] = None,
+                        received_lines: Option[List[String]] = None,
+                        additional_header_fields: Option[Map[String, String]] = None,
+                        raw_email_ref: Option[String] = None, // todo must be of type artifact
+                        description: Option[String] = None,
+                        extensions: Option[Map[String, String]] = None) extends Observable
+
+object EmailMessage {
+  val `type` = "email-message"
+}
+
+
 
 
