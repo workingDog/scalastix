@@ -42,7 +42,7 @@ In a Scala application the creation of a STIX domain object can be done as:
     // convert to json
     val attackjs = attackPattern.asJson
     // add to a bundle
-    val bundle = Bundle(arrack)
+    val bundle = Bundle(attack)
     // convert to json
     bundle.asJson
             
