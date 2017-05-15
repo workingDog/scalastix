@@ -109,7 +109,7 @@ object TLPlevels {
       case amber.value => new TLPlevels(amber.value.toString)
       case green.value => new TLPlevels(green.value.toString)
       case white.value => new TLPlevels(white.value.toString)
-      case _ => new TLPlevels(white.value.toString) // todo <-----what is the default here
+      case x => new TLPlevels(x) // todo is this correct <------
     }
   }
 
@@ -149,7 +149,7 @@ object MarkingObject {
       mObj match {
         case s: TPLMarking => mObj.asInstanceOf[TPLMarking].asJson
         case s: StatementMarking => mObj.asInstanceOf[StatementMarking].asJson
-        case _ => Json.obj() // an empty json
+        case _ => Json.Null
       }
     }
   }
@@ -268,8 +268,11 @@ case class Campaign(`type`: String = Campaign.`type`,
                     created: Timestamp = Timestamp.now(),
                     modified: Timestamp = Timestamp.now(),
                     name: String,
-                    description: Option[String] = None, aliases: Option[List[String]] = None,
-                    first_seen: Option[Timestamp] = None, last_seen: Option[Timestamp] = None, objective: Option[String] = None,
+                    description: Option[String] = None,
+                    aliases: Option[List[String]] = None,
+                    first_seen: Option[Timestamp] = None,
+                    last_seen: Option[Timestamp] = None,
+                    objective: Option[String] = None,
                     revoked: Option[Boolean] = None,
                     labels: Option[List[String]] = None,
                     confidence: Option[Int] = None,
@@ -396,7 +399,7 @@ case class ObservedData(`type`: String = ObservedData.`type`,
                         modified: Timestamp = Timestamp.now(),
                         name: String,
                         first_observed: Timestamp, last_observed: Timestamp, number_observed: Int,
-                        objects: Map[String, String], // todo ObservableObjects
+                        objects: Map[String, Observable],
                         description: Option[String] = None,
                         revoked: Option[Boolean] = None,
                         labels: Option[List[String]] = None,
@@ -577,6 +580,32 @@ object Sighting {
 }
 
 //-----------------------------------------------------------------------
+//------------------Language content-------------------------------------
+//-----------------------------------------------------------------------
+
+// todo
+/**
+  * The language-content object represents text content for STIX Objects represented in other languages.
+  */
+case class LanguageContent(`type`: String = LanguageContent.`type`,
+                           id: Identifier = Identifier(LanguageContent.`type`),
+                           created: Timestamp = Timestamp.now(),
+                           modified: Timestamp = Timestamp.now(),
+                           object_modified: Timestamp = Timestamp.now(),
+                           object_ref: Identifier,
+                           contents: Map[String, Map[String, String]], // todo <-----
+                           created_by_ref: Option[Identifier] = None,
+                           revoked: Option[Boolean] = None,
+                           labels: Option[List[String]] = None,
+                           external_references: Option[List[ExternalReference]] = None,
+                           object_marking_refs: Option[List[Identifier]] = None,
+                           granular_markings: Option[List[GranularMarking]] = None) extends StixObj
+
+object LanguageContent {
+  val `type` = "language-content"
+}
+
+//-----------------------------------------------------------------------
 //------------------STIX and Bundle object-------------------------------
 //-----------------------------------------------------------------------
 
@@ -589,7 +618,7 @@ object StixObj {
   import MarkingObject.decodeMarkingObject
   import MarkingObject.encodeMarkingObject
 
-  implicit val decodeSDO: Decoder[StixObj] = Decoder.instance(c =>
+  implicit val decodeStixObj: Decoder[StixObj] = Decoder.instance(c =>
     c.downField("type").as[String].right.flatMap {
       case AttackPattern.`type` => c.as[AttackPattern]
       case Identity.`type` => c.as[Identity]
@@ -606,10 +635,11 @@ object StixObj {
       case Relationship.`type` => c.as[Relationship]
       case Sighting.`type` => c.as[Sighting]
       case MarkingDefinition.`type` => c.as[MarkingDefinition]
+      case LanguageContent.`type` => c.as[LanguageContent]
       //  case err => c.as[SDOError]
     })
 
-  implicit val encodeSDO: Encoder[StixObj] = new Encoder[StixObj] {
+  implicit val encodeStixObj: Encoder[StixObj] = new Encoder[StixObj] {
     final def apply(sdo: StixObj): Json = {
       val jsVal: Json = sdo match {
         case s: AttackPattern => sdo.asInstanceOf[AttackPattern].asJson
@@ -627,7 +657,8 @@ object StixObj {
         case s: Relationship => sdo.asInstanceOf[Relationship].asJson
         case s: Sighting => sdo.asInstanceOf[Sighting].asJson
         case s: MarkingDefinition => sdo.asInstanceOf[MarkingDefinition].asJson
-        case _ => Json.obj() // an empty json
+        case s: LanguageContent => sdo.asInstanceOf[LanguageContent].asJson
+        case _ => Json.Null
       }
       jsVal
     }
@@ -642,11 +673,11 @@ object StixObj {
   * @param objects Specifies a set of one or more STIX Objects.
   */
 case class Bundle(`type`: String = Bundle.`type`,
-                  spec_version: String = Bundle.spec_version,
                   id: Identifier = Identifier(Bundle.`type`),
+                  spec_version: String = Bundle.spec_version,
                   objects: List[StixObj]) {
 
-  def this(objects: List[StixObj]) = this(Bundle.`type`, Bundle.spec_version, Identifier(Bundle.`type`), objects)
+  def this(objects: List[StixObj]) = this(Bundle.`type`, Identifier(Bundle.`type`), Bundle.spec_version, objects)
 
   def this(objects: StixObj*) = this(objects.toList)
 }
