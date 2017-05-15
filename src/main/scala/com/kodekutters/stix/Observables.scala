@@ -1,19 +1,11 @@
 package com.kodekutters.stix
 
-import java.time.{ZoneId, ZonedDateTime}
-import java.util.UUID
-
 import io.circe.syntax._
 import io.circe.{Json, _}
-import io.circe.generic.auto._
 import io.circe.Decoder._
 import io.circe._
 
-import io.circe.parser._
-import io.circe.parser.decode
-
 import scala.language.implicitConversions
-import scala.collection.mutable
 
 
 /**
@@ -190,7 +182,7 @@ object EmailAddress {
   */
 case class EmailMimeType(`type`: String = EmailMimeType.`type`,
                      body: Option[String] = None,
-                     body_raw_ref: Option[String] = None, // todo MUST be of type artifact or file.
+                     body_raw_ref: Option[String] = None, // todo must be of type artifact or file.
                      content_type: Option[String] = None,
                      content_disposition: Option[String] = None)
 
