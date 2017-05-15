@@ -30,4 +30,10 @@ object StixImplicits {
 
   implicit def ListOfStringToListOfStringOp(value: List[String]): Option[List[String]] = Option(value)
 
+  implicit def ExtensionsToExtensionsOp(value: Extensions): Option[Extensions] = Option(value)
+
+  // ---------------------------------------------------------------------------------------
+
+
+
 }
