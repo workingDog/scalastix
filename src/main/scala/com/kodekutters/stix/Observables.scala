@@ -1,6 +1,5 @@
 package com.kodekutters.stix
 
-import io.circe.syntax._
 import io.circe.{Json, _}
 import io.circe.Decoder._
 import io.circe._
@@ -19,9 +18,6 @@ import scala.language.implicitConversions
   * Author: R. Wathelet May 2017
   *
   */
-
-// -----------> todo  <-----------
-
 
 /**
   * The Hashes type represents 1 or more cryptographic hashes, as a special set of key/value pairs.
@@ -46,47 +42,6 @@ object HashesType {
   implicit val decodeHashesType: Decoder[HashesType] = (c: HCursor) =>
     for {s <- c.value.as[List[Tuple2[String, String]]]} yield new HashesType(s)
 
-}
-
-// todo ---> a hack until I understand this better
-case class Extensions(value: Map[String, Any])
-
-object Extensions {
-
-  implicit val encodeExtensions: Encoder[Extensions] = (ext: Extensions) => {
-    val theSet = for {key <- ext.value.keySet} yield {
-      ext.value(key) match {
-        case s: String => key -> s.asJson
-        case s: Double => key -> s.asJson
-        case s: Int => key -> s.asJson
-        case s: Boolean => key -> s.asJson
-        case s: Array[String] => key -> s.asJson
-        case s: Array[Double] => key -> s.asJson
-        case s: Array[Int] => key -> s.asJson
-        case s: Array[Boolean] => key -> s.asJson
-        case s => key -> s.toString.asJson
-      }
-    }
-    Json.obj(theSet.toList: _*)
-  }
-
-  implicit val decodeExtensions: Decoder[Extensions] = (c: HCursor) => {
-    val valueOpt = c match {
-      case x if x.as[Map[String, String]].isRight => x.as[Map[String, String]].toOption
-      case x if x.as[Map[String, Double]].isRight => x.as[Map[String, Double]].toOption
-      case x if x.as[Map[String, Int]].isRight => x.as[Map[String, Int]].toOption
-      case x if x.as[Map[String, Boolean]].isRight => x.as[Map[String, Boolean]].toOption
-      case x if x.as[Map[String, Array[String]]].isRight => x.as[Map[String, Array[String]]].toOption
-      case x if x.as[Map[String, Array[Double]]].isRight => x.as[Map[String, Array[Double]]].toOption
-      case x if x.as[Map[String, Array[Int]]].isRight => x.as[Map[String, Array[Int]]].toOption
-      case x if x.as[Map[String, Array[Boolean]]].isRight => x.as[Map[String, Array[Boolean]]].toOption
-      case _ => None
-    }
-    valueOpt match {
-      case Some(x) => Right(new Extensions(x))
-      case None => Left(DecodingFailure("Error in Extensions decoding", c.history))
-    }
-  }
 }
 
 /**
@@ -139,7 +94,8 @@ object AutonomousSystem {
 /**
   * The Directory Object represents the properties common to a file system directory.
   */
-case class Directory(`type`: String = Directory.`type`, path: String,
+case class Directory(`type`: String = Directory.`type`,
+                     path: String,
                      path_enc: Option[String] = None,
                      created: Option[Timestamp] = None,
                      modified: Option[Timestamp] = None,
@@ -155,7 +111,8 @@ object Directory {
 /**
   * The Domain Name represents the properties of a network domain name.
   */
-case class DomainName(`type`: String = DomainName.`type`, value: String,
+case class DomainName(`type`: String = DomainName.`type`,
+                      value: String,
                       resolves_to_refs: Option[List[String]] = None, // todo object-ref must be ipv4-addr or ipv6-addr or domain-name
                       description: Option[String] = None,
                       extensions: Option[Extensions] = None) extends Observable
@@ -181,10 +138,10 @@ object EmailAddress {
   * Specifies one component of a multi-part email body.
   */
 case class EmailMimeType(`type`: String = EmailMimeType.`type`,
-                     body: Option[String] = None,
-                     body_raw_ref: Option[String] = None, // todo must be of type artifact or file.
-                     content_type: Option[String] = None,
-                     content_disposition: Option[String] = None)
+                         body: Option[String] = None,
+                         body_raw_ref: Option[String] = None, // todo must be of type artifact or file.
+                         content_type: Option[String] = None,
+                         content_disposition: Option[String] = None)
 
 object EmailMimeType {
   val `type` = "mime-part-type"
@@ -281,7 +238,6 @@ case class MACAddress(`type`: String = MACAddress.`type`,
 object MACAddress {
   val `type` = "mac-addr"
 }
-
 
 /**
   * The Mutex Object represents the properties of a mutual exclusion (mutex) object.
@@ -473,8 +429,4 @@ case class X509Certificate(`type`: String = X509Certificate.`type`,
 object X509Certificate {
   val `type` = "x509-certificate"
 }
-
-
-
-
 

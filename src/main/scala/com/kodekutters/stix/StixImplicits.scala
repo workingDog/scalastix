@@ -32,6 +32,8 @@ object StixImplicits {
 
   implicit def ExtensionsToExtensionsOp(value: Extensions): Option[Extensions] = Option(value)
 
+  implicit def ListOfAltDataStreamToOp(value: List[AlternateDataStream]): Option[List[AlternateDataStream]] = Option(value)
+
   // ---------------------------------------------------------------------------------------
 
 
