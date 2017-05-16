@@ -15,24 +15,6 @@ import scala.language.implicitConversions
 sealed trait Extension
 
 /**
-  * represents a map/dictionary of Predefined Cyber Observable Object Extensions
-  */
-case class Extensions(value: Map[String, Extension])
-
-object Extensions {
-
-  implicit val encodeExtensions: Encoder[Extensions] = (ext: Extensions) => {
-    val theSet = for {key <- ext.value.keySet} yield key -> ext.value(key).asJson
-    Json.obj(theSet.toList: _*)
-  }
-
-  implicit val decodeExtensions: Decoder[Extensions] = (c: HCursor) => {
-    Right(Extensions(c.value.as[Map[String, Extension]].getOrElse(Map.empty)))
-  }
-
-}
-
-/**
   * The Archive File extension specifies a default extension for capturing properties specific to archive files.
   */
 case class ArchiveFileExt(`type`: String = ArchiveFileExt.`type`,

@@ -167,10 +167,11 @@ case class GranularMarking(selectors: List[String], marking_ref: Option[String] 
 case class ExternalReference(source_name: String, description: Option[String] = None, url: Option[String] = None, external_id: Option[String] = None)
 
 /**
-  * a general STIX object represents the SDOs, SROs, and MarkingDefinition
+  * a general STIX object represents the SDOs, SROs, LanguageContent and MarkingDefinition
   */
 sealed trait StixObj {
   val `type`: String
+  val id: Identifier
 }
 
 /**
@@ -198,7 +199,6 @@ object MarkingDefinition {
   * common properties of all SDO and SRO
   */
 sealed trait SDO extends StixObj {
-  val id: Identifier
   val created: Timestamp
   val modified: Timestamp
   val created_by_ref: Option[Identifier]

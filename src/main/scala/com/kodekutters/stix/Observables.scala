@@ -50,7 +50,7 @@ object HashesType {
 sealed trait Observable {
   val `type`: String
   val description: Option[String]
-  val extensions: Option[Extensions]
+  val extensions: Option[Map[String, Extension]]
 }
 
 /**
@@ -63,12 +63,12 @@ case class Artifact private(`type`: String = Artifact.`type`,
                             url: Option[String] = None,
                             hashes: Option[HashesType] = None,
                             description: Option[String] = None,
-                            extensions: Option[Extensions] = None) extends Observable {
+                            extensions: Option[Map[String, Extension]] = None) extends Observable {
 
-  def this(mime_type: Option[String], payload_bin: String, description: Option[String], extensions: Option[Extensions]) =
+  def this(mime_type: Option[String], payload_bin: String, description: Option[String], extensions: Option[Map[String, Extension]]) =
     this(Artifact.`type`, mime_type, Option(payload_bin), None, None, description, extensions)
 
-  def this(mime_type: Option[String], url: String, hashes: HashesType, description: Option[String], extensions: Option[Extensions]) =
+  def this(mime_type: Option[String], url: String, hashes: HashesType, description: Option[String], extensions: Option[Map[String, Extension]]) =
     this(Artifact.`type`, mime_type, None, Option(url), Option(hashes), description, extensions)
 
 }
@@ -85,7 +85,7 @@ case class AutonomousSystem(`type`: String = AutonomousSystem.`type`,
                             name: Option[String] = None,
                             rir: Option[String] = None,
                             description: Option[String] = None,
-                            extensions: Option[Extensions] = None) extends Observable
+                            extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object AutonomousSystem {
   val `type` = "autonomous-system"
@@ -102,7 +102,7 @@ case class Directory(`type`: String = Directory.`type`,
                      accessed: Option[Timestamp] = None,
                      contains_refs: Option[List[String]] = None, // todo object-ref must be file or directory type
                      description: Option[String] = None,
-                     extensions: Option[Extensions] = None) extends Observable
+                     extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object Directory {
   val `type` = "directory"
@@ -115,7 +115,7 @@ case class DomainName(`type`: String = DomainName.`type`,
                       value: String,
                       resolves_to_refs: Option[List[String]] = None, // todo object-ref must be ipv4-addr or ipv6-addr or domain-name
                       description: Option[String] = None,
-                      extensions: Option[Extensions] = None) extends Observable
+                      extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object DomainName {
   val `type` = "domain-name"
@@ -128,7 +128,7 @@ case class EmailAddress(`type`: String = EmailAddress.`type`, value: String,
                         display_name: Option[String] = None,
                         belongs_to_ref: Option[String] = None, // todo  must be of type user-account
                         description: Option[String] = None,
-                        extensions: Option[Extensions] = None) extends Observable
+                        extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object EmailAddress {
   val `type` = "email-addr"
@@ -167,7 +167,7 @@ case class EmailMessage(`type`: String = EmailMessage.`type`,
                         additional_header_fields: Option[Map[String, String]] = None,
                         raw_email_ref: Option[String] = None, // todo must be of type artifact
                         description: Option[String] = None,
-                        extensions: Option[Extensions] = None) extends Observable
+                        extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object EmailMessage {
   val `type` = "email-message"
@@ -193,7 +193,7 @@ case class File(`type`: String = File.`type`,
                 contains_refs: Option[List[String]] = None,
                 content_ref: Option[String] = None,
                 description: Option[String] = None,
-                extensions: Option[Extensions] = None) extends Observable
+                extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object File {
   val `type` = "file"
@@ -207,7 +207,7 @@ case class IPv4Address(`type`: String = IPv4Address.`type`,
                        resolves_to_refs: Option[List[String]] = None,
                        belongs_to_refs: Option[List[String]] = None,
                        description: Option[String] = None,
-                       extensions: Option[Extensions] = None) extends Observable
+                       extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object IPv4Address {
   val `type` = "ipv4-addr"
@@ -221,7 +221,7 @@ case class IPv6Address(`type`: String = IPv6Address.`type`,
                        resolves_to_refs: Option[List[String]] = None,
                        belongs_to_refs: Option[List[String]] = None,
                        description: Option[String] = None,
-                       extensions: Option[Extensions] = None) extends Observable
+                       extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object IPv6Address {
   val `type` = "ipv6-addr"
@@ -233,7 +233,7 @@ object IPv6Address {
 case class MACAddress(`type`: String = MACAddress.`type`,
                       value: String,
                       description: Option[String] = None,
-                      extensions: Option[Extensions] = None) extends Observable
+                      extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object MACAddress {
   val `type` = "mac-addr"
@@ -245,7 +245,7 @@ object MACAddress {
 case class Mutex(`type`: String = Mutex.`type`,
                  name: String,
                  description: Option[String] = None,
-                 extensions: Option[Extensions] = None) extends Observable
+                 extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object Mutex {
   val `type` = "mutex"
@@ -273,7 +273,7 @@ case class NetworkTraffic(`type`: String = NetworkTraffic.`type`,
                           encapsulates_refs: Option[List[String]] = None,
                           encapsulated_by_ref: Option[String] = None,
                           description: Option[String] = None,
-                          extensions: Option[Extensions] = None) extends Observable
+                          extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object NetworkTraffic {
   val `type` = "network-traffic"
@@ -297,7 +297,7 @@ case class Process(`type`: String = Process.`type`,
                    parent_ref: Option[String] = None,
                    child_refs: Option[List[String]] = None,
                    description: Option[String] = None,
-                   extensions: Option[Extensions] = None) extends Observable
+                   extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object Process {
   val `type` = "process"
@@ -313,7 +313,7 @@ case class Software(`type`: String = Software.`type`,
                     vendor: Option[String] = None,
                     version: Option[String] = None,
                     description: Option[String] = None,
-                    extensions: Option[Extensions] = None) extends Observable
+                    extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object Software {
   val `type` = "software"
@@ -325,7 +325,7 @@ object Software {
 case class URL(`type`: String = URL.`type`,
                value: String,
                description: Option[String] = None,
-               extensions: Option[Extensions] = None) extends Observable
+               extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object URL {
   val `type` = "url"
@@ -349,7 +349,7 @@ case class UserAccount(`type`: String = UserAccount.`type`,
                        account_first_login: Option[Timestamp] = None,
                        account_last_login: Option[Timestamp] = None,
                        description: Option[String] = None,
-                       extensions: Option[Extensions] = None) extends Observable
+                       extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object UserAccount {
   val `type` = "user-account"
@@ -377,7 +377,7 @@ case class WindowsRegistryKey(`type`: String = WindowsRegistryKey.`type`,
                               creator_user_ref: Option[String] = None,
                               number_of_subkeys: Option[Int] = None,
                               description: Option[String] = None,
-                              extensions: Option[Extensions] = None) extends Observable
+                              extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object WindowsRegistryKey {
   val `type` = "windows-registry-key"
@@ -424,7 +424,7 @@ case class X509Certificate(`type`: String = X509Certificate.`type`,
                            subject_public_key_exponent: Option[Int] = None,
                            x509_v3_extensions: Option[X509V3ExtenstionsType] = None,
                            description: Option[String] = None,
-                           extensions: Option[Extensions] = None) extends Observable
+                           extensions: Option[Map[String, Extension]] = None) extends Observable
 
 object X509Certificate {
   val `type` = "x509-certificate"
