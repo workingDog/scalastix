@@ -1,8 +1,8 @@
 
 pomExtra := {
   <scm>
-    <url>https://github.com/workingDog/ScalaStix</url>
-    <connection>scm:git:git@github.com:workingDog/ScalaStix.git</connection>
+    <url>https://github.com/workingDog/scalastix</url>
+    <connection>scm:git:git@github.com:workingDog/scalastix.git</connection>
   </scm>
     <developers>
       <developer>

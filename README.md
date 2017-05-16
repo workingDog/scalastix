@@ -17,6 +17,30 @@ It includes all SDO, SRO, OpenVocab, Markings and supporting data types.
 1) [circe library](https://github.com/circe/circe) providing the JSON io for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/) (i.e. --> Javascript))
  
  
+### Building
+
+For Scala on the JVM, requires Java8.
+
+The best way to compile and package **ScalaStix** from source is to use [SBT](http://www.scala-sbt.org/). 
+To assemble the library and all its dependencies into a single jar file type:
+
+    sbt assembly
+
+This will produce a jar file "scalastix_2.12-1.0-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
+
+To publish the library to your local (Ivy) repository, simply type:
+
+    sbt publishLocal
+
+Then put this in your build.sbt file
+
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "1.0-SNAPSHOT
+ 
+ 
+For Scala.js and thus compiling to JavaScript:
+
+---> todo 
+ 
 ### Conventions
 
 All SDO classes have their required parameters listed first, followed by the optionals. 

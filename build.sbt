@@ -45,8 +45,12 @@ scalacOptions ++= Seq(
   "-Xlint" // Enable recommended additional warnings.
 )
 
-homepage := Some(url("https://github.com/workingDog/ScalaStix"))
+homepage := Some(url("https://github.com/workingDog/scalastix"))
 
 licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 
 resolvers += Resolver.sonatypeRepo("releases")
+
+mainClass in assembly := Some("com.kodekutters.Example2")
+
+assemblyJarName in assembly := "scalastix_2.12-1.0-SNAPSHOT.jar"
