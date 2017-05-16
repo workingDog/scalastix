@@ -169,7 +169,9 @@ case class ExternalReference(source_name: String, description: Option[String] = 
 /**
   * a general STIX object represents the SDOs, SROs, and MarkingDefinition
   */
-sealed trait StixObj
+sealed trait StixObj {
+  val `type`: String
+}
 
 /**
   * The marking-definition object represents a specific marking.
@@ -196,7 +198,6 @@ object MarkingDefinition {
   * common properties of all SDO and SRO
   */
 sealed trait SDO extends StixObj {
-  val `type`: String
   val id: Identifier
   val created: Timestamp
   val modified: Timestamp

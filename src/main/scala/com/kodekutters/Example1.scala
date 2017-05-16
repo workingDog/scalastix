@@ -29,6 +29,10 @@ object Example1 {
         bundle.objects.foreach(sdo => println("sdo: " + sdo))
         // print all individual sdo as json
         bundle.objects.foreach(sdo => println("sdo.asJson: " + myPrinter.pretty(sdo.asJson)))
+        //  get all attackPattern
+        val allPat = bundle.objects.filter(_.`type` == AttackPattern.`type`)
+        allPat.foreach(x => println("\n-----> allPat: " + x))
+        allPat.foreach(x => println("\n-----> allPat json: " + x.asJson))
     }
     // alternatively
     // decode[Bundle](jsondoc).getOrElse(Bundle(List.empty))
