@@ -12,7 +12,9 @@ import scala.language.implicitConversions
 /**
   * represents a Predefined Cyber Observable Object Extension
   */
-sealed trait Extension
+sealed trait Extension {
+  val `type`: String
+}
 
 /**
   * The Archive File extension specifies a default extension for capturing properties specific to archive files.
