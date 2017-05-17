@@ -33,7 +33,7 @@ object ArchiveFileExt {
   */
 case class AlternateDataStream(`type`: String = AlternateDataStream.`type`,
                                name: String,
-                               hashes: Option[List[HashesType]] = None,
+                               hashes: Option[Map[String, String]] = None,
                                size: Option[Int] = None)
 
 object AlternateDataStream {
@@ -111,7 +111,7 @@ case class WindowPEOptionalHeaderType(`type`: String = WindowPEOptionalHeaderTyp
                                       size_of_heap_commit: Option[Int] = None,
                                       loader_flags_hex: Option[String] = None,
                                       number_of_rva_and_sizes: Option[Int] = None,
-                                      hashes: Option[HashesType] = None)
+                                      hashes: Option[Map[String, String]] = None)
 
 object WindowPEOptionalHeaderType {
   val `type` = "windows-pe-optional-header-type"
@@ -124,7 +124,7 @@ case class WindowPESectionType(`type`: String = WindowPEOptionalHeaderType.`type
                                name: String,
                                size: Option[Int] = None,
                                entropy: Option[Float] = None,
-                               hashes: Option[HashesType] = None)
+                               hashes: Option[Map[String, String]] = None)
 
 object WindowPESectionType {
   val `type` = "windows-pe-section"
@@ -143,7 +143,7 @@ case class WindowPEBinExt(`type`: String = WindowPEBinExt.`type`,
                           number_of_symbols: Option[Int] = None,
                           size_of_optional_header: Option[Int] = None,
                           characteristics_hex: Option[String] = None,
-                          file_header_hashes: Option[HashesType] = None,
+                          file_header_hashes: Option[Map[String, String]] = None,
                           optional_header: Option[WindowPEOptionalHeaderType] = None,
                           sections: Option[List[WindowPESectionType]] = None) extends Extension
 

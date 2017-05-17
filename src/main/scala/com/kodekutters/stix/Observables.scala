@@ -1,11 +1,12 @@
 package com.kodekutters.stix
 
+import io.circe.syntax._
 import io.circe.{Json, _}
+import io.circe.generic.auto._
 import io.circe.Decoder._
 import io.circe._
 
 import scala.language.implicitConversions
-
 
 /**
   * STIX-2.1 protocol, Cyber Observable Objects
@@ -18,31 +19,6 @@ import scala.language.implicitConversions
   * Author: R. Wathelet May 2017
   *
   */
-
-/**
-  * The Hashes type represents 1 or more cryptographic hashes, as a special set of key/value pairs.
-  *
-  * @param kvList a list of (k,v) tuples
-  */
-case class HashesType(kvList: List[Tuple2[String, String]]) {
-
-  def this(kv: Tuple2[String, String]) = this(List(kv))
-
-  def this(kvArgs: Tuple2[String, String]*) = this(kvArgs.toList)
-
-}
-
-object HashesType {
-
-  implicit val encodeHashesType: Encoder[HashesType] = (hash: HashesType) => {
-    val theList = for {h <- hash.kvList} yield h._1 -> Json.fromString(h._2)
-    Json.obj(theList: _*)
-  }
-
-  implicit val decodeHashesType: Decoder[HashesType] = (c: HCursor) =>
-    for {s <- c.value.as[List[Tuple2[String, String]]]} yield new HashesType(s)
-
-}
 
 /**
   * common properties of Observables
@@ -61,14 +37,14 @@ case class Artifact private(`type`: String = Artifact.`type`,
                             mime_type: Option[String] = None,
                             payload_bin: Option[String] = None, // base64-encoded string
                             url: Option[String] = None,
-                            hashes: Option[HashesType] = None,
+                            hashes: Option[Map[String, String]] = None,
                             description: Option[String] = None,
                             extensions: Option[Map[String, Extension]] = None) extends Observable {
 
   def this(mime_type: Option[String], payload_bin: String, description: Option[String], extensions: Option[Map[String, Extension]]) =
     this(Artifact.`type`, mime_type, Option(payload_bin), None, None, description, extensions)
 
-  def this(mime_type: Option[String], url: String, hashes: HashesType, description: Option[String], extensions: Option[Map[String, Extension]]) =
+  def this(mime_type: Option[String], url: String, hashes: Map[String, String], description: Option[String], extensions: Option[Map[String, Extension]]) =
     this(Artifact.`type`, mime_type, None, Option(url), Option(hashes), description, extensions)
 
 }
@@ -177,7 +153,7 @@ object EmailMessage {
   * The File Object represents the properties of a file.
   */
 case class File(`type`: String = File.`type`,
-                hashes: Option[HashesType] = None,
+                hashes: Option[Map[String, String]] = None,
                 size: Option[Int] = None,
                 name: Option[String] = None,
                 name_enc: Option[String] = None,
@@ -411,7 +387,7 @@ object X509V3ExtenstionsType {
   */
 case class X509Certificate(`type`: String = X509Certificate.`type`,
                            is_self_signed: Option[Boolean] = None,
-                           hashes: Option[HashesType] = None,
+                           hashes: Option[Map[String, String]] = None,
                            version: Option[String] = None,
                            serial_number: Option[String] = None,
                            signature_algorithm: Option[String] = None,
@@ -430,3 +406,65 @@ object X509Certificate {
   val `type` = "x509-certificate"
 }
 
+/**
+  * STIX Cyber Observables document
+  */
+object Observable {
+
+  import Timestamp.decodeTimestamp
+  import Timestamp.encodeTimestamp
+  import Identifier.decodeIdentifier
+  import Identifier.encodeIdentifier
+  import MarkingObject.decodeMarkingObject
+  import MarkingObject.encodeMarkingObject
+
+  implicit val decodeStixObj: Decoder[Observable] = Decoder.instance(c =>
+    c.downField("type").as[String].right.flatMap {
+      case Artifact.`type` => c.as[Artifact]
+      case AutonomousSystem.`type` => c.as[AutonomousSystem]
+      case Directory.`type` => c.as[Directory]
+      case DomainName.`type` => c.as[DomainName]
+      case EmailAddress.`type` => c.as[EmailAddress]
+      case EmailMessage.`type` => c.as[EmailMessage]
+      case File.`type` => c.as[File]
+      case IPv4Address.`type` => c.as[IPv4Address]
+      case IPv6Address.`type` => c.as[IPv6Address]
+      case MACAddress.`type` => c.as[MACAddress]
+      case Mutex.`type` => c.as[Mutex]
+      case NetworkTraffic.`type` => c.as[NetworkTraffic]
+      case Process.`type` => c.as[Process]
+      case Software.`type` => c.as[Software]
+      case URL.`type` => c.as[URL]
+      case UserAccount.`type` => c.as[UserAccount]
+      case WindowsRegistryKey.`type` => c.as[WindowsRegistryKey]
+      case X509Certificate.`type` => c.as[X509Certificate]
+      //  case err => c.as[Error]
+    })
+
+  implicit val encodeStixObj: Encoder[Observable] = new Encoder[Observable] {
+    final def apply(sdo: Observable): Json = {
+      sdo match {
+        case s: Artifact => sdo.asInstanceOf[Artifact].asJson
+        case s: AutonomousSystem => sdo.asInstanceOf[AutonomousSystem].asJson
+        case s: Directory => sdo.asInstanceOf[Directory].asJson
+        case s: DomainName => sdo.asInstanceOf[DomainName].asJson
+        case s: EmailAddress => sdo.asInstanceOf[EmailAddress].asJson
+        case s: EmailMessage => sdo.asInstanceOf[EmailMessage].asJson
+        case s: File => sdo.asInstanceOf[File].asJson
+        case s: IPv4Address => sdo.asInstanceOf[IPv4Address].asJson
+        case s: IPv6Address => sdo.asInstanceOf[IPv6Address].asJson
+        case s: MACAddress => sdo.asInstanceOf[MACAddress].asJson
+        case s: Mutex => sdo.asInstanceOf[Mutex].asJson
+        case s: NetworkTraffic => sdo.asInstanceOf[NetworkTraffic].asJson
+        case s: Process => sdo.asInstanceOf[Process].asJson
+        case s: Software => sdo.asInstanceOf[Software].asJson
+        case s: URL => sdo.asInstanceOf[URL].asJson
+        case s: UserAccount => sdo.asInstanceOf[UserAccount].asJson
+        case s: WindowsRegistryKey => sdo.asInstanceOf[WindowsRegistryKey].asJson
+        case s: X509Certificate => sdo.asInstanceOf[X509Certificate].asJson
+        case _ => Json.Null
+      }
+    }
+  }
+
+}

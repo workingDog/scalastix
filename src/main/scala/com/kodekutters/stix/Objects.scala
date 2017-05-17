@@ -642,7 +642,7 @@ object StixObj {
 
   implicit val encodeStixObj: Encoder[StixObj] = new Encoder[StixObj] {
     final def apply(sdo: StixObj): Json = {
-      val jsVal: Json = sdo match {
+      sdo match {
         case s: AttackPattern => sdo.asInstanceOf[AttackPattern].asJson
         case s: Identity => sdo.asInstanceOf[Identity].asJson
         case s: Campaign => sdo.asInstanceOf[Campaign].asJson
@@ -661,7 +661,6 @@ object StixObj {
         case s: LanguageContent => sdo.asInstanceOf[LanguageContent].asJson
         case _ => Json.Null
       }
-      jsVal
     }
   }
 

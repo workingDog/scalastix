@@ -29,7 +29,9 @@ val circeVersion = "0.8.0"
 //)
 
 // for scala
-javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
+fork := true
+javaOptions in compile += "-Xmx8G"
+javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G")
 
 libraryDependencies ++= Seq(
   "io.circe" %% "circe-core" % circeVersion,

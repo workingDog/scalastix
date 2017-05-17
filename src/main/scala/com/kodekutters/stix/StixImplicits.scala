@@ -34,6 +34,8 @@ object StixImplicits {
 
   implicit def ListOfAltDataStreamToOp(value: List[AlternateDataStream]): Option[List[AlternateDataStream]] = Option(value)
 
+  implicit def MapStringToOp(value: Map[String, String]): Option[Map[String, String]] = Option(value)
+
   // ---------------------------------------------------------------------------------------
 
 
