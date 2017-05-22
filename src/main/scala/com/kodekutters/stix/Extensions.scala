@@ -8,11 +8,11 @@ import io.circe._
 
 import scala.language.implicitConversions
 
-
 /**
-  * represents a Predefined Cyber Observable Object Extension
+  * represents a Predefined Cyber Observable Object Extension.
+  * To create a Custom Object Extension, simply extends this trait
   */
-sealed trait Extension {
+trait Extension {
   val `type`: String
 }
 
@@ -179,4 +179,3 @@ object Extension {
   }
 
 }
-

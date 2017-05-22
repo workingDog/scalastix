@@ -13,7 +13,7 @@ import io.circe.Printer
   */
 object Example1 {
   def main(args: Array[String]): Unit = {
-    // removes the output of "null" for empty fields
+    // to remove the output of "null" for empty fields
     implicit val myPrinter = Printer.spaces2.copy(dropNullKeys = true)
 
     // read a STIX bundle from a file
@@ -34,7 +34,5 @@ object Example1 {
         allPat.foreach(x => println("\n-----> allPat: " + x))
         allPat.foreach(x => println("\n-----> allPat json: " + x.asJson))
     }
-    // alternatively
-    // decode[Bundle](jsondoc).getOrElse(Bundle(List.empty))
   }
 }

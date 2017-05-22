@@ -1,6 +1,7 @@
 package com.kodekutters.stix
 
-import java.time.{ZoneId, ZonedDateTime}
+import org.threeten.bp._
+
 import java.util.UUID
 
 import io.circe.syntax._
@@ -54,7 +55,6 @@ object Identifier {
 
   implicit val decodeIdentifier: Decoder[Identifier] = (c: HCursor) => for {s <- c.value.as[String]} yield stringToIdentifier(s)
 
-  // todo catch errors
   def stringToIdentifier(s: String): Identifier = {
     val part = s.split("--")
     new Identifier(part(0), part(1))
@@ -81,10 +81,67 @@ object KillChainPhase {
 }
 
 //-----------------------------------------------------------------------
+//------------------Custom Object Properties-----------------------------
+//-----------------------------------------------------------------------
+
+/**
+  * represents a Custom Properties that can be added to any object or observable.
+  * A map/dictionary of key,values, where the keys should start with "x_"
+  * Note: an array or map values must be of an homogeneous type.
+  */
+case class Custom(value: Map[String, Any])
+
+object Custom {
+
+  implicit val encodeCustom: Encoder[Custom] = (ext: Custom) => {
+    val theSet = for {key <- ext.value.keySet} yield {
+      ext.value(key) match {
+        case s: String => key -> s.asJson
+        case s: Double => key -> s.asJson
+        case s: Int => key -> s.asJson
+        case s: Boolean => key -> s.asJson
+        case s: Array[String] => key -> s.asJson
+        case s: Array[Double] => key -> s.asJson
+        case s: Array[Int] => key -> s.asJson
+        case s: Array[Boolean] => key -> s.asJson
+        case s: Map[String, String] => key -> s.asJson
+        case s: Map[String, Double] => key -> s.asJson
+        case s: Map[String, Int] => key -> s.asJson
+        case s: Map[String, Boolean] => key -> s.asJson
+        case s => key -> s.toString.asJson
+      }
+    }
+    Json.obj(theSet.toList: _*)
+  }
+
+  implicit val decodeCustom: Decoder[Custom] = (c: HCursor) => {
+    val valueOpt = c match {
+      case x if x.as[Map[String, String]].isRight => x.as[Map[String, String]].toOption
+      case x if x.as[Map[String, Double]].isRight => x.as[Map[String, Double]].toOption
+      case x if x.as[Map[String, Int]].isRight => x.as[Map[String, Int]].toOption
+      case x if x.as[Map[String, Boolean]].isRight => x.as[Map[String, Boolean]].toOption
+      case x if x.as[Map[String, Array[String]]].isRight => x.as[Map[String, Array[String]]].toOption
+      case x if x.as[Map[String, Array[Double]]].isRight => x.as[Map[String, Array[Double]]].toOption
+      case x if x.as[Map[String, Array[Int]]].isRight => x.as[Map[String, Array[Int]]].toOption
+      case x if x.as[Map[String, Array[Boolean]]].isRight => x.as[Map[String, Array[Boolean]]].toOption
+      case x if x.as[Map[String, Map[String, String]]].isRight => x.as[Map[String, Map[String, String]]].toOption
+      case x if x.as[Map[String, Map[String, Double]]].isRight => x.as[Map[String, Map[String, Double]]].toOption
+      case x if x.as[Map[String, Map[String, Int]]].isRight => x.as[Map[String, Map[String, Int]]].toOption
+      case x if x.as[Map[String, Map[String, Boolean]]].isRight => x.as[Map[String, Map[String, Boolean]]].toOption
+      case _ => None
+    }
+    valueOpt match {
+      case Some(x) => Right(new Custom(x))
+      case None => Left(DecodingFailure("Error in Custom decoding", c.history))
+    }
+  }
+}
+
+//-----------------------------------------------------------------------
 //------------------Marking----------------------------------------------
 //-----------------------------------------------------------------------
 
-sealed trait MarkingObject
+trait MarkingObject
 
 /**
   * TLP levels
@@ -153,6 +210,7 @@ object MarkingObject {
       }
     }
   }
+
 }
 
 /**
@@ -167,11 +225,12 @@ case class GranularMarking(selectors: List[String], marking_ref: Option[String] 
 case class ExternalReference(source_name: String, description: Option[String] = None, url: Option[String] = None, external_id: Option[String] = None)
 
 /**
-  * a general STIX object represents the SDOs, SROs, LanguageContent and MarkingDefinition
+  * a general STIX object representing the SDOs, SROs, LanguageContent and MarkingDefinition
   */
-sealed trait StixObj {
+trait StixObj {
   val `type`: String
   val id: Identifier
+  val x_custom: Option[Custom]
 }
 
 /**
@@ -185,7 +244,8 @@ case class MarkingDefinition(`type`: String = MarkingDefinition.`type`,
                              external_references: Option[List[ExternalReference]] = None,
                              object_marking_refs: Option[List[Identifier]] = None,
                              granular_markings: Option[List[GranularMarking]] = None,
-                             created_by_ref: Option[Identifier] = None) extends StixObj
+                             created_by_ref: Option[Identifier] = None,
+                             x_custom: Option[Custom] = None) extends StixObj
 
 object MarkingDefinition {
   val `type` = "marking-definition"
@@ -198,7 +258,22 @@ object MarkingDefinition {
 /**
   * common properties of all SDO and SRO
   */
-sealed trait SDO extends StixObj {
+trait SDO extends StixObj {
+  val name: String
+  val created: Timestamp
+  val modified: Timestamp
+  val created_by_ref: Option[Identifier]
+  val revoked: Option[Boolean]
+  val labels: Option[List[String]]
+  val confidence: Option[Int]
+  val external_references: Option[List[ExternalReference]]
+  val lang: Option[String]
+  val object_marking_refs: Option[List[Identifier]]
+  val granular_markings: Option[List[GranularMarking]]
+}
+
+// for testing no "name" property here for ObservedData
+trait SDO2 extends StixObj {
   val created: Timestamp
   val modified: Timestamp
   val created_by_ref: Option[Identifier]
@@ -228,7 +303,8 @@ case class AttackPattern(`type`: String = AttackPattern.`type`,
                          lang: Option[String] = None,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
-                         created_by_ref: Option[Identifier] = None) extends SDO
+                         created_by_ref: Option[Identifier] = None,
+                         x_custom: Option[Custom] = None) extends SDO
 
 object AttackPattern {
   val `type` = "attack-pattern"
@@ -242,7 +318,8 @@ case class Identity(`type`: String = Identity.`type`,
                     id: Identifier = Identifier(Identity.`type`),
                     created: Timestamp = Timestamp.now(),
                     modified: Timestamp = Timestamp.now(),
-                    name: String, identity_class: String,
+                    name: String,
+                    identity_class: String,
                     sectors: Option[List[String]] = None,
                     contact_information: Option[String] = None,
                     description: Option[String] = None,
@@ -253,7 +330,8 @@ case class Identity(`type`: String = Identity.`type`,
                     lang: Option[String] = None,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
-                    created_by_ref: Option[Identifier] = None) extends SDO
+                    created_by_ref: Option[Identifier] = None,
+                    x_custom: Option[Custom] = None) extends SDO
 
 object Identity {
   val `type` = "identity"
@@ -281,7 +359,8 @@ case class Campaign(`type`: String = Campaign.`type`,
                     lang: Option[String] = None,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
-                    created_by_ref: Option[Identifier] = None) extends SDO
+                    created_by_ref: Option[Identifier] = None,
+                    x_custom: Option[Custom] = None) extends SDO
 
 object Campaign {
   val `type` = "campaign"
@@ -303,7 +382,8 @@ case class CourseOfAction(`type`: String = CourseOfAction.`type`,
                           lang: Option[String] = None,
                           object_marking_refs: Option[List[Identifier]] = None,
                           granular_markings: Option[List[GranularMarking]] = None,
-                          created_by_ref: Option[Identifier] = None) extends SDO
+                          created_by_ref: Option[Identifier] = None,
+                          x_custom: Option[Custom] = None) extends SDO
 
 object CourseOfAction {
   val `type` = "course-of-action"
@@ -312,25 +392,54 @@ object CourseOfAction {
 /**
   * Indicators contain a pattern that can be used to detect suspicious or malicious cyber activity.
   */
-case class Indicator(`type`: String = Indicator.`type`,
-                     id: Identifier = Identifier(Indicator.`type`),
-                     created: Timestamp = Timestamp.now(),
-                     modified: Timestamp = Timestamp.now(),
-                     pattern: String, valid_from: Timestamp, valid_until: Timestamp,
-                     kill_chain_phases: Option[KillChainPhase] = None,
-                     labels: Option[List[String]] = None, // todo ---> should not be optional
-                     name: Option[String] = None,
-                     description: Option[String] = None,
-                     revoked: Option[Boolean] = None,
-                     confidence: Option[Int] = None,
-                     external_references: Option[List[ExternalReference]] = None,
-                     lang: Option[String] = None,
-                     object_marking_refs: Option[List[Identifier]] = None,
-                     granular_markings: Option[List[GranularMarking]] = None,
-                     created_by_ref: Option[Identifier] = None) extends SDO
+case class Indicator private(`type`: String,
+                             id: Identifier,
+                             created: Timestamp,
+                             modified: Timestamp,
+                             pattern: String,
+                             valid_from: Timestamp,
+                             valid_until: Timestamp,
+                             name: String,  // todo should be optional
+                             labels: Option[List[String]], // todo ---> should not be optional
+                             kill_chain_phases: Option[KillChainPhase],
+                             description: Option[String],
+                             revoked: Option[Boolean],
+                             confidence: Option[Int],
+                             external_references: Option[List[ExternalReference]],
+                             lang: Option[String],
+                             object_marking_refs: Option[List[Identifier]],
+                             granular_markings: Option[List[GranularMarking]],
+                             created_by_ref: Option[Identifier],
+                             x_custom: Option[Custom]) extends SDO
 
 object Indicator {
   val `type` = "indicator"
+
+  /**
+    * this is the only way of constructing an Indicator, such that labels are required.
+    */
+  def apply(`type`: String = Indicator.`type`,
+            id: Identifier = Identifier(Indicator.`type`),
+            created: Timestamp = Timestamp.now(),
+            modified: Timestamp = Timestamp.now(),
+            pattern: String,
+            valid_from: Timestamp,
+            valid_until: Timestamp,
+            name: Option[String],
+            labels: List[String],
+            kill_chain_phases: Option[KillChainPhase] = None,
+            description: Option[String] = None,
+            revoked: Option[Boolean] = None,
+            confidence: Option[Int] = None,
+            external_references: Option[List[ExternalReference]] = None,
+            lang: Option[String] = None,
+            object_marking_refs: Option[List[Identifier]] = None,
+            granular_markings: Option[List[GranularMarking]] = None,
+            created_by_ref: Option[Identifier] = None,
+            x_custom: Option[Custom] = None) =
+    new Indicator(`type`, id, created, modified, pattern, valid_from, valid_until, name.getOrElse(""),
+      Option(labels), kill_chain_phases, description, revoked, confidence, external_references, lang,
+      object_marking_refs, granular_markings, created_by_ref, x_custom)
 }
 
 /**
@@ -357,7 +466,8 @@ case class IntrusionSet(`type`: String = IntrusionSet.`type`,
                         lang: Option[String] = None,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
-                        created_by_ref: Option[Identifier] = None) extends SDO
+                        created_by_ref: Option[Identifier] = None,
+                        x_custom: Option[Custom] = None) extends SDO
 
 object IntrusionSet {
   val `type` = "intrusion-set"
@@ -384,7 +494,8 @@ case class Malware(`type`: String = Malware.`type`,
                    lang: Option[String] = None,
                    object_marking_refs: Option[List[Identifier]] = None,
                    granular_markings: Option[List[GranularMarking]] = None,
-                   created_by_ref: Option[Identifier] = None) extends SDO
+                   created_by_ref: Option[Identifier] = None,
+                   x_custom: Option[Custom] = None) extends SDO
 
 object Malware {
   val `type` = "malware"
@@ -394,12 +505,14 @@ object Malware {
   * Observed Data conveys information that was observed on systems and networks using the Cyber Observable specification
   * defined in parts 3 and 4 of this specification.
   */
+// todo name: String
 case class ObservedData(`type`: String = ObservedData.`type`,
                         id: Identifier = Identifier(ObservedData.`type`),
                         created: Timestamp = Timestamp.now(),
                         modified: Timestamp = Timestamp.now(),
-                        name: String,
-                        first_observed: Timestamp, last_observed: Timestamp, number_observed: Int,
+                        first_observed: Timestamp,
+                        last_observed: Timestamp,
+                        number_observed: Int,
                         objects: Map[String, Observable],
                         description: Option[String] = None,
                         revoked: Option[Boolean] = None,
@@ -409,7 +522,8 @@ case class ObservedData(`type`: String = ObservedData.`type`,
                         lang: Option[String] = None,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
-                        created_by_ref: Option[Identifier] = None) extends SDO
+                        created_by_ref: Option[Identifier] = None,
+                        x_custom: Option[Custom] = None) extends SDO2
 
 object ObservedData {
   val `type` = "observed-data"
@@ -423,7 +537,8 @@ case class Report(`type`: String = Report.`type`,
                   id: Identifier = Identifier(Report.`type`),
                   created: Timestamp = Timestamp.now(),
                   modified: Timestamp = Timestamp.now(),
-                  name: String, published: Timestamp,
+                  name: String,
+                  published: Timestamp,
                   object_refs: Option[List[Identifier]] = None,
                   description: Option[String] = None,
                   revoked: Option[Boolean] = None,
@@ -433,7 +548,8 @@ case class Report(`type`: String = Report.`type`,
                   lang: Option[String] = None,
                   object_marking_refs: Option[List[Identifier]] = None,
                   granular_markings: Option[List[GranularMarking]] = None,
-                  created_by_ref: Option[Identifier] = None) extends SDO
+                  created_by_ref: Option[Identifier] = None,
+                  x_custom: Option[Custom] = None) extends SDO
 
 object Report {
   val `type` = "report"
@@ -463,7 +579,8 @@ case class ThreatActor(`type`: String = ThreatActor.`type`,
                        lang: Option[String] = None,
                        object_marking_refs: Option[List[Identifier]] = None,
                        granular_markings: Option[List[GranularMarking]] = None,
-                       created_by_ref: Option[Identifier] = None) extends SDO
+                       created_by_ref: Option[Identifier] = None,
+                       x_custom: Option[Custom] = None) extends SDO
 
 object ThreatActor {
   val `type` = "threat-actor"
@@ -487,7 +604,8 @@ case class Tool(`type`: String = Tool.`type`,
                 lang: Option[String] = None,
                 object_marking_refs: Option[List[Identifier]] = None,
                 granular_markings: Option[List[GranularMarking]] = None,
-                created_by_ref: Option[Identifier] = None) extends SDO
+                created_by_ref: Option[Identifier] = None,
+                x_custom: Option[Custom] = None) extends SDO
 
 object Tool {
   val `type` = "tool"
@@ -510,7 +628,8 @@ case class Vulnerability(`type`: String = Vulnerability.`type`,
                          lang: Option[String] = None,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
-                         created_by_ref: Option[Identifier] = None) extends SDO
+                         created_by_ref: Option[Identifier] = None,
+                         x_custom: Option[Custom] = None) extends SDO
 
 object Vulnerability {
   val `type` = "vulnerability"
@@ -520,7 +639,18 @@ object Vulnerability {
 //------------------Relationship objects----------------------------------
 //-----------------------------------------------------------------------
 
-sealed trait SRO
+trait SRO extends StixObj {
+  val created: Timestamp
+  val modified: Timestamp
+  val created_by_ref: Option[Identifier]
+  val revoked: Option[Boolean]
+  val labels: Option[List[String]]
+  val confidence: Option[Int]
+  val external_references: Option[List[ExternalReference]]
+  val lang: Option[String]
+  val object_marking_refs: Option[List[Identifier]]
+  val granular_markings: Option[List[GranularMarking]]
+}
 
 /**
   * The Relationship object is used to link together two SDOs in order to describe how
@@ -542,7 +672,8 @@ case class Relationship(`type`: String = Relationship.`type`,
                         lang: Option[String] = None,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
-                        created_by_ref: Option[Identifier] = None) extends SDO with SRO {
+                        created_by_ref: Option[Identifier] = None,
+                        x_custom: Option[Custom] = None) extends SRO {
 
   def this(source_ref: Identifier, relationship_type: String, target_ref: Identifier) =
     this(Relationship.`type`, Identifier(Relationship.`type`), Timestamp.now(), Timestamp.now(),
@@ -560,8 +691,9 @@ case class Sighting(`type`: String = Sighting.`type`,
                     id: Identifier = Identifier(Sighting.`type`),
                     created: Timestamp = Timestamp.now(),
                     modified: Timestamp = Timestamp.now(),
-                    relationship_type: String, sighting_of_ref: Identifier,
-                    first_seen: Option[Timestamp] = None, last_seen: Option[Timestamp] = None,
+                    sighting_of_ref: Identifier,
+                    first_seen: Option[Timestamp] = None,
+                    last_seen: Option[Timestamp] = None,
                     count: Option[Int] = None,
                     observed_data_refs: Option[List[Identifier]] = None,
                     where_sighted_refs: Option[List[Identifier]] = None,
@@ -574,7 +706,8 @@ case class Sighting(`type`: String = Sighting.`type`,
                     lang: Option[String] = None,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
-                    created_by_ref: Option[Identifier] = None) extends SDO with SRO
+                    created_by_ref: Option[Identifier] = None,
+                    x_custom: Option[Custom] = None) extends SRO
 
 object Sighting {
   val `type` = "sighting"
@@ -584,7 +717,6 @@ object Sighting {
 //------------------Language content-------------------------------------
 //-----------------------------------------------------------------------
 
-// todo
 /**
   * The language-content object represents text content for STIX Objects represented in other languages.
   */
@@ -600,7 +732,8 @@ case class LanguageContent(`type`: String = LanguageContent.`type`,
                            labels: Option[List[String]] = None,
                            external_references: Option[List[ExternalReference]] = None,
                            object_marking_refs: Option[List[Identifier]] = None,
-                           granular_markings: Option[List[GranularMarking]] = None) extends StixObj
+                           granular_markings: Option[List[GranularMarking]] = None,
+                           x_custom: Option[Custom] = None) extends StixObj
 
 object LanguageContent {
   val `type` = "language-content"
@@ -680,6 +813,7 @@ case class Bundle(`type`: String = Bundle.`type`,
   def this(objects: List[StixObj]) = this(Bundle.`type`, Identifier(Bundle.`type`), Bundle.spec_version, objects)
 
   def this(objects: StixObj*) = this(objects.toList)
+
 }
 
 object Bundle {
@@ -690,4 +824,5 @@ object Bundle {
 
   def apply(objects: StixObj*) = new Bundle(objects.toList)
 }
+
 

@@ -12,7 +12,11 @@ import io.circe.parser.parse
   */
 object Example2 {
   def main(args: Array[String]): Unit = {
-    // removes the output of "null" for empty fields
+    test()
+  }
+
+  def test() = {
+    // to remove the output of "null" for empty fields
     implicit val myPrinter = Printer.spaces2.copy(dropNullKeys = true)
 
     // create a sdo

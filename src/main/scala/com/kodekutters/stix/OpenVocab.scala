@@ -192,10 +192,27 @@ object encryption_algo_ov extends OpenVocab {
   val ChaCha20_Poly1305 = "ChaCha20-Poly1305"
   val ChaCha20 = "ChaCha20"
   val DES_CBC = "DES-CBC"
-  val DES3_CBC = "3DES-CBC"  // <---- 3DES_CBC
+  val DES3_CBC = "3DES-CBC" // <---- 3DES_CBC
   val DES_ECB = "DES-ECB"
-  val DES3_ECB = "3DES-ECB"  // <---- 3DES_ECB
+  val DES3_ECB = "3DES-ECB" // <---- 3DES_ECB
   val CAST128_CBC = "CAST128-CBC"
   val RSA = "RSA"
   val DSA = "DSA"
+}
+//---------------------------------------------------------------------------
+//-------------------for Relationships---------------------------------------
+//---------------------------------------------------------------------------
+
+// todo not an OpenVocab
+object relationship_type extends OpenVocab {
+  val uses = "uses"
+  val targets = "targets"
+  val indicates = "indicates"
+  val mitigates = "mitigates"
+  val attributed_to = "attributed-to"
+  val variant_of = "variant-of"
+  val duplicate_of = "duplicate-of"
+  val derived_from = "derived-from"
+  val related_to = "related-to"
+  val impersonates = "impersonates"
 }
