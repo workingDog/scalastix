@@ -36,6 +36,8 @@ object StixImplicits {
 
   implicit def MapStringToOp(value: Map[String, String]): Option[Map[String, String]] = Option(value)
 
+  implicit def ListOfKillChainPhaseToOp(value: List[KillChainPhase]): Option[List[KillChainPhase]] = Option(value)
+
   // ---------------------------------------------------------------------------------------
 
 

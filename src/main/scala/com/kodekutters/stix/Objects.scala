@@ -69,9 +69,8 @@ object Identifier {
   * The kill-chain-phase represents a phase in a kill chain, which describes the various phases
   * an attacker may undertake in order to achieve their objectives.
   */
-case class KillChainPhase(`type`: String = KillChainPhase.`type`, kill_chain_name: String, phase_name: String) {
-
-  def this(kill_chain_name: String, phase_name: String) = this(KillChainPhase.`type`, kill_chain_name, phase_name)
+case class KillChainPhase(kill_chain_name: String, phase_name: String) {
+  val `type` = KillChainPhase.`type`
 }
 
 object KillChainPhase {
@@ -286,6 +285,21 @@ trait SDO2 extends StixObj {
   val granular_markings: Option[List[GranularMarking]]
 }
 
+// for testing option name for Indicator
+trait SDO3 extends StixObj {
+  val name: Option[String]
+  val created: Timestamp
+  val modified: Timestamp
+  val created_by_ref: Option[Identifier]
+  val revoked: Option[Boolean]
+  val labels: Option[List[String]]
+  val confidence: Option[Int]
+  val external_references: Option[List[ExternalReference]]
+  val lang: Option[String]
+  val object_marking_refs: Option[List[Identifier]]
+  val granular_markings: Option[List[GranularMarking]]
+}
+
 /**
   * Attack Patterns are a type of TTP that describe ways that adversaries attempt to compromise targets.
   */
@@ -295,7 +309,7 @@ case class AttackPattern(`type`: String = AttackPattern.`type`,
                          modified: Timestamp = Timestamp.now(),
                          name: String,
                          description: Option[String] = None,
-                         kill_chain_phases: Option[KillChainPhase] = None,
+                         kill_chain_phases: Option[List[KillChainPhase]] = None,
                          revoked: Option[Boolean] = None,
                          labels: Option[List[String]] = None,
                          confidence: Option[Int] = None,
@@ -392,54 +406,28 @@ object CourseOfAction {
 /**
   * Indicators contain a pattern that can be used to detect suspicious or malicious cyber activity.
   */
-case class Indicator private(`type`: String,
-                             id: Identifier,
-                             created: Timestamp,
-                             modified: Timestamp,
-                             pattern: String,
-                             valid_from: Timestamp,
-                             valid_until: Timestamp,
-                             name: String,  // todo should be optional
-                             labels: Option[List[String]], // todo ---> should not be optional
-                             kill_chain_phases: Option[KillChainPhase],
-                             description: Option[String],
-                             revoked: Option[Boolean],
-                             confidence: Option[Int],
-                             external_references: Option[List[ExternalReference]],
-                             lang: Option[String],
-                             object_marking_refs: Option[List[Identifier]],
-                             granular_markings: Option[List[GranularMarking]],
-                             created_by_ref: Option[Identifier],
-                             x_custom: Option[Custom]) extends SDO
+case class Indicator(`type`: String = Indicator.`type`,
+                     id: Identifier = Identifier(Indicator.`type`),
+                     created: Timestamp = Timestamp.now(),
+                     modified: Timestamp = Timestamp.now(),
+                     pattern: String,
+                     valid_from: Timestamp,
+                     name: Option[String] = None, // todo should be optional
+                     valid_until: Option[Timestamp] = None,
+                     labels: Option[List[String]] = None, // todo ---> should not be optional
+                     kill_chain_phases: Option[List[KillChainPhase]] = None,
+                     description: Option[String] = None,
+                     revoked: Option[Boolean] = None,
+                     confidence: Option[Int] = None,
+                     external_references: Option[List[ExternalReference]] = None,
+                     lang: Option[String] = None,
+                     object_marking_refs: Option[List[Identifier]] = None,
+                     granular_markings: Option[List[GranularMarking]] = None,
+                     created_by_ref: Option[Identifier] = None,
+                     x_custom: Option[Custom] = None) extends SDO3
 
 object Indicator {
   val `type` = "indicator"
-
-  /**
-    * this is the only way of constructing an Indicator, such that labels are required.
-    */
-  def apply(`type`: String = Indicator.`type`,
-            id: Identifier = Identifier(Indicator.`type`),
-            created: Timestamp = Timestamp.now(),
-            modified: Timestamp = Timestamp.now(),
-            pattern: String,
-            valid_from: Timestamp,
-            valid_until: Timestamp,
-            name: Option[String],
-            labels: List[String],
-            kill_chain_phases: Option[KillChainPhase] = None,
-            description: Option[String] = None,
-            revoked: Option[Boolean] = None,
-            confidence: Option[Int] = None,
-            external_references: Option[List[ExternalReference]] = None,
-            lang: Option[String] = None,
-            object_marking_refs: Option[List[Identifier]] = None,
-            granular_markings: Option[List[GranularMarking]] = None,
-            created_by_ref: Option[Identifier] = None,
-            x_custom: Option[Custom] = None) =
-    new Indicator(`type`, id, created, modified, pattern, valid_from, valid_until, name.getOrElse(""),
-      Option(labels), kill_chain_phases, description, revoked, confidence, external_references, lang,
-      object_marking_refs, granular_markings, created_by_ref, x_custom)
 }
 
 /**
@@ -486,7 +474,7 @@ case class Malware(`type`: String = Malware.`type`,
                    modified: Timestamp = Timestamp.now(),
                    name: String,
                    description: Option[String] = None,
-                   kill_chain_phases: Option[KillChainPhase] = None,
+                   kill_chain_phases: Option[List[KillChainPhase]],
                    revoked: Option[Boolean] = None,
                    labels: Option[List[String]] = None,
                    confidence: Option[Int] = None,
@@ -566,9 +554,10 @@ case class ThreatActor(`type`: String = ThreatActor.`type`,
                        name: String,
                        labels: Option[List[String]] = None, // todo ---> should not be optional
                        description: Option[String] = None,
-                       aliases: Option[String] = None,
+                       aliases: Option[List[String]] = None,
                        roles: Option[List[String]] = None,
                        goals: Option[List[String]] = None,
+                       sophistication: Option[String] = None,
                        resource_level: Option[String] = None,
                        primary_motivation: Option[String] = None,
                        secondary_motivations: Option[List[String]] = None,

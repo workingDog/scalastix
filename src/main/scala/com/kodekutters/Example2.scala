@@ -22,7 +22,7 @@ object Example2 {
     // create a sdo
     val attackPattern = new AttackPattern(
       name = "Spear Phishing",
-      kill_chain_phases = KillChainPhase("Kill", "Bill"),
+      kill_chain_phases = List(KillChainPhase("Kill", "Bill")),
       external_references = List(ExternalReference("a-source-name")),
       object_marking_refs = List(Identifier("campaign")))
 
