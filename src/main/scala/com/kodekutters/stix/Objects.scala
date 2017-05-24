@@ -1,7 +1,6 @@
 package com.kodekutters.stix
 
 import org.threeten.bp._
-
 import java.util.UUID
 
 import io.circe.syntax._
@@ -77,63 +76,6 @@ object KillChainPhase {
   val `type` = "kill-chain-phase"
 
   def apply(kill_chain_name: String, phase_name: String) = new KillChainPhase(kill_chain_name, phase_name)
-}
-
-//-----------------------------------------------------------------------
-//------------------Custom Object Properties-----------------------------
-//-----------------------------------------------------------------------
-
-/**
-  * represents a Custom Properties that can be added to any object or observable.
-  * A map/dictionary of key,values, where the keys should start with "x_"
-  * Note: an array or map values must be of an homogeneous type.
-  */
-case class Custom(value: Map[String, Any])
-
-object Custom {
-
-  implicit val encodeCustom: Encoder[Custom] = (ext: Custom) => {
-    val theSet = for {key <- ext.value.keySet} yield {
-      ext.value(key) match {
-        case s: String => key -> s.asJson
-        case s: Double => key -> s.asJson
-        case s: Int => key -> s.asJson
-        case s: Boolean => key -> s.asJson
-        case s: Array[String] => key -> s.asJson
-        case s: Array[Double] => key -> s.asJson
-        case s: Array[Int] => key -> s.asJson
-        case s: Array[Boolean] => key -> s.asJson
-        case s: Map[String, String] => key -> s.asJson
-        case s: Map[String, Double] => key -> s.asJson
-        case s: Map[String, Int] => key -> s.asJson
-        case s: Map[String, Boolean] => key -> s.asJson
-        case s => key -> s.toString.asJson
-      }
-    }
-    Json.obj(theSet.toList: _*)
-  }
-
-  implicit val decodeCustom: Decoder[Custom] = (c: HCursor) => {
-    val valueOpt = c match {
-      case x if x.as[Map[String, String]].isRight => x.as[Map[String, String]].toOption
-      case x if x.as[Map[String, Double]].isRight => x.as[Map[String, Double]].toOption
-      case x if x.as[Map[String, Int]].isRight => x.as[Map[String, Int]].toOption
-      case x if x.as[Map[String, Boolean]].isRight => x.as[Map[String, Boolean]].toOption
-      case x if x.as[Map[String, Array[String]]].isRight => x.as[Map[String, Array[String]]].toOption
-      case x if x.as[Map[String, Array[Double]]].isRight => x.as[Map[String, Array[Double]]].toOption
-      case x if x.as[Map[String, Array[Int]]].isRight => x.as[Map[String, Array[Int]]].toOption
-      case x if x.as[Map[String, Array[Boolean]]].isRight => x.as[Map[String, Array[Boolean]]].toOption
-      case x if x.as[Map[String, Map[String, String]]].isRight => x.as[Map[String, Map[String, String]]].toOption
-      case x if x.as[Map[String, Map[String, Double]]].isRight => x.as[Map[String, Map[String, Double]]].toOption
-      case x if x.as[Map[String, Map[String, Int]]].isRight => x.as[Map[String, Map[String, Int]]].toOption
-      case x if x.as[Map[String, Map[String, Boolean]]].isRight => x.as[Map[String, Map[String, Boolean]]].toOption
-      case _ => None
-    }
-    valueOpt match {
-      case Some(x) => Right(new Custom(x))
-      case None => Left(DecodingFailure("Error in Custom decoding", c.history))
-    }
-  }
 }
 
 //-----------------------------------------------------------------------
@@ -229,7 +171,7 @@ case class ExternalReference(source_name: String, description: Option[String] = 
 trait StixObj {
   val `type`: String
   val id: Identifier
-  val x_custom: Option[Custom]
+  val x_custom: Option[JsonObject]
 }
 
 /**
@@ -244,7 +186,7 @@ case class MarkingDefinition(`type`: String = MarkingDefinition.`type`,
                              object_marking_refs: Option[List[Identifier]] = None,
                              granular_markings: Option[List[GranularMarking]] = None,
                              created_by_ref: Option[Identifier] = None,
-                             x_custom: Option[Custom] = None) extends StixObj
+                             x_custom: Option[JsonObject] = None) extends StixObj
 
 object MarkingDefinition {
   val `type` = "marking-definition"
@@ -318,7 +260,7 @@ case class AttackPattern(`type`: String = AttackPattern.`type`,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
-                         x_custom: Option[Custom] = None) extends SDO
+                         x_custom: Option[JsonObject] = None) extends SDO
 
 object AttackPattern {
   val `type` = "attack-pattern"
@@ -345,7 +287,7 @@ case class Identity(`type`: String = Identity.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    x_custom: Option[Custom] = None) extends SDO
+                    x_custom: Option[JsonObject] = None) extends SDO
 
 object Identity {
   val `type` = "identity"
@@ -374,7 +316,7 @@ case class Campaign(`type`: String = Campaign.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    x_custom: Option[Custom] = None) extends SDO
+                    x_custom: Option[JsonObject] = None) extends SDO
 
 object Campaign {
   val `type` = "campaign"
@@ -397,7 +339,7 @@ case class CourseOfAction(`type`: String = CourseOfAction.`type`,
                           object_marking_refs: Option[List[Identifier]] = None,
                           granular_markings: Option[List[GranularMarking]] = None,
                           created_by_ref: Option[Identifier] = None,
-                          x_custom: Option[Custom] = None) extends SDO
+                          x_custom: Option[JsonObject] = None) extends SDO
 
 object CourseOfAction {
   val `type` = "course-of-action"
@@ -424,7 +366,7 @@ case class Indicator(`type`: String = Indicator.`type`,
                      object_marking_refs: Option[List[Identifier]] = None,
                      granular_markings: Option[List[GranularMarking]] = None,
                      created_by_ref: Option[Identifier] = None,
-                     x_custom: Option[Custom] = None) extends SDO3
+                     x_custom: Option[JsonObject] = None) extends SDO3
 
 object Indicator {
   val `type` = "indicator"
@@ -455,7 +397,7 @@ case class IntrusionSet(`type`: String = IntrusionSet.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        x_custom: Option[Custom] = None) extends SDO
+                        x_custom: Option[JsonObject] = None) extends SDO
 
 object IntrusionSet {
   val `type` = "intrusion-set"
@@ -483,7 +425,7 @@ case class Malware(`type`: String = Malware.`type`,
                    object_marking_refs: Option[List[Identifier]] = None,
                    granular_markings: Option[List[GranularMarking]] = None,
                    created_by_ref: Option[Identifier] = None,
-                   x_custom: Option[Custom] = None) extends SDO
+                   x_custom: Option[JsonObject] = None) extends SDO
 
 object Malware {
   val `type` = "malware"
@@ -511,7 +453,7 @@ case class ObservedData(`type`: String = ObservedData.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        x_custom: Option[Custom] = None) extends SDO2
+                        x_custom: Option[JsonObject] = None) extends SDO2
 
 object ObservedData {
   val `type` = "observed-data"
@@ -537,7 +479,7 @@ case class Report(`type`: String = Report.`type`,
                   object_marking_refs: Option[List[Identifier]] = None,
                   granular_markings: Option[List[GranularMarking]] = None,
                   created_by_ref: Option[Identifier] = None,
-                  x_custom: Option[Custom] = None) extends SDO
+                  x_custom: Option[JsonObject] = None) extends SDO
 
 object Report {
   val `type` = "report"
@@ -569,7 +511,7 @@ case class ThreatActor(`type`: String = ThreatActor.`type`,
                        object_marking_refs: Option[List[Identifier]] = None,
                        granular_markings: Option[List[GranularMarking]] = None,
                        created_by_ref: Option[Identifier] = None,
-                       x_custom: Option[Custom] = None) extends SDO
+                       x_custom: Option[JsonObject] = None) extends SDO
 
 object ThreatActor {
   val `type` = "threat-actor"
@@ -594,7 +536,7 @@ case class Tool(`type`: String = Tool.`type`,
                 object_marking_refs: Option[List[Identifier]] = None,
                 granular_markings: Option[List[GranularMarking]] = None,
                 created_by_ref: Option[Identifier] = None,
-                x_custom: Option[Custom] = None) extends SDO
+                x_custom: Option[JsonObject] = None) extends SDO
 
 object Tool {
   val `type` = "tool"
@@ -618,7 +560,7 @@ case class Vulnerability(`type`: String = Vulnerability.`type`,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
-                         x_custom: Option[Custom] = None) extends SDO
+                         x_custom: Option[JsonObject] = None) extends SDO
 
 object Vulnerability {
   val `type` = "vulnerability"
@@ -662,7 +604,7 @@ case class Relationship(`type`: String = Relationship.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        x_custom: Option[Custom] = None) extends SRO {
+                        x_custom: Option[JsonObject] = None) extends SRO {
 
   def this(source_ref: Identifier, relationship_type: String, target_ref: Identifier) =
     this(Relationship.`type`, Identifier(Relationship.`type`), Timestamp.now(), Timestamp.now(),
@@ -696,7 +638,7 @@ case class Sighting(`type`: String = Sighting.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    x_custom: Option[Custom] = None) extends SRO
+                    x_custom: Option[JsonObject] = None) extends SRO
 
 object Sighting {
   val `type` = "sighting"
@@ -722,7 +664,7 @@ case class LanguageContent(`type`: String = LanguageContent.`type`,
                            external_references: Option[List[ExternalReference]] = None,
                            object_marking_refs: Option[List[Identifier]] = None,
                            granular_markings: Option[List[GranularMarking]] = None,
-                           x_custom: Option[Custom] = None) extends StixObj
+                           x_custom: Option[JsonObject] = None) extends StixObj
 
 object LanguageContent {
   val `type` = "language-content"

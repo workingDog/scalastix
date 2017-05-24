@@ -40,11 +40,12 @@ object Example2 {
           "id" : "attack-pattern--0fe33f18-9717-4329-9179-429d7304ef73",
           "created": "2017-05-11T07:13:18.448Z",
           "modified": "2017-05-11T07:13:18.448Z",
-          "kill_chain_phases" : {
-            "type" : "kill-chain-phase",
-            "kill_chain_name" : "Kill",
-            "phase_name" : "Bill-II"
-          }
+          "kill_chain_phases": [
+            {
+             "kill_chain_name": "mandiant-attack-lifecycle-model",
+             "phase_name": "establish-foothold"
+           }
+          ]
          }""".stripMargin
 
     // convert to json

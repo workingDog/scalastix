@@ -39,8 +39,37 @@
       "id": "attack-pattern--0c7b5b88-8ff7-4a4d-aa9d-feb398cd0061",
       "created": "2016-05-12T08:17:27.000Z",
       "modified": "2016-05-12T08:17:27.000Z",
+      "name": "test attack",
+      "description": "zzzzzzzzzz",
+      "x_custom": {
+        "x_acme_org_confidence": "astringstring",
+        "x_acme_org_scoring": 34,
+        "x_some_obj": {
+          "name": "Jack",
+          "age": 42.3
+        }
+      },
+      "external_references": [
+        {
+          "source_name": "capec",
+          "id": "CAPEC-163"
+        }
+      ]
+    },
+
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--0c7b5b88-8ff7-4a4d-aa9d-feb398cd0061",
+      "created": "2016-05-12T08:17:27.000Z",
+      "modified": "2016-05-12T08:17:27.000Z",
       "name": "Spear Phishing",
       "description": "...",
+      "kill_chain_phases": [
+        {
+          "kill_chain_name": "mandiant-attack-lifecycle-model",
+          "phase_name": "establish-foothold"
+        }
+      ],
       "external_references": [
         {
           "source_name": "capec",
