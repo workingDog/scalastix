@@ -51,7 +51,7 @@ The "id" parameter is second, if omitted a random id is auto-generated.
  
 Similarly for bundle, "type" and "spec_version" are set automatically, "id" can also be auto-generated if desired.  
  
-Use the "x_custom" field to add custom properties to any Stix object, such as SDO and Observables. 
+Use the "x_custom" field to add custom properties (as a JsonObject) to any Stix object such as SDO and Observables. 
  
  
 ### Usage
