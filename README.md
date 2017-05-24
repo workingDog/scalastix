@@ -34,7 +34,7 @@ To publish the library to your local (Ivy) repository, simply type:
 
 Then put this in your build.sbt file
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "1.0-SNAPSHOT
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "1.0-SNAPSHOT"
  
  
 For Scala.js and thus compiling to JavaScript:
@@ -51,12 +51,12 @@ The "id" parameter is second, if omitted a random id is auto-generated.
  
 Similarly for bundle, "type" and "spec_version" are set automatically, "id" can also be auto-generated if desired.  
  
-Use the "x_custom" field to add custom properties to any of the SDO and Observables. 
+Use the "x_custom" field to add custom properties to any Stix object, such as SDO and Observables. 
  
  
 ### Usage
                          
-In a Scala application the creation of a STIX domain object can be done as:
+In a Scala application the creation of a Stix object can be done as:
 
     import StixImplicits._
     

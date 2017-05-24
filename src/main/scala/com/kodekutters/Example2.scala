@@ -51,8 +51,8 @@ object Example2 {
     // convert to json
     val theJson: Json = parse(theString).getOrElse(Json.Null)
     println("\n---> theJson: " + theJson)
-    // convert to a sdo (option) object
-    val attackOpt = theJson.as[AttackPattern].toOption
+    // convert to a (option) Stix object
+    val attackOpt = theJson.as[StixObj].toOption
     println("\n-----> attackOpt: " + attackOpt)
   }
 }
