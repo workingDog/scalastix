@@ -62,7 +62,7 @@ In a Scala application the creation of a STIX domain object can be done as:
     
     // create an SDO, the type, id, created and modified are auto-generated
     val attack = new AttackPattern(name = "Spear Phishing",
-                      kill_chain_phases = KillChainPhase("Kill", "Bill"),
+                      kill_chain_phases = List(KillChainPhase("Kill", "Bill")),
                       external_references = List(new ExternalReference("a-source-name")),
                       object_marking_refs = List(Identifier("campaign")))
                       
