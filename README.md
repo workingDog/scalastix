@@ -51,6 +51,9 @@ The "id" parameter is second, if omitted a random id is auto-generated.
  
 Similarly for bundle, "type" and "spec_version" are set automatically, "id" can also be auto-generated if desired.  
  
+Use the "x_custom" field to add custom properties to any of the SDO and Observables. 
+ 
+ 
 ### Usage
                          
 In a Scala application the creation of a STIX domain object can be done as:
