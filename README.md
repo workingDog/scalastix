@@ -5,7 +5,7 @@
 This library **ScalaStix** is a [Scala](https://www.scala-lang.org/) library of classes and methods 
 for STIX Domain Objects (SDO) and associated data types. 
 It is an API for serializing and de-serializing STIX 2.1 JSON content.
-It includes all SDO, SRO, OpenVocab, Markings and supporting data types.
+It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data types.
 
 ### References
  
@@ -14,7 +14,7 @@ It includes all SDO, SRO, OpenVocab, Markings and supporting data types.
 
 ### Dependencies
 
-1) [circe library](https://github.com/circe/circe) providing the JSON serialization and de-serialization for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/) (i.e. --> Javascript)).
+1) [circe](https://github.com/circe/circe) library providing the JSON serialization and de-serialization for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/) (i.e. --> Javascript)).
  
  
 ### Building
@@ -43,7 +43,7 @@ For Scala.js and thus compiling to JavaScript:
  
 ### Conventions
 
-All SDO classes have their required parameters listed first, followed by the optionals. 
+All Stix objects have their required parameters listed first, followed by the optionals. 
 
 All SDO and SRO constructors start with the "type" parameter of the class, if omitted, the type is auto-generated. 
 The "id" parameter is second, if omitted a random id is auto-generated.
@@ -51,9 +51,9 @@ The "id" parameter is second, if omitted a random id is auto-generated.
  
 Similarly for bundle, "type" and "spec_version" are set automatically, "id" can also be auto-generated if desired.  
  
-Use the "x_custom" field to add custom properties (as a JsonObject) to any Stix object such as SDO and Observables. 
- 
- 
+Custom properties can be added to any Stix objects such as SDO and Observables by adding 
+ the custom properties as a JsonObject to the field name "x_custom".
+                                    
 ### Usage
                          
 In a Scala application the creation of a Stix object can be done as:
