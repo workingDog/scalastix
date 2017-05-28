@@ -70,6 +70,8 @@ object Identifier {
   */
 case class KillChainPhase(kill_chain_name: String, phase_name: String) {
   val `type` = KillChainPhase.`type`
+
+  override def toString = kill_chain_name + "," + phase_name
 }
 
 object KillChainPhase {
@@ -158,12 +160,39 @@ object MarkingObject {
   * granular markings allow data markings to be applied to individual portions of STIX Objects
   * and Marking Definitions.
   */
-case class GranularMarking(selectors: List[String], marking_ref: Option[String] = None, lang: Option[String] = None)
+case class GranularMarking(selectors: List[String], marking_ref: Option[String] = None, lang: Option[String] = None) {
+
+  val `type` = GranularMarking.`type`
+
+  override def toString = {
+    val sb1 = new StringBuilder()
+    for (s <- selectors) sb1.append(s + ";")
+    // remove the last ";"
+    val sb = new StringBuilder(sb1.toString().reverse.substring(1).reverse)
+    sb.append(marking_ref.getOrElse(""))
+    sb.append(",")
+    sb.append(lang.getOrElse(""))
+    sb.toString()
+  }
+
+}
+
+object GranularMarking {
+  val `type` = "granular-marking"
+}
 
 /**
   * External references are used to describe pointers to information represented outside of STIX.
   */
-case class ExternalReference(source_name: String, description: Option[String] = None, url: Option[String] = None, external_id: Option[String] = None)
+case class ExternalReference(source_name: String, description: Option[String] = None, url: Option[String] = None, external_id: Option[String] = None) {
+  val `type` = ExternalReference.`type`
+
+  override def toString = source_name + "," + description.getOrElse("") + "," + url.getOrElse("") + "," + external_id.getOrElse("")
+}
+
+object ExternalReference {
+  val `type` = "external-reference"
+}
 
 /**
   * a general STIX object representing the SDOs, SROs, LanguageContent and MarkingDefinition
