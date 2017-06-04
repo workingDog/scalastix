@@ -27,9 +27,13 @@ import io.circe._
   *
   * @param time the time formatted as YYYY-MM-DDTHH:mm:ss[.s+]Z
   */
-case class Timestamp(time: String)
+case class Timestamp(time: String) {
+  val `type` = Timestamp.`type`
+  override def toString: String = time.toString
+}
 
 object Timestamp {
+  val `type` = "timestamp"
 
   implicit val encodeTimestamp: Encoder[Timestamp] = (a: Timestamp) => a.time.asJson
 
@@ -41,14 +45,16 @@ object Timestamp {
 /**
   * An identifier universally and uniquely identifies a SDO, SRO, Bundle, or Marking Definition.
   *
-  * @param `type` the type property of the object being identified or referenced
+  * @param objType the type property of the object being identified or referenced
   * @param id     an RFC 4122-compliant Version 4 UUID as a string
   */
-case class Identifier(`type`: String, id: String) {
-  override def toString = `type` + "--" + id
+case class Identifier(objType: String, id: String) {
+  val `type` = Identifier.`type`
+  override def toString = objType + "--" + id
 }
 
 object Identifier {
+  val `type` = "identifier"
 
   implicit val encodeIdentifier: Encoder[Identifier] = (iden: Identifier) => iden.toString.asJson
 
@@ -229,36 +235,6 @@ object MarkingDefinition {
   * common properties of all SDO and SRO
   */
 trait SDO extends StixObj {
-  val name: String
-  val created: Timestamp
-  val modified: Timestamp
-  val created_by_ref: Option[Identifier]
-  val revoked: Option[Boolean]
-  val labels: Option[List[String]]
-  val confidence: Option[Int]
-  val external_references: Option[List[ExternalReference]]
-  val lang: Option[String]
-  val object_marking_refs: Option[List[Identifier]]
-  val granular_markings: Option[List[GranularMarking]]
-}
-
-// for testing no "name" property here for ObservedData
-trait SDO2 extends StixObj {
-  val created: Timestamp
-  val modified: Timestamp
-  val created_by_ref: Option[Identifier]
-  val revoked: Option[Boolean]
-  val labels: Option[List[String]]
-  val confidence: Option[Int]
-  val external_references: Option[List[ExternalReference]]
-  val lang: Option[String]
-  val object_marking_refs: Option[List[Identifier]]
-  val granular_markings: Option[List[GranularMarking]]
-}
-
-// for testing option name for Indicator
-trait SDO3 extends StixObj {
-  val name: Option[String]
   val created: Timestamp
   val modified: Timestamp
   val created_by_ref: Option[Identifier]
@@ -377,13 +353,14 @@ object CourseOfAction {
 /**
   * Indicators contain a pattern that can be used to detect suspicious or malicious cyber activity.
   */
+// todo fix labels in Indicator is not optional
 case class Indicator(`type`: String = Indicator.`type`,
                      id: Identifier = Identifier(Indicator.`type`),
                      created: Timestamp = Timestamp.now(),
                      modified: Timestamp = Timestamp.now(),
                      pattern: String,
                      valid_from: Timestamp,
-                     name: Option[String] = None, // todo should be optional
+                     name: Option[String] = None,
                      valid_until: Option[Timestamp] = None,
                      labels: Option[List[String]] = None, // todo ---> should not be optional
                      kill_chain_phases: Option[List[KillChainPhase]] = None,
@@ -395,7 +372,7 @@ case class Indicator(`type`: String = Indicator.`type`,
                      object_marking_refs: Option[List[Identifier]] = None,
                      granular_markings: Option[List[GranularMarking]] = None,
                      created_by_ref: Option[Identifier] = None,
-                     x_custom: Option[JsonObject] = None) extends SDO3
+                     x_custom: Option[JsonObject] = None) extends SDO
 
 object Indicator {
   val `type` = "indicator"
@@ -482,7 +459,7 @@ case class ObservedData(`type`: String = ObservedData.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        x_custom: Option[JsonObject] = None) extends SDO2
+                        x_custom: Option[JsonObject] = None) extends SDO
 
 object ObservedData {
   val `type` = "observed-data"
