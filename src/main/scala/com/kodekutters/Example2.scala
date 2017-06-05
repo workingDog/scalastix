@@ -24,7 +24,7 @@ object Example2 {
       name = "Spear Phishing",
       kill_chain_phases = List(KillChainPhase("Kill", "Bill")),
       external_references = List(ExternalReference("a-source-name")),
-      object_marking_refs = List(Identifier("campaign")))
+      object_marking_refs = List(Identifier(Campaign.`type`)))
 
     println("\n----> attackPattern: " + attackPattern)
     // convert to json

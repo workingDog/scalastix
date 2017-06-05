@@ -63,11 +63,11 @@ In a Scala application the creation of a Stix object can be done as:
     // create an SDO, the type, id, created and modified are auto-generated
     val attack = new AttackPattern(name = "Spear Phishing",
                       kill_chain_phases = List(KillChainPhase("Kill", "Bill")),
-                      external_references = List(new ExternalReference("a-source-name")),
-                      object_marking_refs = List(Identifier("campaign")))
+                      external_references = List(ExternalReference("a-source-name")),
+                      object_marking_refs = List(Identifier(Campaign.`type`)))
                       
     // convert to json
-    val attackjs = attackPattern.asJson
+    val attackjson = attackPattern.asJson
     // add to a bundle
     val bundle = Bundle(attack)
     // convert to json
@@ -79,6 +79,6 @@ See also the Examples.
  
 ### Status
 
-Work in progress, not yet finished.
+Work in progress
 
 No testing done.
