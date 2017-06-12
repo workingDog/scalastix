@@ -35,9 +35,19 @@ case class Timestamp(time: String) {
 object Timestamp {
   val `type` = "timestamp"
 
-  implicit val encodeTimestamp: Encoder[Timestamp] = (a: Timestamp) => a.time.asJson
+  implicit val encodeTimestamp: Encoder[Timestamp] = new Encoder[Timestamp] {
+    final def apply(w: Timestamp): Json = w.time.asJson
+  }
 
-  implicit val decodeTimestamp: Decoder[Timestamp] = (c: HCursor) => for {s <- c.value.as[String]} yield new Timestamp(s)
+  implicit val decodeTimestamp: Decoder[Timestamp] = new Decoder[Timestamp] {
+    final def apply(c: HCursor): Decoder.Result[Timestamp] = {
+      Right(new Timestamp(c.value.asString.getOrElse("")))
+    }
+  }
+
+  // work in scala 2.12.2 but not in scala-2.11.11
+//  implicit val encodeTimestamp: Encoder[Timestamp] = (a: Timestamp) => a.time.asJson
+//  implicit val decodeTimestamp: Decoder[Timestamp] = (c: HCursor) => for {s <- c.value.as[String]} yield new Timestamp(s)
 
   def now() = new Timestamp(ZonedDateTime.now(ZoneId.of("Z")).toString)
 }
@@ -56,16 +66,24 @@ case class Identifier(objType: String, id: String) {
 object Identifier {
   val `type` = "identifier"
 
-  implicit val encodeIdentifier: Encoder[Identifier] = (iden: Identifier) => iden.toString.asJson
+  implicit val encodeIdentifier: Encoder[Identifier] = new Encoder[Identifier] {
+    final def apply(w: Identifier): Json = w.toString.asJson
+  }
 
-  implicit val decodeIdentifier: Decoder[Identifier] = (c: HCursor) => for {s <- c.value.as[String]} yield stringToIdentifier(s)
+  implicit val decodeIdentifier: Decoder[Identifier] = new Decoder[Identifier] {
+    final def apply(c: HCursor): Decoder.Result[Identifier] = {
+      Right(stringToIdentifier(c.value.asString.getOrElse("")))
+    }
+  }
+
+  // work in scala 2.12.2 but not in scala-2.11.11
+//implicit val encodeIdentifier: Encoder[Identifier] = (iden: Identifier) => iden.toString.asJson
+//implicit val decodeIdentifier: Decoder[Identifier] = (c: HCursor) => for {s <- c.value.as[String]} yield stringToIdentifier(s)
 
   def stringToIdentifier(s: String): Identifier = {
     val part = s.split("--")
     new Identifier(part(0), part(1))
   }
-
-  def apply(objType: String, uuidv4: String) = new Identifier(objType, uuidv4)
 
   def apply(objType: String) = new Identifier(objType, UUID.randomUUID().toString)
 }
@@ -82,8 +100,6 @@ case class KillChainPhase(kill_chain_name: String, phase_name: String) {
 
 object KillChainPhase {
   val `type` = "kill-chain-phase"
-
-  def apply(kill_chain_name: String, phase_name: String) = new KillChainPhase(kill_chain_name, phase_name)
 }
 
 //-----------------------------------------------------------------------
@@ -119,9 +135,19 @@ object TLPlevels {
     }
   }
 
-  implicit val encodeTLPlevels: Encoder[TLPlevels] = (v: TLPlevels) => v.value.toString.asJson
+  implicit val encodeTLPlevels: Encoder[TLPlevels] = new Encoder[TLPlevels] {
+    final def apply(w: TLPlevels): Json = w.value.toString.asJson
+  }
 
-  implicit val decodeTLPlevels: Decoder[TLPlevels] = (c: HCursor) => for {s <- c.value.as[String]} yield TLPlevels.fromString(s)
+  implicit val decodeTLPlevels: Decoder[TLPlevels] = new Decoder[TLPlevels] {
+    final def apply(c: HCursor): Decoder.Result[TLPlevels] = {
+      Right(TLPlevels.fromString(c.value.asString.getOrElse("")))
+    }
+  }
+
+  // work in scala 2.12.2 but not in scala-2.11.11
+//implicit val encodeTLPlevels: Encoder[TLPlevels] = (v: TLPlevels) => v.value.toString.asJson
+//implicit val decodeTLPlevels: Decoder[TLPlevels] = (c: HCursor) => for {s <- c.value.as[String]} yield TLPlevels.fromString(s)
 }
 
 /**
@@ -441,7 +467,6 @@ object Malware {
   * Observed Data conveys information that was observed on systems and networks using the Cyber Observable specification
   * defined in parts 3 and 4 of this specification.
   */
-// todo name: String
 case class ObservedData(`type`: String = ObservedData.`type`,
                         id: Identifier = Identifier(ObservedData.`type`),
                         created: Timestamp = Timestamp.now(),

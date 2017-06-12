@@ -7,6 +7,7 @@ import StixImplicits._
 import io.circe.{Json, Printer}
 import io.circe.parser.parse
 
+
 /**
   * a simple example
   */

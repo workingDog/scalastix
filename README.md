@@ -17,16 +17,18 @@ It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data t
 1) [circe](https://github.com/circe/circe) library providing the JSON serialization and de-serialization for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/) (i.e. --> Javascript)).
  
  
-### Building
+### Instalation and packaging
 
-For Scala on the JVM, requires Java8.
+To use the last release add the following dependency to your build.sbt:
 
-The best way to compile and package **ScalaStix** from source is to use [SBT](http://www.scala-sbt.org/). 
-To assemble the library and all its dependencies into a single jar file type:
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.1"
 
-    sbt assembly
+The best way to compile and package **ScalaStix** from source is to use [SBT](http://www.scala-sbt.org/).
+To compile and generate a jar file from the source:
 
-This will produce a jar file "scalastix_2.12-1.0-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
+    sbt package
+
+This will produce a jar file "scalastix_2.12-0.2-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
 
 To publish the library to your local (Ivy) repository, simply type:
 
@@ -34,9 +36,14 @@ To publish the library to your local (Ivy) repository, simply type:
 
 Then put this in your build.sbt file
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "1.0-SNAPSHOT"
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.2-SNAPSHOT"
  
+To assemble the library and all its dependencies into a single fat jar file type:
  
+     sbt assembly
+
+This will produce a jar file "scalastix_2.12-0.2-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
+
 For Scala.js and thus compiling to JavaScript:
 
 ---> todo 

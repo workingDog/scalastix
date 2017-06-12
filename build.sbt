@@ -39,7 +39,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic-extras" % circeVersion
 )
 mainClass in assembly := Some("com.kodekutters.Example2")
-assemblyJarName in assembly := "scalastix_2.12-1.0-SNAPSHOT.jar"
+assemblyJarName in assembly := "scalastix_2.12-0.2.jar"
 
 // common
 scalacOptions ++= Seq(
