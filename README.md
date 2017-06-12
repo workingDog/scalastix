@@ -17,7 +17,7 @@ It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data t
 1) [circe](https://github.com/circe/circe) library providing the JSON serialization and de-serialization for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/) (i.e. --> Javascript)).
  
  
-### Instalation and packaging
+### Installation and packaging
 
 To use the last release add the following dependency to your build.sbt:
 

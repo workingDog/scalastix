@@ -6,7 +6,7 @@ import io.circe.syntax._
 import StixImplicits._
 import io.circe.{Json, Printer}
 import io.circe.parser.parse
-
+import cats.syntax.either._
 
 /**
   * a simple example
