@@ -120,7 +120,7 @@ object WindowPEOptionalHeaderType {
 /**
   * The Windows PE Section type specifies metadata about a PE file section.
   */
-case class WindowPESectionType(`type`: String = WindowPEOptionalHeaderType.`type`,
+case class WindowPESectionType(`type`: String = WindowPESectionType.`type`,
                                name: String,
                                size: Option[Int] = None,
                                entropy: Option[Float] = None,

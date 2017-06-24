@@ -688,7 +688,7 @@ case class LanguageContent(`type`: String = LanguageContent.`type`,
                            modified: Timestamp = Timestamp.now(),
                            object_modified: Timestamp = Timestamp.now(),
                            object_ref: Identifier,
-                           contents: Map[String, Map[String, String]], // todo <-----
+                           contents: Map[String, Map[String, String]], // todo <-- RFC5646_LANGUAGE_TAG and List and object
                            created_by_ref: Option[Identifier] = None,
                            revoked: Option[Boolean] = None,
                            labels: Option[List[String]] = None,
