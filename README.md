@@ -11,11 +11,10 @@ It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data t
  
 1) [STIX 2.1 Specification](https://docs.google.com/document/d/1yvqWaPPnPW-2NiVCLqzRszcx91ffMowfT5MmE9Nsy_w/edit)
    
-
 ### Dependencies
 
-1) [circe](https://github.com/circe/circe) library providing the JSON serialization and de-serialization for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/) (i.e. --> Javascript)).
- 
+1) [circe](https://github.com/circe/circe) library providing the JSON serialization and de-serialization 
+for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/).
  
 ### Installation and packaging
 
@@ -43,10 +42,6 @@ To assemble the library and all its dependencies into a single fat jar file type
      sbt assembly
 
 This will produce a jar file "scalastix_2.12-0.2-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
-
-For Scala.js and thus compiling to JavaScript:
-
----> todo 
  
 ### Conventions
 
@@ -74,14 +69,12 @@ In a Scala application the creation of a Stix object can be done as:
                       object_marking_refs = List(Identifier(Campaign.`type`)))
                       
     // convert to json
-    val attackjson = attackPattern.asJson
+    val attackjson = attack.asJson
     // add to a bundle
     val bundle = Bundle(attack)
     // convert to json
-    bundle.asJson
-            
-Similarly when building a web browser App using Scala.js, that is compiling to javascript.            
-                                         
+    val bundlejson = bundle.asJson
+                                                     
 See also the Examples.
  
 ### Status
