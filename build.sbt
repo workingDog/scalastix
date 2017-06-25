@@ -9,7 +9,7 @@ scalaVersion := "2.12.2"
 
 crossScalaVersions := Seq("2.11.11", "2.12.2")
 
-val circeVersion = "0.8.0"
+val playJsonVersion = "2.6.0"
 
 // for scala.js .... see also plugins.sbt
 //enablePlugins(ScalaJSPlugin)
@@ -20,24 +20,15 @@ val circeVersion = "0.8.0"
 //"org.scala-js" %%% "scalajs-dom" % "0.9.2",
 //"org.scala-js" %%% "scalajs-java-time" % "0.2.1",
 //"io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M11",
-//"org.threeten" % "threetenbp" % "1.3.4",
-//"io.circe" %%% "circe-core" % circeVersion,
-//"io.circe" %%% "circe-generic" % circeVersion,
-//"io.circe" %%% "circe-parser" % circeVersion,
-//"io.circe"  %%% "circe-generic-extras" % circeVersion
+// "com.typesafe.play"  %%%  "play-json_sjs0.6_2.12" % "2.6.0"
 //)
 
 // for JVM scala
 fork := true
 javaOptions in compile += "-Xmx8G"
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G")
-libraryDependencies ++= Seq(
-  "org.threeten" % "threetenbp" % "1.3.4",
-  "io.circe" %% "circe-core" % circeVersion,
-  "io.circe" %% "circe-generic" % circeVersion,
-  "io.circe" %% "circe-parser" % circeVersion,
-  "io.circe" %% "circe-generic-extras" % circeVersion
-)
+libraryDependencies += "com.typesafe.play" % "play-json_2.12" % playJsonVersion
+
 mainClass in assembly := Some("com.kodekutters.Example2")
 assemblyJarName in assembly := "scalastix_2.12-0.2.jar"
 

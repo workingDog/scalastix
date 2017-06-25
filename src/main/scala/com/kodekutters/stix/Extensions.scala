@@ -1,12 +1,9 @@
 package com.kodekutters.stix
 
-import io.circe.syntax._
-import io.circe.{Json, _}
-import io.circe.generic.auto._
-import io.circe.Decoder._
-import io.circe._
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
-import scala.language.implicitConversions
+import Util._
 
 /**
   * represents a Predefined Cyber Observable Object Extension.
@@ -26,6 +23,7 @@ case class ArchiveFileExt(`type`: String = ArchiveFileExt.`type`,
 
 object ArchiveFileExt {
   val `type` = "archive-ext"
+  implicit val fmt = Json.format[ArchiveFileExt]
 }
 
 /**
@@ -38,6 +36,7 @@ case class AlternateDataStream(`type`: String = AlternateDataStream.`type`,
 
 object AlternateDataStream {
   val `type` = "alternate-data-stream"
+  implicit val fmt = Json.format[AlternateDataStream]
 }
 
 /**
@@ -49,6 +48,7 @@ case class NTFSFileExt(`type`: String = NTFSFileExt.`type`,
 
 object NTFSFileExt {
   val `type` = "ntfs-ext"
+  implicit val fmt = Json.format[NTFSFileExt]
 }
 
 /**
@@ -62,6 +62,7 @@ case class PdfFileExt(`type`: String = PdfFileExt.`type`,
 
 object PdfFileExt {
   val `type` = "pdf-ext"
+  implicit val fmt = Json.format[PdfFileExt]
 }
 
 /**
@@ -76,6 +77,7 @@ case class RasterImgExt(`type`: String = RasterImgExt.`type`,
 
 object RasterImgExt {
   val `type` = "raster-image-ext"
+  implicit val fmt = Json.format[RasterImgExt]
 }
 
 /**
@@ -115,6 +117,66 @@ case class WindowPEOptionalHeaderType(`type`: String = WindowPEOptionalHeaderTyp
 
 object WindowPEOptionalHeaderType {
   val `type` = "windows-pe-optional-header-type"
+
+  val part1: OFormat[(String, Option[String], Option[Int], Option[Int], Option[Int], Option[Int],
+    Option[Int], Option[Int], Option[Int], Option[Int], Option[Int], Option[Int], Option[Int],
+    Option[Int], Option[Int])] =
+    ((__ \ "type").format[String] ~
+      (__ \ "magic_hex").formatNullable[String] ~
+      (__ \ "major_linker_version").formatNullable[Int] ~
+      (__ \ "minor_linker_version").formatNullable[Int] ~
+      (__ \ "size_of_code").formatNullable[Int] ~
+      (__ \ "size_of_initialized_data").formatNullable[Int] ~
+      (__ \ "size_of_uninitialized_data").formatNullable[Int] ~
+      (__ \ "address_of_entry_point").formatNullable[Int] ~
+      (__ \ "base_of_code").formatNullable[Int] ~
+      (__ \ "base_of_data").formatNullable[Int] ~
+      (__ \ "image_base").formatNullable[Int] ~
+      (__ \ "section_alignment").formatNullable[Int] ~
+      (__ \ "file_alignment").formatNullable[Int] ~
+      (__ \ "major_os_version").formatNullable[Int] ~
+      (__ \ "minor_os_version").formatNullable[Int]).tupled
+
+  val part2: OFormat[(Option[Int], Option[Int], Option[Int], Option[Int], Option[String], Option[Int],
+    Option[Int], Option[String], Option[String], Option[Int], Option[Int], Option[Int], Option[Int],
+    Option[String], Option[Int], Option[Map[String, String]])] =
+    ((__ \ "major_image_version").formatNullable[Int] ~
+      (__ \ "minor_image_version").formatNullable[Int] ~
+      (__ \ "major_subsystem_version").formatNullable[Int] ~
+      (__ \ "minor_subsystem_version").formatNullable[Int] ~
+      (__ \ "win32_version_value_hex").formatNullable[String] ~
+      (__ \ "size_of_image").formatNullable[Int] ~
+      (__ \ "size_of_headers").formatNullable[Int] ~
+      (__ \ "checksum_hex").formatNullable[String] ~
+      (__ \ "dll_characteristics_hex").formatNullable[String] ~
+      (__ \ "size_of_stack_reserve").formatNullable[Int] ~
+      (__ \ "size_of_stack_commit").formatNullable[Int] ~
+      (__ \ "size_of_heap_reserve").formatNullable[Int] ~
+      (__ \ "size_of_heap_commit").formatNullable[Int] ~
+      (__ \ "loader_flags_hex").formatNullable[String] ~
+      (__ \ "number_of_rva_and_sizes").formatNullable[Int] ~
+      (__ \ "hashes").formatNullable[Map[String, String]]
+      ).tupled
+
+  implicit val fmt: Format[WindowPEOptionalHeaderType] = (part1 ~ part2) ({
+    case ((`type`, magic_hex, major_linker_version, minor_linker_version, size_of_code,
+    size_of_initialized_data, size_of_uninitialized_data, address_of_entry_point, base_of_code,
+    base_of_data, image_base, section_alignment, file_alignment, major_os_version, minor_os_version),
+    (major_image_version, minor_image_version, major_subsystem_version, minor_subsystem_version, win32_version_value_hex,
+    size_of_image, size_of_headers, checksum_hex, dll_characteristics_hex, size_of_stack_reserve, size_of_stack_commit,
+    size_of_heap_reserve, size_of_heap_commit, loader_flags_hex, number_of_rva_and_sizes, hashes)) =>
+      new WindowPEOptionalHeaderType(`type`, magic_hex, major_linker_version, minor_linker_version, size_of_code,
+        size_of_initialized_data, size_of_uninitialized_data, address_of_entry_point, base_of_code,
+        base_of_data, image_base, section_alignment, file_alignment, major_os_version, minor_os_version,
+        major_image_version, minor_image_version, major_subsystem_version, minor_subsystem_version, win32_version_value_hex,
+        size_of_image, size_of_headers, checksum_hex, dll_characteristics_hex, size_of_stack_reserve, size_of_stack_commit,
+        size_of_heap_reserve, size_of_heap_commit, loader_flags_hex, number_of_rva_and_sizes, hashes)
+  }, (t: WindowPEOptionalHeaderType) => ((t.`type`, t.magic_hex, t.major_linker_version, t.minor_linker_version, t.size_of_code,
+    t.size_of_initialized_data, t.size_of_uninitialized_data, t.address_of_entry_point, t.base_of_code,
+    t.base_of_data, t.image_base, t.section_alignment, t.file_alignment, t.major_os_version, t.minor_os_version),(
+    t.major_image_version, t.minor_image_version, t.major_subsystem_version, t.minor_subsystem_version, t.win32_version_value_hex,
+    t.size_of_image, t.size_of_headers, t.checksum_hex, t.dll_characteristics_hex, t.size_of_stack_reserve, t.size_of_stack_commit,
+    t.size_of_heap_reserve, t.size_of_heap_commit, t.loader_flags_hex, t.number_of_rva_and_sizes, t.hashes)))
 }
 
 /**
@@ -128,6 +190,7 @@ case class WindowPESectionType(`type`: String = WindowPESectionType.`type`,
 
 object WindowPESectionType {
   val `type` = "windows-pe-section"
+  implicit val fmt = Json.format[WindowPESectionType]
 }
 
 /**
@@ -149,6 +212,7 @@ case class WindowPEBinExt(`type`: String = WindowPEBinExt.`type`,
 
 object WindowPEBinExt {
   val `type` = "windows-pebinary-ext"
+  implicit val fmt = Json.format[WindowPEBinExt]
 }
 
 /**
@@ -156,26 +220,31 @@ object WindowPEBinExt {
   */
 object Extension {
 
-  implicit val decodeExtension: Decoder[Extension] = Decoder.instance(c =>
-    c.downField("type").as[String].right.flatMap {
-      case ArchiveFileExt.`type` => c.as[ArchiveFileExt]
-      case NTFSFileExt.`type` => c.as[NTFSFileExt]
-      case PdfFileExt.`type` => c.as[PdfFileExt]
-      case RasterImgExt.`type` => c.as[RasterImgExt]
-      case WindowPEBinExt.`type` => c.as[WindowPEBinExt]
-      //  case err => c.as[ExtensionError]
-    })
+  val theReads = new Reads[Extension] {
+    def reads(js: JsValue): JsResult[Extension] = {
+      (js \ "type").asOpt[String].map({
+        case ArchiveFileExt.`type` => ArchiveFileExt.fmt.reads(js)
+        case NTFSFileExt.`type` => NTFSFileExt.fmt.reads(js)
+        case PdfFileExt.`type` => PdfFileExt.fmt.reads(js)
+        case RasterImgExt.`type` => RasterImgExt.fmt.reads(js)
+        case WindowPEBinExt.`type` => WindowPEBinExt.fmt.reads(js)
+        case _ => null
+      }).getOrElse(JsError("Error reading Extension"))
+    }
+  }
 
-  implicit val encodeExtension: Encoder[Extension] = new Encoder[Extension] {
-    final def apply(ext: Extension): Json = {
-      ext match {
-        case s: ArchiveFileExt => ext.asInstanceOf[ArchiveFileExt].asJson
-        case s: NTFSFileExt => ext.asInstanceOf[NTFSFileExt].asJson
-        case s: PdfFileExt => ext.asInstanceOf[PdfFileExt].asJson
-        case s: WindowPEBinExt => ext.asInstanceOf[WindowPEBinExt].asJson
-        case _ => Json.Null
+  val theWrites = new Writes[Extension] {
+    def writes(obj: Extension) = {
+      obj match {
+        case ext: ArchiveFileExt => ArchiveFileExt.fmt.writes(ext)
+        case ext: NTFSFileExt => NTFSFileExt.fmt.writes(ext)
+        case ext: PdfFileExt => PdfFileExt.fmt.writes(ext)
+        case ext: RasterImgExt => RasterImgExt.fmt.writes(ext)
+        case ext: WindowPEBinExt => WindowPEBinExt.fmt.writes(ext)
+        case _ => null
       }
     }
   }
 
+  implicit val fmt: Format[Extension] = Format(theReads, theWrites)
 }

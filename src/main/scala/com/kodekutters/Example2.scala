@@ -1,12 +1,10 @@
 package com.kodekutters
 
 import com.kodekutters.stix._
-import io.circe.generic.auto._
-import io.circe.syntax._
+
 import StixImplicits._
-import io.circe.{Json, Printer}
-import io.circe.parser.parse
-import cats.syntax.either._
+import play.api.libs.json.Json
+
 
 /**
   * a simple example
@@ -17,8 +15,6 @@ object Example2 {
   }
 
   def test() = {
-    // to remove the output of "null" for empty fields
-    implicit val myPrinter = Printer.spaces2.copy(dropNullKeys = true)
 
     // create a sdo
     val attackPattern = new AttackPattern(
@@ -29,11 +25,11 @@ object Example2 {
 
     println("\n----> attackPattern: " + attackPattern)
     // convert to json
-    println("\n----> attackPattern.asJson: " + myPrinter.pretty(attackPattern.asJson))
+    println(Json.prettyPrint(Json.toJson(attackPattern)))
     // add to a bundle
     val bundle = Bundle(attackPattern)
     println("\n----> bundle: " + bundle)
-    println("\n----> bundle.asJson: " + myPrinter.pretty(bundle.asJson))
+    println("\n----> bundle to json: " + Json.prettyPrint(Json.toJson(bundle)))
     //
     // starting with a string
     val theString =
@@ -49,11 +45,11 @@ object Example2 {
           ]
          }""".stripMargin
 
-    // convert to json
-    val theJson: Json = parse(theString).getOrElse(Json.Null)
-    println("\n---> theJson: " + theJson)
+    // parse to json
+    val theJson = Json.parse(theString)
+    println("\n---> theJson: " + Json.prettyPrint(theJson))
     // convert to a (option) Stix object
-    val attackOpt = theJson.as[StixObj].toOption
-    println("\n-----> attackOpt: " + attackOpt)
+    val attackOpt = Json.fromJson[StixObj](theJson).asOpt
+    println("\n---> attackOpt: " + attackOpt)
   }
 }

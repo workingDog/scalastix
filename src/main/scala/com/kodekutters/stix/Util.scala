@@ -1,10 +1,38 @@
 package com.kodekutters.stix
 
+import play.api.libs.json._
 
 /**
-  *
+  * some utilities
   */
 object Util {
+
+//  implicit def optionFormat[T: Format]: Format[Option[T]] = new Format[Option[T]]{
+//    override def reads(json: JsValue): JsResult[Option[T]] = json.validateOpt[T]
+//
+//    override def writes(o: Option[T]): JsValue = o match {
+//      case Some(t) ⇒ implicitly[Writes[T]].writes(t)
+//      case None ⇒ JsNull
+//    }
+//  }
+
+  implicit def eitherReads[A, B](implicit Ax: Reads[A], Bx: Reads[B]): Reads[Either[A, B]] =
+    Reads[Either[A, B]] { json =>
+      Ax.reads(json) match {
+        case JsSuccess(value, path) => JsSuccess(Left(value), path)
+        case JsError(e1) => Bx.reads(json) match {
+          case JsSuccess(value, path) => JsSuccess(Right(value), path)
+          case JsError(e2) => JsError(JsError.merge(e1, e2))
+        }
+      }
+    }
+
+  implicit def eitherWrites[A, B](implicit Ax: Writes[A], Bx: Writes[B]): Writes[Either[A, B]] =
+    Writes[Either[A, B]] {
+      case Left(a) => Ax.writes(a)
+      case Right(b) => Bx.writes(b)
+    }
+
 
   // todo
   // list of type names

@@ -1,12 +1,7 @@
 package com.kodekutters.stix
 
-import io.circe.syntax._
-import io.circe.{Json, _}
-import io.circe.generic.auto._
-import io.circe.Decoder._
-import io.circe._
-
-import scala.language.implicitConversions
+import play.api.libs.json._
+import Util._
 
 /**
   * STIX-2.1 protocol, Cyber Observable Objects
@@ -28,7 +23,7 @@ trait Observable {
   val `type`: String
   val description: Option[String]
   val extensions: Option[Map[String, Extension]]
-  val x_custom: Option[JsonObject]
+  val x_custom: Option[JsObject]
 }
 
 /**
@@ -42,20 +37,21 @@ case class Artifact private(`type`: String = Artifact.`type`,
                             hashes: Option[Map[String, String]] = None,
                             description: Option[String] = None,
                             extensions: Option[Map[String, Extension]] = None,
-                            x_custom: Option[JsonObject] = None) extends Observable {
+                            x_custom: Option[JsObject] = None) extends Observable {
 
   def this(mime_type: Option[String], payload_bin: String, description: Option[String],
-           extensions: Option[Map[String, Extension]], x_custom: Option[JsonObject]) =
+           extensions: Option[Map[String, Extension]], x_custom: Option[JsObject]) =
     this(Artifact.`type`, mime_type, Option(payload_bin), None, None, description, extensions, x_custom)
 
   def this(mime_type: Option[String], url: String, hashes: Map[String, String], description: Option[String],
-           extensions: Option[Map[String, Extension]], x_custom: Option[JsonObject]) =
+           extensions: Option[Map[String, Extension]], x_custom: Option[JsObject]) =
     this(Artifact.`type`, mime_type, None, Option(url), Option(hashes), description, extensions, x_custom)
 
 }
 
 object Artifact {
   val `type` = "artifact"
+  implicit val fmt = Json.format[Artifact]
 }
 
 /**
@@ -67,10 +63,11 @@ case class AutonomousSystem(`type`: String = AutonomousSystem.`type`,
                             rir: Option[String] = None,
                             description: Option[String] = None,
                             extensions: Option[Map[String, Extension]] = None,
-                            x_custom: Option[JsonObject] = None) extends Observable
+                            x_custom: Option[JsObject] = None) extends Observable
 
 object AutonomousSystem {
   val `type` = "autonomous-system"
+  implicit val fmt = Json.format[AutonomousSystem]
 }
 
 /**
@@ -85,10 +82,11 @@ case class Directory(`type`: String = Directory.`type`,
                      contains_refs: Option[List[String]] = None, // todo object-ref must be file or directory type
                      description: Option[String] = None,
                      extensions: Option[Map[String, Extension]] = None,
-                     x_custom: Option[JsonObject] = None) extends Observable
+                     x_custom: Option[JsObject] = None) extends Observable
 
 object Directory {
   val `type` = "directory"
+  implicit val fmt = Json.format[Directory]
 }
 
 /**
@@ -99,10 +97,11 @@ case class DomainName(`type`: String = DomainName.`type`,
                       resolves_to_refs: Option[List[String]] = None, // todo object-ref must be ipv4-addr or ipv6-addr or domain-name
                       description: Option[String] = None,
                       extensions: Option[Map[String, Extension]] = None,
-                      x_custom: Option[JsonObject] = None) extends Observable
+                      x_custom: Option[JsObject] = None) extends Observable
 
 object DomainName {
   val `type` = "domain-name"
+  implicit val fmt = Json.format[DomainName]
 }
 
 /**
@@ -113,10 +112,11 @@ case class EmailAddress(`type`: String = EmailAddress.`type`, value: String,
                         belongs_to_ref: Option[String] = None, // todo  must be of type user-account
                         description: Option[String] = None,
                         extensions: Option[Map[String, Extension]] = None,
-                        x_custom: Option[JsonObject] = None) extends Observable
+                        x_custom: Option[JsObject] = None) extends Observable
 
 object EmailAddress {
   val `type` = "email-addr"
+  implicit val fmt = Json.format[EmailAddress]
 }
 
 /**
@@ -127,10 +127,11 @@ case class EmailMimeType(`type`: String = EmailMimeType.`type`,
                          body_raw_ref: Option[String] = None, // todo must be of type artifact or file.
                          content_type: Option[String] = None,
                          content_disposition: Option[String] = None,
-                         x_custom: Option[JsonObject] = None)
+                         x_custom: Option[JsObject] = None)
 
 object EmailMimeType {
   val `type` = "mime-part-type"
+  implicit val fmt = Json.format[EmailMimeType]
 }
 
 /**
@@ -154,10 +155,11 @@ case class EmailMessage(`type`: String = EmailMessage.`type`,
                         raw_email_ref: Option[String] = None, // todo must be of type artifact
                         description: Option[String] = None,
                         extensions: Option[Map[String, Extension]] = None,
-                        x_custom: Option[JsonObject] = None) extends Observable
+                        x_custom: Option[JsObject] = None) extends Observable
 
 object EmailMessage {
   val `type` = "email-message"
+  implicit val fmt = Json.format[EmailMessage]
 }
 
 /**
@@ -181,10 +183,11 @@ case class File(`type`: String = File.`type`,
                 content_ref: Option[String] = None,
                 description: Option[String] = None,
                 extensions: Option[Map[String, Extension]] = None,
-                x_custom: Option[JsonObject] = None) extends Observable
+                x_custom: Option[JsObject] = None) extends Observable
 
 object File {
   val `type` = "file"
+  implicit val fmt = Json.format[File]
 }
 
 /**
@@ -196,10 +199,11 @@ case class IPv4Address(`type`: String = IPv4Address.`type`,
                        belongs_to_refs: Option[List[String]] = None,
                        description: Option[String] = None,
                        extensions: Option[Map[String, Extension]] = None,
-                       x_custom: Option[JsonObject] = None) extends Observable
+                       x_custom: Option[JsObject] = None) extends Observable
 
 object IPv4Address {
   val `type` = "ipv4-addr"
+  implicit val fmt = Json.format[IPv4Address]
 }
 
 /**
@@ -211,10 +215,11 @@ case class IPv6Address(`type`: String = IPv6Address.`type`,
                        belongs_to_refs: Option[List[String]] = None,
                        description: Option[String] = None,
                        extensions: Option[Map[String, Extension]] = None,
-                       x_custom: Option[JsonObject] = None) extends Observable
+                       x_custom: Option[JsObject] = None) extends Observable
 
 object IPv6Address {
   val `type` = "ipv6-addr"
+  implicit val fmt = Json.format[IPv6Address]
 }
 
 /**
@@ -224,10 +229,11 @@ case class MACAddress(`type`: String = MACAddress.`type`,
                       value: String,
                       description: Option[String] = None,
                       extensions: Option[Map[String, Extension]] = None,
-                      x_custom: Option[JsonObject] = None) extends Observable
+                      x_custom: Option[JsObject] = None) extends Observable
 
 object MACAddress {
   val `type` = "mac-addr"
+  implicit val fmt = Json.format[MACAddress]
 }
 
 /**
@@ -237,10 +243,11 @@ case class Mutex(`type`: String = Mutex.`type`,
                  name: String,
                  description: Option[String] = None,
                  extensions: Option[Map[String, Extension]] = None,
-                 x_custom: Option[JsonObject] = None) extends Observable
+                 x_custom: Option[JsObject] = None) extends Observable
 
 object Mutex {
   val `type` = "mutex"
+  implicit val fmt = Json.format[Mutex]
 }
 
 /**
@@ -266,10 +273,11 @@ case class NetworkTraffic(`type`: String = NetworkTraffic.`type`,
                           encapsulated_by_ref: Option[String] = None,
                           description: Option[String] = None,
                           extensions: Option[Map[String, Extension]] = None,
-                          x_custom: Option[JsonObject] = None) extends Observable
+                          x_custom: Option[JsObject] = None) extends Observable
 
 object NetworkTraffic {
   val `type` = "network-traffic"
+  implicit val fmt = Json.format[NetworkTraffic]
 }
 
 /**
@@ -291,10 +299,11 @@ case class Process(`type`: String = Process.`type`,
                    child_refs: Option[List[String]] = None,
                    description: Option[String] = None,
                    extensions: Option[Map[String, Extension]] = None,
-                   x_custom: Option[JsonObject] = None) extends Observable
+                   x_custom: Option[JsObject] = None) extends Observable
 
 object Process {
   val `type` = "process"
+  implicit val fmt = Json.format[Process]
 }
 
 /**
@@ -308,10 +317,11 @@ case class Software(`type`: String = Software.`type`,
                     version: Option[String] = None,
                     description: Option[String] = None,
                     extensions: Option[Map[String, Extension]] = None,
-                    x_custom: Option[JsonObject] = None) extends Observable
+                    x_custom: Option[JsObject] = None) extends Observable
 
 object Software {
   val `type` = "software"
+  implicit val fmt = Json.format[Software]
 }
 
 /**
@@ -321,10 +331,11 @@ case class URL(`type`: String = URL.`type`,
                value: String,
                description: Option[String] = None,
                extensions: Option[Map[String, Extension]] = None,
-               x_custom: Option[JsonObject] = None) extends Observable
+               x_custom: Option[JsObject] = None) extends Observable
 
 object URL {
   val `type` = "url"
+  implicit val fmt = Json.format[URL]
 }
 
 /**
@@ -346,10 +357,11 @@ case class UserAccount(`type`: String = UserAccount.`type`,
                        account_last_login: Option[Timestamp] = None,
                        description: Option[String] = None,
                        extensions: Option[Map[String, Extension]] = None,
-                       x_custom: Option[JsonObject] = None) extends Observable
+                       x_custom: Option[JsObject] = None) extends Observable
 
 object UserAccount {
   val `type` = "user-account"
+  implicit val fmt = Json.format[UserAccount]
 }
 
 /**
@@ -362,6 +374,7 @@ case class WindowsRegistryValueType(`type`: String = WindowsRegistryValueType.`t
 
 object WindowsRegistryValueType {
   val `type` = "windows-registry-value-type"
+  implicit val fmt = Json.format[WindowsRegistryValueType]
 }
 
 /**
@@ -375,10 +388,11 @@ case class WindowsRegistryKey(`type`: String = WindowsRegistryKey.`type`,
                               number_of_subkeys: Option[Int] = None,
                               description: Option[String] = None,
                               extensions: Option[Map[String, Extension]] = None,
-                              x_custom: Option[JsonObject] = None) extends Observable
+                              x_custom: Option[JsObject] = None) extends Observable
 
 object WindowsRegistryKey {
   val `type` = "windows-registry-key"
+  implicit val fmt = Json.format[WindowsRegistryKey]
 }
 
 /**
@@ -402,6 +416,7 @@ case class X509V3ExtenstionsType(`type`: String = X509V3ExtenstionsType.`type`,
 
 object X509V3ExtenstionsType {
   val `type` = "x509-v3-extensions-type"
+  implicit val fmt = Json.format[X509V3ExtenstionsType]
 }
 
 /**
@@ -423,10 +438,11 @@ case class X509Certificate(`type`: String = X509Certificate.`type`,
                            x509_v3_extensions: Option[X509V3ExtenstionsType] = None,
                            description: Option[String] = None,
                            extensions: Option[Map[String, Extension]] = None,
-                           x_custom: Option[JsonObject] = None) extends Observable
+                           x_custom: Option[JsObject] = None) extends Observable
 
 object X509Certificate {
   val `type` = "x509-certificate"
+  implicit val fmt = Json.format[X509Certificate]
 }
 
 /**
@@ -434,60 +450,57 @@ object X509Certificate {
   */
 object Observable {
 
-  import Timestamp.decodeTimestamp
-  import Timestamp.encodeTimestamp
-  import Identifier.decodeIdentifier
-  import Identifier.encodeIdentifier
-  import MarkingObject.decodeMarkingObject
-  import MarkingObject.encodeMarkingObject
+  val theReads = new Reads[Observable] {
+    def reads(js: JsValue): JsResult[Observable] = {
+      (js \ "type").asOpt[String].map({
+        case Artifact.`type` => Artifact.fmt.reads(js)
+        case AutonomousSystem.`type` => AutonomousSystem.fmt.reads(js)
+        case Directory.`type` => Directory.fmt.reads(js)
+        case DomainName.`type` => DomainName.fmt.reads(js)
+        case EmailAddress.`type` => EmailAddress.fmt.reads(js)
+        case EmailMessage.`type` => EmailMessage.fmt.reads(js)
+        case File.`type` => File.fmt.reads(js)
+        case IPv4Address.`type` => IPv4Address.fmt.reads(js)
+        case IPv6Address.`type` => IPv6Address.fmt.reads(js)
+        case MACAddress.`type` => MACAddress.fmt.reads(js)
+        case Mutex.`type` => Mutex.fmt.reads(js)
+        case NetworkTraffic.`type` => NetworkTraffic.fmt.reads(js)
+        case Process.`type` => Process.fmt.reads(js)
+        case Software.`type` => Software.fmt.reads(js)
+        case URL.`type` => URL.fmt.reads(js)
+        case UserAccount.`type` => UserAccount.fmt.reads(js)
+        case WindowsRegistryKey.`type` => WindowsRegistryKey.fmt.reads(js)
+        case X509Certificate.`type` => X509Certificate.fmt.reads(js)
+        case _ => null
+      }).getOrElse(JsError("Error reading Observable"))
+    }
+  }
 
-  implicit val decodeStixObj: Decoder[Observable] = Decoder.instance(c =>
-    c.downField("type").as[String].right.flatMap {
-      case Artifact.`type` => c.as[Artifact]
-      case AutonomousSystem.`type` => c.as[AutonomousSystem]
-      case Directory.`type` => c.as[Directory]
-      case DomainName.`type` => c.as[DomainName]
-      case EmailAddress.`type` => c.as[EmailAddress]
-      case EmailMessage.`type` => c.as[EmailMessage]
-      case File.`type` => c.as[File]
-      case IPv4Address.`type` => c.as[IPv4Address]
-      case IPv6Address.`type` => c.as[IPv6Address]
-      case MACAddress.`type` => c.as[MACAddress]
-      case Mutex.`type` => c.as[Mutex]
-      case NetworkTraffic.`type` => c.as[NetworkTraffic]
-      case Process.`type` => c.as[Process]
-      case Software.`type` => c.as[Software]
-      case URL.`type` => c.as[URL]
-      case UserAccount.`type` => c.as[UserAccount]
-      case WindowsRegistryKey.`type` => c.as[WindowsRegistryKey]
-      case X509Certificate.`type` => c.as[X509Certificate]
-      //  case err => c.as[Error]
-    })
-
-  implicit val encodeStixObj: Encoder[Observable] = new Encoder[Observable] {
-    final def apply(sdo: Observable): Json = {
-      sdo match {
-        case s: Artifact => sdo.asInstanceOf[Artifact].asJson
-        case s: AutonomousSystem => sdo.asInstanceOf[AutonomousSystem].asJson
-        case s: Directory => sdo.asInstanceOf[Directory].asJson
-        case s: DomainName => sdo.asInstanceOf[DomainName].asJson
-        case s: EmailAddress => sdo.asInstanceOf[EmailAddress].asJson
-        case s: EmailMessage => sdo.asInstanceOf[EmailMessage].asJson
-        case s: File => sdo.asInstanceOf[File].asJson
-        case s: IPv4Address => sdo.asInstanceOf[IPv4Address].asJson
-        case s: IPv6Address => sdo.asInstanceOf[IPv6Address].asJson
-        case s: MACAddress => sdo.asInstanceOf[MACAddress].asJson
-        case s: Mutex => sdo.asInstanceOf[Mutex].asJson
-        case s: NetworkTraffic => sdo.asInstanceOf[NetworkTraffic].asJson
-        case s: Process => sdo.asInstanceOf[Process].asJson
-        case s: Software => sdo.asInstanceOf[Software].asJson
-        case s: URL => sdo.asInstanceOf[URL].asJson
-        case s: UserAccount => sdo.asInstanceOf[UserAccount].asJson
-        case s: WindowsRegistryKey => sdo.asInstanceOf[WindowsRegistryKey].asJson
-        case s: X509Certificate => sdo.asInstanceOf[X509Certificate].asJson
-        case _ => Json.Null
+  val theWrites = new Writes[Observable] {
+    def writes(obj: Observable) = {
+      obj match {
+        case ext: Artifact => Artifact.fmt.writes(ext)
+        case ext: AutonomousSystem => AutonomousSystem.fmt.writes(ext)
+        case ext: Directory => Directory.fmt.writes(ext)
+        case ext: DomainName => DomainName.fmt.writes(ext)
+        case ext: EmailAddress => EmailAddress.fmt.writes(ext)
+        case ext: EmailMessage => EmailMessage.fmt.writes(ext)
+        case ext: File => File.fmt.writes(ext)
+        case ext: IPv4Address => IPv4Address.fmt.writes(ext)
+        case ext: IPv6Address => IPv6Address.fmt.writes(ext)
+        case ext: MACAddress => MACAddress.fmt.writes(ext)
+        case ext: Mutex => Mutex.fmt.writes(ext)
+        case ext: NetworkTraffic => NetworkTraffic.fmt.writes(ext)
+        case ext: Process => Process.fmt.writes(ext)
+        case ext: Software => Software.fmt.writes(ext)
+        case ext: URL => URL.fmt.writes(ext)
+        case ext: UserAccount => UserAccount.fmt.writes(ext)
+        case ext: WindowsRegistryKey => WindowsRegistryKey.fmt.writes(ext)
+        case ext: X509Certificate => X509Certificate.fmt.writes(ext)
+        case _ => null
       }
     }
   }
 
+  implicit val fmt: Format[Observable] = Format(theReads, theWrites)
 }

@@ -1,13 +1,10 @@
 package com.kodekutters.stix
 
-import org.threeten.bp._
 import java.util.UUID
+import java.time.{ZoneId, ZonedDateTime}
 
-import io.circe.syntax._
-import io.circe.{Json, _}
-import io.circe.generic.auto._
-import io.circe.Decoder._
-import io.circe._
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 /**
   * STIX-2.1 protocol
@@ -29,25 +26,26 @@ import io.circe._
   */
 case class Timestamp(time: String) {
   val `type` = Timestamp.`type`
+
   override def toString: String = time.toString
 }
 
 object Timestamp {
   val `type` = "timestamp"
 
-  implicit val encodeTimestamp: Encoder[Timestamp] = new Encoder[Timestamp] {
-    final def apply(w: Timestamp): Json = w.time.asJson
-  }
-
-  implicit val decodeTimestamp: Decoder[Timestamp] = new Decoder[Timestamp] {
-    final def apply(c: HCursor): Decoder.Result[Timestamp] = {
-      Right(new Timestamp(c.value.asString.getOrElse("")))
+  val theReads = new Reads[Timestamp] {
+    def reads(js: JsValue): JsResult[Timestamp] = {
+      JsSuccess(new Timestamp(js.as[String]))
     }
   }
 
-  // work in scala 2.12.2 but not in scala-2.11.11
-//  implicit val encodeTimestamp: Encoder[Timestamp] = (a: Timestamp) => a.time.asJson
-//  implicit val decodeTimestamp: Decoder[Timestamp] = (c: HCursor) => for {s <- c.value.as[String]} yield new Timestamp(s)
+  val theWrites = new Writes[Timestamp] {
+    def writes(obj: Timestamp) = {
+      JsString(obj.time)
+    }
+  }
+
+  implicit val fmt: Format[Timestamp] = Format(theReads, theWrites)
 
   def now() = new Timestamp(ZonedDateTime.now(ZoneId.of("Z")).toString)
 }
@@ -56,29 +54,30 @@ object Timestamp {
   * An identifier universally and uniquely identifies a SDO, SRO, Bundle, or Marking Definition.
   *
   * @param objType the type property of the object being identified or referenced
-  * @param id     an RFC 4122-compliant Version 4 UUID as a string
+  * @param id      an RFC 4122-compliant Version 4 UUID as a string
   */
 case class Identifier(objType: String, id: String) {
   val `type` = Identifier.`type`
+
   override def toString = objType + "--" + id
 }
 
 object Identifier {
   val `type` = "identifier"
 
-  implicit val encodeIdentifier: Encoder[Identifier] = new Encoder[Identifier] {
-    final def apply(w: Identifier): Json = w.toString.asJson
-  }
-
-  implicit val decodeIdentifier: Decoder[Identifier] = new Decoder[Identifier] {
-    final def apply(c: HCursor): Decoder.Result[Identifier] = {
-      Right(stringToIdentifier(c.value.asString.getOrElse("")))
+  val theReads = new Reads[Identifier] {
+    def reads(js: JsValue): JsResult[Identifier] = {
+      JsSuccess(stringToIdentifier(js.as[String]))
     }
   }
 
-  // work in scala 2.12.2 but not in scala-2.11.11
-//implicit val encodeIdentifier: Encoder[Identifier] = (iden: Identifier) => iden.toString.asJson
-//implicit val decodeIdentifier: Decoder[Identifier] = (c: HCursor) => for {s <- c.value.as[String]} yield stringToIdentifier(s)
+  val theWrites = new Writes[Identifier] {
+    def writes(obj: Identifier) = {
+      JsString(obj.toString)
+    }
+  }
+
+  implicit val fmt: Format[Identifier] = Format(theReads, theWrites)
 
   def stringToIdentifier(s: String): Identifier = {
     val part = s.split("--")
@@ -100,6 +99,8 @@ case class KillChainPhase(kill_chain_name: String, phase_name: String) {
 
 object KillChainPhase {
   val `type` = "kill-chain-phase"
+
+  implicit val fmt = Json.format[KillChainPhase]
 }
 
 //-----------------------------------------------------------------------
@@ -135,19 +136,19 @@ object TLPlevels {
     }
   }
 
-  implicit val encodeTLPlevels: Encoder[TLPlevels] = new Encoder[TLPlevels] {
-    final def apply(w: TLPlevels): Json = w.value.toString.asJson
-  }
-
-  implicit val decodeTLPlevels: Decoder[TLPlevels] = new Decoder[TLPlevels] {
-    final def apply(c: HCursor): Decoder.Result[TLPlevels] = {
-      Right(TLPlevels.fromString(c.value.asString.getOrElse("")))
+  val theReads = new Reads[TLPlevels] {
+    def reads(js: JsValue): JsResult[TLPlevels] = {
+      JsSuccess(TLPlevels.fromString(js.as[String]))
     }
   }
 
-  // work in scala 2.12.2 but not in scala-2.11.11
-//implicit val encodeTLPlevels: Encoder[TLPlevels] = (v: TLPlevels) => v.value.toString.asJson
-//implicit val decodeTLPlevels: Decoder[TLPlevels] = (c: HCursor) => for {s <- c.value.as[String]} yield TLPlevels.fromString(s)
+  val theWrites = new Writes[TLPlevels] {
+    def writes(obj: TLPlevels) = {
+      JsString(obj.value.toString)
+    }
+  }
+
+  implicit val fmt: Format[TLPlevels] = Format(theReads, theWrites)
 }
 
 /**
@@ -157,6 +158,10 @@ object TLPlevels {
   */
 case class TPLMarking(tlp: TLPlevels) extends MarkingObject
 
+object TPLMarking {
+  implicit val fmt = Json.format[TPLMarking]
+}
+
 /**
   * The Statement marking type defines the representation of a textual marking statement
   * (e.g., copyright, terms of use, etc.) in a definition.
@@ -165,27 +170,32 @@ case class TPLMarking(tlp: TLPlevels) extends MarkingObject
   */
 case class StatementMarking(statement: String) extends MarkingObject
 
+object StatementMarking {
+  implicit val fmt = Json.format[StatementMarking]
+}
+
 /**
   * Marking Object, TPLMarking or StatementMarking
   */
 object MarkingObject {
 
-  import TLPlevels.encodeTLPlevels
-  import TLPlevels.decodeTLPlevels
+  val theReads = new Reads[MarkingObject] {
+    def reads(js: JsValue): JsResult[MarkingObject] = {
+      StatementMarking.fmt.reads(js) | TPLMarking.fmt.reads(js)
+    }
+  }
 
-  implicit val decodeMarkingObject: Decoder[MarkingObject] =
-    Decoder[TPLMarking].map(p => p).or(Decoder[StatementMarking].map(p => p))
-
-  implicit val encodeMarkingObject: Encoder[MarkingObject] = new Encoder[MarkingObject] {
-    final def apply(mObj: MarkingObject): Json = {
-      mObj match {
-        case s: TPLMarking => mObj.asInstanceOf[TPLMarking].asJson
-        case s: StatementMarking => mObj.asInstanceOf[StatementMarking].asJson
-        case _ => Json.Null
+  val theWrites = new Writes[MarkingObject] {
+    def writes(obj: MarkingObject) = {
+      obj match {
+        case s: TPLMarking => Json.toJson(s.tlp)
+        case s: StatementMarking => Json.toJson(s.statement)
+        case _ => JsNull
       }
     }
   }
 
+  implicit val fmt: Format[MarkingObject] = Format(theReads, theWrites)
 }
 
 /**
@@ -211,6 +221,8 @@ case class GranularMarking(selectors: List[String], marking_ref: Option[String] 
 
 object GranularMarking {
   val `type` = "granular-marking"
+
+  implicit val fmt = Json.format[GranularMarking]
 }
 
 /**
@@ -224,6 +236,8 @@ case class ExternalReference(source_name: String, description: Option[String] = 
 
 object ExternalReference {
   val `type` = "external-reference"
+
+  implicit val fmt = Json.format[ExternalReference]
 }
 
 /**
@@ -232,7 +246,7 @@ object ExternalReference {
 trait StixObj {
   val `type`: String
   val id: Identifier
-  val x_custom: Option[JsonObject]
+  val x_custom: Option[JsObject]
 }
 
 /**
@@ -247,10 +261,11 @@ case class MarkingDefinition(`type`: String = MarkingDefinition.`type`,
                              object_marking_refs: Option[List[Identifier]] = None,
                              granular_markings: Option[List[GranularMarking]] = None,
                              created_by_ref: Option[Identifier] = None,
-                             x_custom: Option[JsonObject] = None) extends StixObj
+                             x_custom: Option[JsObject] = None) extends StixObj
 
 object MarkingDefinition {
   val `type` = "marking-definition"
+  implicit val fmt = Json.format[MarkingDefinition]
 }
 
 //-----------------------------------------------------------------------
@@ -291,10 +306,11 @@ case class AttackPattern(`type`: String = AttackPattern.`type`,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
-                         x_custom: Option[JsonObject] = None) extends SDO
+                         x_custom: Option[JsObject] = None) extends SDO
 
 object AttackPattern {
   val `type` = "attack-pattern"
+  implicit val fmt = Json.format[AttackPattern]
 }
 
 /**
@@ -318,10 +334,11 @@ case class Identity(`type`: String = Identity.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    x_custom: Option[JsonObject] = None) extends SDO
+                    x_custom: Option[JsObject] = None) extends SDO
 
 object Identity {
   val `type` = "identity"
+  implicit val fmt = Json.format[Identity]
 }
 
 /**
@@ -347,10 +364,11 @@ case class Campaign(`type`: String = Campaign.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    x_custom: Option[JsonObject] = None) extends SDO
+                    x_custom: Option[JsObject] = None) extends SDO
 
 object Campaign {
   val `type` = "campaign"
+  implicit val fmt = Json.format[Campaign]
 }
 
 /**
@@ -370,16 +388,16 @@ case class CourseOfAction(`type`: String = CourseOfAction.`type`,
                           object_marking_refs: Option[List[Identifier]] = None,
                           granular_markings: Option[List[GranularMarking]] = None,
                           created_by_ref: Option[Identifier] = None,
-                          x_custom: Option[JsonObject] = None) extends SDO
+                          x_custom: Option[JsObject] = None) extends SDO
 
 object CourseOfAction {
   val `type` = "course-of-action"
+  implicit val fmt = Json.format[CourseOfAction]
 }
 
 /**
   * Indicators contain a pattern that can be used to detect suspicious or malicious cyber activity.
   */
-// todo fix labels in Indicator is not optional
 case class Indicator(`type`: String = Indicator.`type`,
                      id: Identifier = Identifier(Indicator.`type`),
                      created: Timestamp = Timestamp.now(),
@@ -398,10 +416,11 @@ case class Indicator(`type`: String = Indicator.`type`,
                      object_marking_refs: Option[List[Identifier]] = None,
                      granular_markings: Option[List[GranularMarking]] = None,
                      created_by_ref: Option[Identifier] = None,
-                     x_custom: Option[JsonObject] = None) extends SDO
+                     x_custom: Option[JsObject] = None) extends SDO
 
 object Indicator {
   val `type` = "indicator"
+  implicit val fmt = Json.format[Indicator]
 }
 
 /**
@@ -429,10 +448,11 @@ case class IntrusionSet(`type`: String = IntrusionSet.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        x_custom: Option[JsonObject] = None) extends SDO
+                        x_custom: Option[JsObject] = None) extends SDO
 
 object IntrusionSet {
   val `type` = "intrusion-set"
+  implicit val fmt = Json.format[IntrusionSet]
 }
 
 /**
@@ -457,10 +477,11 @@ case class Malware(`type`: String = Malware.`type`,
                    object_marking_refs: Option[List[Identifier]] = None,
                    granular_markings: Option[List[GranularMarking]] = None,
                    created_by_ref: Option[Identifier] = None,
-                   x_custom: Option[JsonObject] = None) extends SDO
+                   x_custom: Option[JsObject] = None) extends SDO
 
 object Malware {
   val `type` = "malware"
+  implicit val fmt = Json.format[Malware]
 }
 
 /**
@@ -484,10 +505,11 @@ case class ObservedData(`type`: String = ObservedData.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        x_custom: Option[JsonObject] = None) extends SDO
+                        x_custom: Option[JsObject] = None) extends SDO
 
 object ObservedData {
   val `type` = "observed-data"
+  implicit val fmt = Json.format[ObservedData]
 }
 
 /**
@@ -510,10 +532,11 @@ case class Report(`type`: String = Report.`type`,
                   object_marking_refs: Option[List[Identifier]] = None,
                   granular_markings: Option[List[GranularMarking]] = None,
                   created_by_ref: Option[Identifier] = None,
-                  x_custom: Option[JsonObject] = None) extends SDO
+                  x_custom: Option[JsObject] = None) extends SDO
 
 object Report {
   val `type` = "report"
+  implicit val fmt = Json.format[Report]
 }
 
 /**
@@ -542,10 +565,43 @@ case class ThreatActor(`type`: String = ThreatActor.`type`,
                        object_marking_refs: Option[List[Identifier]] = None,
                        granular_markings: Option[List[GranularMarking]] = None,
                        created_by_ref: Option[Identifier] = None,
-                       x_custom: Option[JsonObject] = None) extends SDO
+                       x_custom: Option[JsObject] = None) extends SDO
 
 object ThreatActor {
   val `type` = "threat-actor"
+
+  // all this bloat because cannot deal with more than 22 fields
+
+  val part1: OFormat[(String, Identifier, Timestamp, Timestamp, String, Option[List[String]], Option[String],
+    Option[List[String]], Option[List[String]], Option[List[String]], Option[String])] =
+    ((__ \ "type").format[String] ~ (__ \ "id").format[Identifier] ~ (__ \ "created").format[Timestamp] ~
+      (__ \ "modified").format[Timestamp] ~ (__ \ "name").format[String] ~
+      (__ \ "labels").formatNullable[List[String]] ~
+      (__ \ "description").formatNullable[String] ~ (__ \ "aliases").formatNullable[List[String]] ~
+      (__ \ "roles").formatNullable[List[String]] ~ (__ \ "goals").formatNullable[List[String]] ~
+      (__ \ "sophistication").formatNullable[String]).tupled
+
+  val part2: OFormat[(Option[String], Option[String], Option[List[String]], Option[List[String]], Option[Boolean],
+    Option[Int], Option[List[ExternalReference]],
+    Option[String], Option[List[Identifier]], Option[List[GranularMarking]], Option[Identifier], Option[JsObject])] =
+    ((__ \ "resource_level").formatNullable[String] ~ (__ \ "primary_motivation").formatNullable[String] ~
+      (__ \ "secondary_motivations").formatNullable[List[String]] ~ (__ \ "personal_motivations").formatNullable[List[String]] ~
+      (__ \ "revoked").formatNullable[Boolean] ~ (__ \ "confidence").formatNullable[Int] ~
+      (__ \ "external_references").formatNullable[List[ExternalReference]] ~ (__ \ "lang").formatNullable[String] ~
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] ~ (__ \ "granular_markings").formatNullable[List[GranularMarking]] ~
+      (__ \ "created_by_ref").formatNullable[Identifier] ~ (__ \ "x_custom").formatNullable[JsObject]).tupled
+
+  implicit val fmt: Format[ThreatActor] = (part1 ~ part2) ({
+    case ((`type`, id, created, modified, name, labels, description, aliases, roles, goals, sophistication),
+    (resource_level, primary_motivation, secondary_motivations, personal_motivations, revoked,
+    confidence, external_references, lang, object_marking_refs, granular_markings, created_by_ref, x_custom)) =>
+      new ThreatActor(`type`, id, created, modified, name, labels, description, aliases, roles, goals, sophistication,
+        resource_level, primary_motivation, secondary_motivations, personal_motivations, revoked,
+        confidence, external_references, lang, object_marking_refs, granular_markings, created_by_ref, x_custom)
+  }, (t: ThreatActor) => ((t.`type`, t.id, t.created, t.modified, t.name, t.labels, t.description, t.aliases,
+    t.roles, t.goals, t.sophistication), (t.resource_level, t.primary_motivation, t.secondary_motivations, t.personal_motivations, t.revoked,
+    t.confidence, t.external_references, t.lang, t.object_marking_refs, t.granular_markings, t.created_by_ref, t.x_custom)))
+
 }
 
 /**
@@ -567,10 +623,11 @@ case class Tool(`type`: String = Tool.`type`,
                 object_marking_refs: Option[List[Identifier]] = None,
                 granular_markings: Option[List[GranularMarking]] = None,
                 created_by_ref: Option[Identifier] = None,
-                x_custom: Option[JsonObject] = None) extends SDO
+                x_custom: Option[JsObject] = None) extends SDO
 
 object Tool {
   val `type` = "tool"
+  implicit val fmt = Json.format[Tool]
 }
 
 /**
@@ -591,10 +648,11 @@ case class Vulnerability(`type`: String = Vulnerability.`type`,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
-                         x_custom: Option[JsonObject] = None) extends SDO
+                         x_custom: Option[JsObject] = None) extends SDO
 
 object Vulnerability {
   val `type` = "vulnerability"
+  implicit val fmt = Json.format[Vulnerability]
 }
 
 //-----------------------------------------------------------------------
@@ -635,7 +693,7 @@ case class Relationship(`type`: String = Relationship.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        x_custom: Option[JsonObject] = None) extends SRO {
+                        x_custom: Option[JsObject] = None) extends SRO {
 
   def this(source_ref: Identifier, relationship_type: String, target_ref: Identifier) =
     this(Relationship.`type`, Identifier(Relationship.`type`), Timestamp.now(), Timestamp.now(),
@@ -644,6 +702,7 @@ case class Relationship(`type`: String = Relationship.`type`,
 
 object Relationship {
   val `type` = "relationship"
+  implicit val fmt = Json.format[Relationship]
 }
 
 /**
@@ -669,10 +728,11 @@ case class Sighting(`type`: String = Sighting.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    x_custom: Option[JsonObject] = None) extends SRO
+                    x_custom: Option[JsObject] = None) extends SRO
 
 object Sighting {
   val `type` = "sighting"
+  implicit val fmt = Json.format[Sighting]
 }
 
 //-----------------------------------------------------------------------
@@ -695,10 +755,11 @@ case class LanguageContent(`type`: String = LanguageContent.`type`,
                            external_references: Option[List[ExternalReference]] = None,
                            object_marking_refs: Option[List[Identifier]] = None,
                            granular_markings: Option[List[GranularMarking]] = None,
-                           x_custom: Option[JsonObject] = None) extends StixObj
+                           x_custom: Option[JsObject] = None) extends StixObj
 
 object LanguageContent {
   val `type` = "language-content"
+  implicit val fmt = Json.format[LanguageContent]
 }
 
 //-----------------------------------------------------------------------
@@ -707,58 +768,54 @@ object LanguageContent {
 
 object StixObj {
 
-  import Timestamp.decodeTimestamp
-  import Timestamp.encodeTimestamp
-  import Identifier.decodeIdentifier
-  import Identifier.encodeIdentifier
-  import MarkingObject.decodeMarkingObject
-  import MarkingObject.encodeMarkingObject
+  val theReads = new Reads[StixObj] {
+    def reads(js: JsValue): JsResult[StixObj] = {
+      (js \ "type").asOpt[String].map({
+        case AttackPattern.`type` => AttackPattern.fmt.reads(js)
+        case Identity.`type` => Identity.fmt.reads(js)
+        case Campaign.`type` => Campaign.fmt.reads(js)
+        case CourseOfAction.`type` => CourseOfAction.fmt.reads(js)
+        case Indicator.`type` => Indicator.fmt.reads(js)
+        case IntrusionSet.`type` => IntrusionSet.fmt.reads(js)
+        case Malware.`type` => Malware.fmt.reads(js)
+        case ObservedData.`type` => ObservedData.fmt.reads(js)
+        case Report.`type` => Report.fmt.reads(js)
+        case ThreatActor.`type` => ThreatActor.fmt.reads(js)
+        case Tool.`type` => Tool.fmt.reads(js)
+        case Vulnerability.`type` => Vulnerability.fmt.reads(js)
+        case Relationship.`type` => Relationship.fmt.reads(js)
+        case Sighting.`type` => Sighting.fmt.reads(js)
+        case MarkingDefinition.`type` => MarkingDefinition.fmt.reads(js)
+        case LanguageContent.`type` => LanguageContent.fmt.reads(js)
+      }).getOrElse(JsError("Error reading StixObj"))
+    }
+  }
 
-  implicit val decodeStixObj: Decoder[StixObj] = Decoder.instance(c =>
-    c.downField("type").as[String].right.flatMap {
-      case AttackPattern.`type` => c.as[AttackPattern]
-      case Identity.`type` => c.as[Identity]
-      case Campaign.`type` => c.as[Campaign]
-      case CourseOfAction.`type` => c.as[CourseOfAction]
-      case Indicator.`type` => c.as[Indicator]
-      case IntrusionSet.`type` => c.as[IntrusionSet]
-      case Malware.`type` => c.as[Malware]
-      case ObservedData.`type` => c.as[ObservedData]
-      case Report.`type` => c.as[Report]
-      case ThreatActor.`type` => c.as[ThreatActor]
-      case Tool.`type` => c.as[Tool]
-      case Vulnerability.`type` => c.as[Vulnerability]
-      case Relationship.`type` => c.as[Relationship]
-      case Sighting.`type` => c.as[Sighting]
-      case MarkingDefinition.`type` => c.as[MarkingDefinition]
-      case LanguageContent.`type` => c.as[LanguageContent]
-      //  case err => c.as[SDOError]
-    })
-
-  implicit val encodeStixObj: Encoder[StixObj] = new Encoder[StixObj] {
-    final def apply(sdo: StixObj): Json = {
-      sdo match {
-        case s: AttackPattern => sdo.asInstanceOf[AttackPattern].asJson
-        case s: Identity => sdo.asInstanceOf[Identity].asJson
-        case s: Campaign => sdo.asInstanceOf[Campaign].asJson
-        case s: CourseOfAction => sdo.asInstanceOf[CourseOfAction].asJson
-        case s: Indicator => sdo.asInstanceOf[Indicator].asJson
-        case s: IntrusionSet => sdo.asInstanceOf[IntrusionSet].asJson
-        case s: Malware => sdo.asInstanceOf[Malware].asJson
-        case s: ObservedData => sdo.asInstanceOf[ObservedData].asJson
-        case s: Report => sdo.asInstanceOf[Report].asJson
-        case s: ThreatActor => sdo.asInstanceOf[ThreatActor].asJson
-        case s: Tool => sdo.asInstanceOf[Tool].asJson
-        case s: Vulnerability => sdo.asInstanceOf[Vulnerability].asJson
-        case s: Relationship => sdo.asInstanceOf[Relationship].asJson
-        case s: Sighting => sdo.asInstanceOf[Sighting].asJson
-        case s: MarkingDefinition => sdo.asInstanceOf[MarkingDefinition].asJson
-        case s: LanguageContent => sdo.asInstanceOf[LanguageContent].asJson
-        case _ => Json.Null
+  val theWrites = new Writes[StixObj] {
+    def writes(obj: StixObj) = {
+      obj match {
+        case stix: AttackPattern => AttackPattern.fmt.writes(stix)
+        case stix: Identity => Identity.fmt.writes(stix)
+        case stix: Campaign => Campaign.fmt.writes(stix)
+        case stix: CourseOfAction => CourseOfAction.fmt.writes(stix)
+        case stix: Indicator => Indicator.fmt.writes(stix)
+        case stix: IntrusionSet => IntrusionSet.fmt.writes(stix)
+        case stix: Malware => Malware.fmt.writes(stix)
+        case stix: ObservedData => ObservedData.fmt.writes(stix)
+        case stix: Report => Report.fmt.writes(stix)
+        case stix: ThreatActor => ThreatActor.fmt.writes(stix)
+        case stix: Tool => Tool.fmt.writes(stix)
+        case stix: Vulnerability => Vulnerability.fmt.writes(stix)
+        case stix: Relationship => Relationship.fmt.writes(stix)
+        case stix: Sighting => Sighting.fmt.writes(stix)
+        case stix: MarkingDefinition => MarkingDefinition.fmt.writes(stix)
+        case stix: LanguageContent => LanguageContent.fmt.writes(stix)
+        case _ => JsNull
       }
     }
   }
 
+  implicit val fmt: Format[StixObj] = Format(theReads, theWrites)
 }
 
 /**
@@ -785,6 +842,8 @@ object Bundle {
   def apply(objects: List[StixObj]) = new Bundle(objects)
 
   def apply(objects: StixObj*) = new Bundle(objects.toList)
+
+  implicit val fmt = Json.format[Bundle]
 }
 
 
