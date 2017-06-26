@@ -30,7 +30,7 @@ javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G")
 libraryDependencies += "com.typesafe.play" % "play-json_2.12" % playJsonVersion
 
 mainClass in assembly := Some("com.kodekutters.Example2")
-assemblyJarName in assembly := "scalastix_2.12-0.2.jar"
+assemblyJarName in assembly := "scalastix_2.12-0.3-SNAPSHOT.jar"
 
 // common
 scalacOptions ++= Seq(
