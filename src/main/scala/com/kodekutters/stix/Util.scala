@@ -7,15 +7,6 @@ import play.api.libs.json._
   */
 object Util {
 
-//  implicit def optionFormat[T: Format]: Format[Option[T]] = new Format[Option[T]]{
-//    override def reads(json: JsValue): JsResult[Option[T]] = json.validateOpt[T]
-//
-//    override def writes(o: Option[T]): JsValue = o match {
-//      case Some(t) ⇒ implicitly[Writes[T]].writes(t)
-//      case None ⇒ JsNull
-//    }
-//  }
-
   implicit def eitherReads[A, B](implicit Ax: Reads[A], Bx: Reads[B]): Reads[Either[A, B]] =
     Reads[Either[A, B]] { json =>
       Ax.reads(json) match {
@@ -32,7 +23,6 @@ object Util {
       case Left(a) => Ax.writes(a)
       case Right(b) => Bx.writes(b)
     }
-
 
   // todo
   // list of type names

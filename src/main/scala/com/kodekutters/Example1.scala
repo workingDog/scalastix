@@ -12,7 +12,7 @@ object Example1 {
   def main(args: Array[String]): Unit = {
 
     // read a STIX bundle from a file
-    val jsondoc = Source.fromFile("./stixfiles/test2.json").mkString
+    val jsondoc = Source.fromFile("./stixfiles/test1.json").mkString
     // create a bundle object from it
     Json.fromJson[Bundle](Json.parse(jsondoc)).asOpt match {
       case None => println("\n-----> invalid JSON ")

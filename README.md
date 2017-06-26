@@ -16,7 +16,9 @@ It is an API for serializing and de-serializing STIX 2.1 JSON content.
 It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data types.
 
 #### Note
-**ScalaStix** now uses the [Play JSON](https://github.com/playframework/play-json) library to provide the JSON 
+The older **ScalaStix** version 0.1 uses [circe](https://github.com/circe/circe) for JSON serialization and de-serialization. 
+
+**ScalaStix** version 0.2 uses the [Play JSON](https://github.com/playframework/play-json) library to provide the JSON 
 serialization and de-serialization. See also the [Play Framwork documentation](https://www.playframework.com/documentation/2.6.x/ScalaJson) 
 for how to use Play JSON.  
 

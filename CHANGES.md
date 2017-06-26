@@ -5,6 +5,7 @@ Change Log
 
 
 ## changes in 0.2
+
 # fixed a bug/typo in WindowPESectionType.`type`
 # removed dependency on "org.threeten" % "threetenbp" % "1.3.4" (using java instead)
 # remove all circe dependencies 

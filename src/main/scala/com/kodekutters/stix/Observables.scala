@@ -471,7 +471,6 @@ object Observable {
         case UserAccount.`type` => UserAccount.fmt.reads(js)
         case WindowsRegistryKey.`type` => WindowsRegistryKey.fmt.reads(js)
         case X509Certificate.`type` => X509Certificate.fmt.reads(js)
-        case _ => null
       }).getOrElse(JsError("Error reading Observable"))
     }
   }
@@ -497,7 +496,7 @@ object Observable {
         case ext: UserAccount => UserAccount.fmt.writes(ext)
         case ext: WindowsRegistryKey => WindowsRegistryKey.fmt.writes(ext)
         case ext: X509Certificate => X509Certificate.fmt.writes(ext)
-        case _ => null
+        case _ => JsNull
       }
     }
   }

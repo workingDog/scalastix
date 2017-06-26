@@ -188,8 +188,8 @@ object MarkingObject {
   val theWrites = new Writes[MarkingObject] {
     def writes(obj: MarkingObject) = {
       obj match {
-        case s: TPLMarking => Json.toJson(s.tlp)
-        case s: StatementMarking => Json.toJson(s.statement)
+        case s: TPLMarking => TPLMarking.fmt.writes(s)
+        case s: StatementMarking => StatementMarking.fmt.writes(s)
         case _ => JsNull
       }
     }

@@ -228,7 +228,6 @@ object Extension {
         case PdfFileExt.`type` => PdfFileExt.fmt.reads(js)
         case RasterImgExt.`type` => RasterImgExt.fmt.reads(js)
         case WindowPEBinExt.`type` => WindowPEBinExt.fmt.reads(js)
-        case _ => null
       }).getOrElse(JsError("Error reading Extension"))
     }
   }
@@ -241,7 +240,7 @@ object Extension {
         case ext: PdfFileExt => PdfFileExt.fmt.writes(ext)
         case ext: RasterImgExt => RasterImgExt.fmt.writes(ext)
         case ext: WindowPEBinExt => WindowPEBinExt.fmt.writes(ext)
-        case _ => null
+        case _ => JsNull
       }
     }
   }
