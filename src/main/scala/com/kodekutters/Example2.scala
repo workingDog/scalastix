@@ -16,6 +16,8 @@ object Example2 {
 
   def test() = {
 
+    println("---> in Example2 test")
+
     // create a sdo
     val attackPattern = new AttackPattern(
       name = "Spear Phishing",

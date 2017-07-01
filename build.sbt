@@ -14,20 +14,24 @@ val playJsonVersion = "2.6.0"
 // for scala.js .... see also plugins.sbt
 //enablePlugins(ScalaJSPlugin)
 //skip in packageJSDependencies := false
-//scalaJSStage in Global := FastOptStage  // FullOptStage //
+//scalaJSStage in Global := FastOptStage // FullOptStage //
 //jsDependencies += RuntimeDOM
 //libraryDependencies ++= Seq(
-//"org.scala-js" %%% "scalajs-dom" % "0.9.2",
-//"org.scala-js" %%% "scalajs-java-time" % "0.2.1",
-//"io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M11",
-// "com.typesafe.play"  %%%  "play-json_sjs0.6_2.12" % "2.6.0"
+//  "org.scala-js" %%% "scalajs-dom" % "0.9.2",
+//  "org.scala-js" %%% "scalajs-java-time" % "0.2.1",
+//  "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M12",
+//  "org.threeten" % "threetenbp" % "1.3.5",
+//  "com.typesafe.play" %%% "play-json" % "2.6.0"
 //)
 
 // for JVM scala
 fork := true
 javaOptions in compile += "-Xmx8G"
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G")
-libraryDependencies += "com.typesafe.play" % "play-json_2.12" % playJsonVersion
+libraryDependencies ++= Seq(
+  "org.threeten" % "threetenbp" % "1.3.5",
+  "com.typesafe.play" % "play-json_2.12" % playJsonVersion
+)
 
 mainClass in assembly := Some("com.kodekutters.Example2")
 assemblyJarName in assembly := "scalastix_2.12-0.3-SNAPSHOT.jar"

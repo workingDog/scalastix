@@ -3,6 +3,9 @@ Change Log
 
 ### changes in 0.3-SNAPSHOT  
 
+* using "org.threeten" % "threetenbp" instead of java.time, to cater for ZonedDateTime in scala and scala.js
+
+
 
 ### changes in 0.2
 

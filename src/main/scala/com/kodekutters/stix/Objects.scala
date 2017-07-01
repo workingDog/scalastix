@@ -1,8 +1,8 @@
 package com.kodekutters.stix
 
-import java.util.UUID
-import java.time.{ZoneId, ZonedDateTime}
+import org.threeten.bp._
 
+import java.util.UUID
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
@@ -48,6 +48,7 @@ object Timestamp {
   implicit val fmt: Format[Timestamp] = Format(theReads, theWrites)
 
   def now() = new Timestamp(ZonedDateTime.now(ZoneId.of("Z")).toString)
+
 }
 
 /**

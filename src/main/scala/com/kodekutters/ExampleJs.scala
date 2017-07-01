@@ -1,9 +1,6 @@
 //package com.kodekutters
 //
-//import com.kodekutters.Example2
-//import com.kodekutters.stix.StixImplicits._
-//import com.kodekutters.stix._
-
+//import scala.scalajs.js.JSApp
 //
 ///**
 //  * a simple example of using scala.js (same code as Example2)
@@ -12,5 +9,8 @@
 //object ExampleJs extends JSApp {
 //
 //  def main(): Unit = {
+//    Console.println("---> in ExampleJs")
 //    Example2.test()
+//  }
+//
 //}
