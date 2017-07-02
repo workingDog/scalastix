@@ -9,7 +9,7 @@ scalaVersion := "2.12.2"
 
 crossScalaVersions := Seq("2.11.11", "2.12.2")
 
-val playJsonVersion = "2.6.0"
+val playJsonVersion = "2.6.1"
 
 // for scala.js .... see also plugins.sbt
 //enablePlugins(ScalaJSPlugin)
@@ -21,7 +21,7 @@ val playJsonVersion = "2.6.0"
 //  "org.scala-js" %%% "scalajs-java-time" % "0.2.1",
 //  "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M12",
 //  "org.threeten" % "threetenbp" % "1.3.5",
-//  "com.typesafe.play" %%% "play-json" % "2.6.0"
+//  "com.typesafe.play" %%% "play-json" % playJsonVersion
 //)
 
 // for JVM scala
@@ -30,8 +30,8 @@ javaOptions in compile += "-Xmx8G"
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G")
 libraryDependencies ++= Seq(
   "org.threeten" % "threetenbp" % "1.3.5",
-  "com.typesafe.play.extras" % "play-geojson_2.11" % "1.4.0",
-  "com.typesafe.play" % "play-json_2.12" % playJsonVersion
+//  "com.typesafe.play.extras" % "play-geojson_2.11" % "1.4.1",
+  "com.typesafe.play" %% "play-json" % playJsonVersion
 )
 
 mainClass in assembly := Some("com.kodekutters.Example2")
