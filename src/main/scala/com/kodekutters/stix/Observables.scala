@@ -471,6 +471,7 @@ object Observable {
         case UserAccount.`type` => UserAccount.fmt.reads(js)
         case WindowsRegistryKey.`type` => WindowsRegistryKey.fmt.reads(js)
         case X509Certificate.`type` => X509Certificate.fmt.reads(js)
+        // todo ---> custom observables
       }).getOrElse(JsError("Error reading Observable"))
     }
   }
@@ -496,6 +497,7 @@ object Observable {
         case ext: UserAccount => UserAccount.fmt.writes(ext)
         case ext: WindowsRegistryKey => WindowsRegistryKey.fmt.writes(ext)
         case ext: X509Certificate => X509Certificate.fmt.writes(ext)
+        // todo ---> custom observables
         case _ => JsNull
       }
     }
