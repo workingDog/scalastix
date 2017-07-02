@@ -30,6 +30,7 @@ javaOptions in compile += "-Xmx8G"
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G")
 libraryDependencies ++= Seq(
   "org.threeten" % "threetenbp" % "1.3.5",
+  "com.typesafe.play.extras" % "play-geojson_2.11" % "1.4.0",
   "com.typesafe.play" % "play-json_2.12" % playJsonVersion
 )
 

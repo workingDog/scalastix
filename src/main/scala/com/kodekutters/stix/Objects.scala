@@ -1,7 +1,7 @@
 package com.kodekutters.stix
 
 import org.threeten.bp._
-
+import play.extras.geojson._
 import java.util.UUID
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -270,6 +270,34 @@ object MarkingDefinition {
 }
 
 //-----------------------------------------------------------------------
+//------------------Address and Location---------------------------------------------
+//-----------------------------------------------------------------------
+/**
+  * The Address is a sub-type used only by location and is used to describe civic (street) addresses.
+  */
+case class Address(country: String,
+                   administrative_area: Option[String] = None,
+                   city: Option[String] = None,
+                   address: Option[String] = None,
+                   postal_code: Option[String] = None)
+
+object Address {
+  implicit val fmt = Json.format[Address]
+}
+
+/**
+  * Location is used to describe geographic locations.
+  * It supports describing by general region, civic address, or using GeoJSON.
+  */
+case class Location(region: String,
+                    address: Option[Address] = None,
+                    geojson: Option[GeoJson[LatLng]] = None)
+
+object Location {
+  implicit val fmt = Json.format[Location]
+}
+
+//-----------------------------------------------------------------------
 //------------------STIX Domain Objects----------------------------------
 //-----------------------------------------------------------------------
 
@@ -335,6 +363,7 @@ case class Identity(`type`: String = Identity.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
+                    //    location: Option[Location] = None,
                     x_custom: Option[JsObject] = None) extends SDO
 
 object Identity {
@@ -449,6 +478,7 @@ case class IntrusionSet(`type`: String = IntrusionSet.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
+                        //    locations: Option[List[Location]] = None,
                         x_custom: Option[JsObject] = None) extends SDO
 
 object IntrusionSet {
