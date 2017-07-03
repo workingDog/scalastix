@@ -1,7 +1,8 @@
 resolvers += Resolver.sonatypeRepo("public")
+resolvers += Resolver.sonatypeRepo("releases")
 
 // for scala.js
-//addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.18")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.18")
 
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.5")
 
