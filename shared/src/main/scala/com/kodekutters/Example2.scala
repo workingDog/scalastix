@@ -1,9 +1,8 @@
 package com.kodekutters
 
 import com.kodekutters.stix._
-
 import StixImplicits._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsString, Json}
 
 
 /**
@@ -23,7 +22,8 @@ object Example2 {
       name = "Spear Phishing",
       kill_chain_phases = List(KillChainPhase("Kill", "Bill")),
       external_references = List(ExternalReference("a-source-name")),
-      object_marking_refs = List(Identifier(Campaign.`type`)))
+      object_marking_refs = List(Identifier(Campaign.`type`)),
+      custom = CustomMap(Map("x_test" -> JsString("test1"))))
 
     println("\n----> attackPattern: " + attackPattern)
     // convert to json
@@ -44,8 +44,16 @@ object Example2 {
              "kill_chain_name": "mandiant-attack-lifecycle-model",
              "phase_name": "establish-foothold"
            }
-          ]
-         }""".stripMargin
+          ],
+       "x_a": "some text",
+       "x_b": 12,
+       "x_c": false,
+       "x_d": 45.67,
+       "x_array_a": [1,2,3,4,5,6],
+       "x_array_b": ["1", "2", "3", "4"],
+       "x_obj": {"name": "Jack", "age": 27},
+       "dog": "rover"
+      }""".stripMargin
 
     // parse to json
     val theJson = Json.parse(theString)
@@ -53,5 +61,6 @@ object Example2 {
     // convert to a (option) Stix object
     val attackOpt = Json.fromJson[StixObj](theJson).asOpt
     println("\n---> attackOpt: " + attackOpt)
+
   }
 }

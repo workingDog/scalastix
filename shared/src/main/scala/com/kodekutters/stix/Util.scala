@@ -7,6 +7,7 @@ import play.api.libs.json._
   */
 object Util {
 
+  // reads for Either
   implicit def eitherReads[A, B](implicit Ax: Reads[A], Bx: Reads[B]): Reads[Either[A, B]] =
     Reads[Either[A, B]] { json =>
       Ax.reads(json) match {
@@ -17,12 +18,18 @@ object Util {
         }
       }
     }
-
+  // write for Either
   implicit def eitherWrites[A, B](implicit Ax: Writes[A], Bx: Writes[B]): Writes[Either[A, B]] =
     Writes[Either[A, B]] {
       case Left(a) => Ax.writes(a)
       case Right(b) => Bx.writes(b)
     }
+
+  // convenience for converting a CustomMap of custom properties into a json string representation
+  def asJsObject(cust: CustomMap) = Json.toJson[CustomMap](cust).asInstanceOf[JsObject]
+
+  // convenience for getting the list of all fields of an Stix object, but not the "custom" field.
+  def getOmitList(obj: StixObj) = (for (f <- obj.getClass.getDeclaredFields) yield f.getName).toList.filterNot(_ == "custom")
 
   // todo
   // list of type names

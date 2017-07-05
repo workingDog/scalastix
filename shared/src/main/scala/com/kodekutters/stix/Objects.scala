@@ -5,6 +5,7 @@ import play.extras.geojson._
 import java.util.UUID
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import Util._
 
 /**
   * STIX-2.1 protocol
@@ -48,7 +49,6 @@ object Timestamp {
   implicit val fmt: Format[Timestamp] = Format(theReads, theWrites)
 
   def now() = new Timestamp(ZonedDateTime.now(ZoneId.of("Z")).toString)
-
 }
 
 /**
@@ -241,13 +241,54 @@ object ExternalReference {
   implicit val fmt = Json.format[ExternalReference]
 }
 
+//-----------------------------------------------------------------------
+//------------------x-custom support-------------------------------------
+//-----------------------------------------------------------------------
+
+/**
+  * a generic custom (key,value) dictionary representing the Custom Properties,
+  * with key = a custom property name, i.e. starting with "x_", and value = the property JsValue
+  */
+case class CustomMap(nodes: Map[String, JsValue])
+
+object CustomMap {
+
+  def readAttributes(js: JsValue, omitList: List[String]): Option[CustomMap] = {
+    js match {
+      case json: JsObject =>
+        // get all fields of js, but not the fields in the omitList, this gives all the custom property fields
+        val fList = json.fields.filterNot(p => omitList.contains(p._1))
+        if (fList.isEmpty) None else Some(new CustomMap(fList.toMap))
+
+      case x => JsError(s"Could not read custom field: $x"); None
+    }
+  }
+
+  val theReads = new Reads[CustomMap] {
+    def reads(json: JsValue): JsResult[CustomMap] = {
+      json match {
+        case js: JsObject => JsSuccess(new CustomMap(js.fields.toMap))
+        case x => JsError(s"Error could not read custom: $x")
+      }
+    }
+  }
+
+  val theWrites = new Writes[CustomMap] {
+    def writes(custom: CustomMap): JsObject = JsObject(custom.nodes)
+  }
+
+  implicit val fmt: Format[CustomMap] = Format(theReads, theWrites)
+}
+
+//-----------------------------------------------------------------------
+
 /**
   * a general STIX object representing the SDOs, SROs, LanguageContent and MarkingDefinition
   */
 trait StixObj {
   val `type`: String
   val id: Identifier
-  val x_custom: Option[JsObject]
+  val custom: Option[CustomMap] // the custom properties as a map of property names and values
 }
 
 /**
@@ -262,15 +303,63 @@ case class MarkingDefinition(`type`: String = MarkingDefinition.`type`,
                              object_marking_refs: Option[List[Identifier]] = None,
                              granular_markings: Option[List[GranularMarking]] = None,
                              created_by_ref: Option[Identifier] = None,
-                             x_custom: Option[JsObject] = None) extends StixObj
+                             custom: Option[CustomMap] = None) extends StixObj
 
 object MarkingDefinition {
   val `type` = "marking-definition"
-  implicit val fmt = Json.format[MarkingDefinition]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(MarkingDefinition(definition_type = "test", definition = StatementMarking("test")))
+
+  val theReads = new Reads[MarkingDefinition] {
+    def reads(js: JsValue): JsResult[MarkingDefinition] = {
+      if ((js \ "type").asOpt[String].contains(MarkingDefinition.`type`)) {
+        JsSuccess(new MarkingDefinition(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "definition_type").as[String],
+          (js \ "definition").as[MarkingObject],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading MarkingDefinition: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[MarkingDefinition] {
+    def writes(p: MarkingDefinition): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "definition_type" -> JsString(p.definition_type),
+        "definition" -> Json.toJson(p.definition))
+
+      val theList = JsObject(List(
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[MarkingDefinition] = Format(theReads, theWrites)
 }
 
 //-----------------------------------------------------------------------
-//------------------Address and Location---------------------------------------------
+//------------------Address and Location---------------------------------
 //-----------------------------------------------------------------------
 /**
   * The Address is a sub-type used only by location and is used to describe civic (street) addresses.
@@ -335,11 +424,71 @@ case class AttackPattern(`type`: String = AttackPattern.`type`,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
-                         x_custom: Option[JsObject] = None) extends SDO
+                         custom: Option[CustomMap] = None) extends SDO
 
 object AttackPattern {
   val `type` = "attack-pattern"
-  implicit val fmt = Json.format[AttackPattern]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(AttackPattern(name = "test"))
+
+  val theReads = new Reads[AttackPattern] {
+    def reads(js: JsValue): JsResult[AttackPattern] = {
+      if ((js \ "type").asOpt[String].contains(AttackPattern.`type`)) {
+        JsSuccess(new AttackPattern(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "name").as[String],
+          (js \ "description").asOpt[String],
+          (js \ "kill_chain_phases").asOpt[List[KillChainPhase]],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading AttackPattern: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[AttackPattern] {
+    def writes(p: AttackPattern): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "name" -> JsString(p.name))
+
+      val theList = JsObject(List(
+        p.description.map("description" -> JsString(_)),
+        p.kill_chain_phases.map("kill_chain_phases" -> Json.toJson(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[AttackPattern] = Format(theReads, theWrites)
 }
 
 /**
@@ -364,11 +513,75 @@ case class Identity(`type`: String = Identity.`type`,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
                     //    location: Option[Location] = None,
-                    x_custom: Option[JsObject] = None) extends SDO
+                    custom: Option[CustomMap] = None) extends SDO
 
 object Identity {
   val `type` = "identity"
-  implicit val fmt = Json.format[Identity]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(Identity(name = "test", identity_class = "test"))
+
+  val theReads = new Reads[Identity] {
+    def reads(js: JsValue): JsResult[Identity] = {
+      if ((js \ "type").asOpt[String].contains(Identity.`type`)) {
+        JsSuccess(new Identity(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "name").as[String],
+          (js \ "identity_class").as[String],
+          (js \ "sectors").asOpt[List[String]],
+          (js \ "contact_information").asOpt[String],
+          (js \ "description").asOpt[String],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading Identity: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[Identity] {
+    def writes(p: Identity): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "name" -> JsString(p.name),
+        "identity_class" -> JsString(p.name))
+
+      val theList = JsObject(List(
+        p.sectors.map("sectors" -> Json.toJson(_)),
+        p.contact_information.map("contact_information" -> JsString(_)),
+        p.description.map("description" -> JsString(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[Identity] = Format(theReads, theWrites)
 }
 
 /**
@@ -394,11 +607,77 @@ case class Campaign(`type`: String = Campaign.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    x_custom: Option[JsObject] = None) extends SDO
+                    custom: Option[CustomMap] = None) extends SDO
 
 object Campaign {
   val `type` = "campaign"
-  implicit val fmt = Json.format[Campaign]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(Campaign(name = "test"))
+
+  val theReads = new Reads[Campaign] {
+    def reads(js: JsValue): JsResult[Campaign] = {
+      if ((js \ "type").asOpt[String].contains(Campaign.`type`)) {
+        JsSuccess(new Campaign(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "name").as[String],
+          (js \ "description").asOpt[String],
+          (js \ "aliases").asOpt[List[String]],
+          (js \ "first_seen").asOpt[Timestamp],
+          (js \ "last_seen").asOpt[Timestamp],
+          (js \ "objective").asOpt[String],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading Campaign: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[Campaign] {
+    def writes(p: Campaign): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "name" -> JsString(p.name))
+
+      val theList = JsObject(List(
+        p.description.map("description" -> JsString(_)),
+        p.aliases.map("aliases" -> Json.toJson(_)),
+        p.first_seen.map("first_seen" -> Json.toJson(_)),
+        p.last_seen.map("last_seen" -> Json.toJson(_)),
+        p.objective.map("objective" -> JsString(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[Campaign] = Format(theReads, theWrites)
 }
 
 /**
@@ -418,11 +697,69 @@ case class CourseOfAction(`type`: String = CourseOfAction.`type`,
                           object_marking_refs: Option[List[Identifier]] = None,
                           granular_markings: Option[List[GranularMarking]] = None,
                           created_by_ref: Option[Identifier] = None,
-                          x_custom: Option[JsObject] = None) extends SDO
+                          custom: Option[CustomMap] = None) extends SDO
 
 object CourseOfAction {
   val `type` = "course-of-action"
-  implicit val fmt = Json.format[CourseOfAction]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(CourseOfAction(name = "test"))
+
+  val theReads = new Reads[CourseOfAction] {
+    def reads(js: JsValue): JsResult[CourseOfAction] = {
+      if ((js \ "type").asOpt[String].contains(CourseOfAction.`type`)) {
+        JsSuccess(new CourseOfAction(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "name").as[String],
+          (js \ "description").asOpt[String],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading CourseOfAction: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[CourseOfAction] {
+    def writes(p: CourseOfAction): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "name" -> JsString(p.name))
+
+      val theList = JsObject(List(
+        p.description.map("description" -> JsString(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[CourseOfAction] = Format(theReads, theWrites)
 }
 
 /**
@@ -446,11 +783,77 @@ case class Indicator(`type`: String = Indicator.`type`,
                      object_marking_refs: Option[List[Identifier]] = None,
                      granular_markings: Option[List[GranularMarking]] = None,
                      created_by_ref: Option[Identifier] = None,
-                     x_custom: Option[JsObject] = None) extends SDO
+                     custom: Option[CustomMap] = None) extends SDO
 
 object Indicator {
   val `type` = "indicator"
-  implicit val fmt = Json.format[Indicator]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(Indicator(pattern = "test", valid_from = Timestamp.now()))
+
+  val theReads = new Reads[Indicator] {
+    def reads(js: JsValue): JsResult[Indicator] = {
+      if ((js \ "type").asOpt[String].contains(Indicator.`type`)) {
+        JsSuccess(new Indicator(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "pattern").as[String],
+          (js \ "valid_from").as[Timestamp],
+          (js \ "name").asOpt[String],
+          (js \ "valid_until").asOpt[Timestamp],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "kill_chain_phases").asOpt[List[KillChainPhase]],
+          (js \ "description").asOpt[String],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading Indicator: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[Indicator] {
+    def writes(p: Indicator): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "pattern" -> JsString(p.pattern),
+        "valid_from" -> Json.toJson(p.valid_from))
+
+      val theList = JsObject(List(
+        p.name.map("name" -> JsString(_)),
+        p.valid_until.map("valid_until" -> Json.toJson(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.kill_chain_phases.map("kill_chain_phases" -> Json.toJson(_)),
+        p.description.map("description" -> JsString(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[Indicator] = Format(theReads, theWrites)
 }
 
 /**
@@ -479,11 +882,83 @@ case class IntrusionSet(`type`: String = IntrusionSet.`type`,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
                         //    locations: Option[List[Location]] = None,
-                        x_custom: Option[JsObject] = None) extends SDO
+                        custom: Option[CustomMap] = None) extends SDO
 
 object IntrusionSet {
   val `type` = "intrusion-set"
-  implicit val fmt = Json.format[IntrusionSet]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(IntrusionSet(name = "test"))
+
+  val theReads = new Reads[IntrusionSet] {
+    def reads(js: JsValue): JsResult[IntrusionSet] = {
+      if ((js \ "type").asOpt[String].contains(IntrusionSet.`type`)) {
+        JsSuccess(new IntrusionSet(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "name").as[String],
+          (js \ "description").asOpt[String],
+          (js \ "aliases").asOpt[List[String]],
+          (js \ "first_seen").asOpt[Timestamp],
+          (js \ "last_seen").asOpt[Timestamp],
+          (js \ "goals").asOpt[List[String]],
+          (js \ "resource_level").asOpt[String],
+          (js \ "primary_motivation").asOpt[String],
+          (js \ "secondary_motivations").asOpt[List[String]],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading IntrusionSet: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[IntrusionSet] {
+    def writes(p: IntrusionSet): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "name" -> JsString(p.name))
+
+      val theList = JsObject(List(
+        p.description.map("description" -> JsString(_)),
+        p.aliases.map("aliases" -> Json.toJson(_)),
+        p.first_seen.map("first_seen" -> Json.toJson(_)),
+        p.last_seen.map("last_seen" -> Json.toJson(_)),
+        p.goals.map("goals" -> Json.toJson(_)),
+        p.resource_level.map("resource_level" -> JsString(_)),
+        p.primary_motivation.map("primary_motivation" -> JsString(_)),
+        p.secondary_motivations.map("last_seen" -> Json.toJson(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[IntrusionSet] = Format(theReads, theWrites)
 }
 
 /**
@@ -499,7 +974,7 @@ case class Malware(`type`: String = Malware.`type`,
                    modified: Timestamp = Timestamp.now(),
                    name: String,
                    description: Option[String] = None,
-                   kill_chain_phases: Option[List[KillChainPhase]],
+                   kill_chain_phases: Option[List[KillChainPhase]] = None,
                    revoked: Option[Boolean] = None,
                    labels: Option[List[String]] = None,
                    confidence: Option[Int] = None,
@@ -508,11 +983,71 @@ case class Malware(`type`: String = Malware.`type`,
                    object_marking_refs: Option[List[Identifier]] = None,
                    granular_markings: Option[List[GranularMarking]] = None,
                    created_by_ref: Option[Identifier] = None,
-                   x_custom: Option[JsObject] = None) extends SDO
+                   custom: Option[CustomMap] = None) extends SDO
 
 object Malware {
   val `type` = "malware"
-  implicit val fmt = Json.format[Malware]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(Malware(name = "test"))
+
+  val theReads = new Reads[Malware] {
+    def reads(js: JsValue): JsResult[Malware] = {
+      if ((js \ "type").asOpt[String].contains(Malware.`type`)) {
+        JsSuccess(new Malware(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "name").as[String],
+          (js \ "description").asOpt[String],
+          (js \ "kill_chain_phases").asOpt[List[KillChainPhase]],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading Malware: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[Malware] {
+    def writes(p: Malware): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "name" -> JsString(p.name))
+
+      val theList = JsObject(List(
+        p.description.map("description" -> JsString(_)),
+        p.kill_chain_phases.map("kill_chain_phases" -> Json.toJson(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[Malware] = Format(theReads, theWrites)
 }
 
 /**
@@ -536,11 +1071,77 @@ case class ObservedData(`type`: String = ObservedData.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        x_custom: Option[JsObject] = None) extends SDO
+                        custom: Option[CustomMap] = None) extends SDO
 
 object ObservedData {
   val `type` = "observed-data"
-  implicit val fmt = Json.format[ObservedData]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(ObservedData(first_observed = Timestamp.now(), last_observed = Timestamp.now(),
+    number_observed = 0,
+    objects = Map[String, Observable]()))
+
+  val theReads = new Reads[ObservedData] {
+    def reads(js: JsValue): JsResult[ObservedData] = {
+      if ((js \ "type").asOpt[String].contains(ObservedData.`type`)) {
+        JsSuccess(new ObservedData(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "first_observed").as[Timestamp],
+          (js \ "last_observed").as[Timestamp],
+          (js \ "number_observed").as[Int],
+          (js \ "objects").as[Map[String, Observable]],
+          (js \ "description").asOpt[String],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading ObservedData: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[ObservedData] {
+    def writes(p: ObservedData): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "first_observed" -> Json.toJson(p.first_observed),
+        "last_observed" -> Json.toJson(p.last_observed),
+        "number_observed" -> JsNumber(p.number_observed),
+        "objects" -> Json.toJson(p.objects))
+
+      val theList = JsObject(List(
+        p.description.map("description" -> JsString(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[ObservedData] = Format(theReads, theWrites)
 }
 
 /**
@@ -563,11 +1164,73 @@ case class Report(`type`: String = Report.`type`,
                   object_marking_refs: Option[List[Identifier]] = None,
                   granular_markings: Option[List[GranularMarking]] = None,
                   created_by_ref: Option[Identifier] = None,
-                  x_custom: Option[JsObject] = None) extends SDO
+                  custom: Option[CustomMap] = None) extends SDO
 
 object Report {
   val `type` = "report"
-  implicit val fmt = Json.format[Report]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(Report(name = "test", published = Timestamp.now()))
+
+  val theReads = new Reads[Report] {
+    def reads(js: JsValue): JsResult[Report] = {
+      if ((js \ "type").asOpt[String].contains(Report.`type`)) {
+        JsSuccess(new Report(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "name").as[String],
+          (js \ "published").as[Timestamp],
+          (js \ "object_refs").asOpt[List[Identifier]],
+          (js \ "description").asOpt[String],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading Report: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[Report] {
+    def writes(p: Report): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "name" -> JsString(p.name),
+        "published" -> Json.toJson(p.published))
+
+      val theList = JsObject(List(
+        p.object_refs.map("object_refs" -> Json.toJson(_)),
+        p.description.map("description" -> JsString(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[Report] = Format(theReads, theWrites)
 }
 
 /**
@@ -596,43 +1259,85 @@ case class ThreatActor(`type`: String = ThreatActor.`type`,
                        object_marking_refs: Option[List[Identifier]] = None,
                        granular_markings: Option[List[GranularMarking]] = None,
                        created_by_ref: Option[Identifier] = None,
-                       x_custom: Option[JsObject] = None) extends SDO
+                       custom: Option[CustomMap] = None) extends SDO
 
 object ThreatActor {
   val `type` = "threat-actor"
 
-  // all this bloat because cannot deal with more than 22 fields
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(ThreatActor(name = "test"))
 
-  val part1: OFormat[(String, Identifier, Timestamp, Timestamp, String, Option[List[String]], Option[String],
-    Option[List[String]], Option[List[String]], Option[List[String]], Option[String])] =
-    ((__ \ "type").format[String] ~ (__ \ "id").format[Identifier] ~ (__ \ "created").format[Timestamp] ~
-      (__ \ "modified").format[Timestamp] ~ (__ \ "name").format[String] ~
-      (__ \ "labels").formatNullable[List[String]] ~
-      (__ \ "description").formatNullable[String] ~ (__ \ "aliases").formatNullable[List[String]] ~
-      (__ \ "roles").formatNullable[List[String]] ~ (__ \ "goals").formatNullable[List[String]] ~
-      (__ \ "sophistication").formatNullable[String]).tupled
+  val theReads = new Reads[ThreatActor] {
+    def reads(js: JsValue): JsResult[ThreatActor] = {
+      if ((js \ "type").asOpt[String].contains(ThreatActor.`type`)) {
+        JsSuccess(new ThreatActor(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "name").as[String],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "description").asOpt[String],
+          (js \ "aliases").asOpt[List[String]],
+          (js \ "roles").asOpt[List[String]],
+          (js \ "goals").asOpt[List[String]],
+          (js \ "sophistication").asOpt[String],
+          (js \ "resource_level").asOpt[String],
+          (js \ "primary_motivation").asOpt[String],
+          (js \ "secondary_motivations").asOpt[List[String]],
+          (js \ "personal_motivations").asOpt[List[String]],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading ThreatActor: $js")
+      }
+    }
+  }
 
-  val part2: OFormat[(Option[String], Option[String], Option[List[String]], Option[List[String]], Option[Boolean],
-    Option[Int], Option[List[ExternalReference]],
-    Option[String], Option[List[Identifier]], Option[List[GranularMarking]], Option[Identifier], Option[JsObject])] =
-    ((__ \ "resource_level").formatNullable[String] ~ (__ \ "primary_motivation").formatNullable[String] ~
-      (__ \ "secondary_motivations").formatNullable[List[String]] ~ (__ \ "personal_motivations").formatNullable[List[String]] ~
-      (__ \ "revoked").formatNullable[Boolean] ~ (__ \ "confidence").formatNullable[Int] ~
-      (__ \ "external_references").formatNullable[List[ExternalReference]] ~ (__ \ "lang").formatNullable[String] ~
-      (__ \ "object_marking_refs").formatNullable[List[Identifier]] ~ (__ \ "granular_markings").formatNullable[List[GranularMarking]] ~
-      (__ \ "created_by_ref").formatNullable[Identifier] ~ (__ \ "x_custom").formatNullable[JsObject]).tupled
+  val theWrites = new Writes[ThreatActor] {
+    def writes(p: ThreatActor): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "name" -> JsString(p.name))
 
-  implicit val fmt: Format[ThreatActor] = (part1 ~ part2) ({
-    case ((`type`, id, created, modified, name, labels, description, aliases, roles, goals, sophistication),
-    (resource_level, primary_motivation, secondary_motivations, personal_motivations, revoked,
-    confidence, external_references, lang, object_marking_refs, granular_markings, created_by_ref, x_custom)) =>
-      new ThreatActor(`type`, id, created, modified, name, labels, description, aliases, roles, goals, sophistication,
-        resource_level, primary_motivation, secondary_motivations, personal_motivations, revoked,
-        confidence, external_references, lang, object_marking_refs, granular_markings, created_by_ref, x_custom)
-  }, (t: ThreatActor) => ((t.`type`, t.id, t.created, t.modified, t.name, t.labels, t.description, t.aliases,
-    t.roles, t.goals, t.sophistication), (t.resource_level, t.primary_motivation, t.secondary_motivations, t.personal_motivations, t.revoked,
-    t.confidence, t.external_references, t.lang, t.object_marking_refs, t.granular_markings, t.created_by_ref, t.x_custom)))
+      val theList = JsObject(List(
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.description.map("description" -> JsString(_)),
+        p.aliases.map("aliases" -> Json.toJson(_)),
+        p.roles.map("roles" -> Json.toJson(_)),
+        p.goals.map("goals" -> Json.toJson(_)),
+        p.sophistication.map("sophistication" -> JsString(_)),
+        p.resource_level.map("resource_level" -> JsString(_)),
+        p.primary_motivation.map("primary_motivation" -> JsString(_)),
+        p.secondary_motivations.map("secondary_motivations" -> Json.toJson(_)),
+        p.personal_motivations.map("personal_motivations" -> Json.toJson(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
 
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[ThreatActor] = Format(theReads, theWrites)
 }
 
 /**
@@ -654,11 +1359,73 @@ case class Tool(`type`: String = Tool.`type`,
                 object_marking_refs: Option[List[Identifier]] = None,
                 granular_markings: Option[List[GranularMarking]] = None,
                 created_by_ref: Option[Identifier] = None,
-                x_custom: Option[JsObject] = None) extends SDO
+                custom: Option[CustomMap] = None) extends SDO
 
 object Tool {
   val `type` = "tool"
-  implicit val fmt = Json.format[Tool]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(Tool(name = "test"))
+
+  val theReads = new Reads[Tool] {
+    def reads(js: JsValue): JsResult[Tool] = {
+      if ((js \ "type").asOpt[String].contains(Tool.`type`)) {
+        JsSuccess(new Tool(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "name").as[String],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "description").asOpt[String],
+          (js \ "kill_chain_phases").asOpt[List[KillChainPhase]],
+          (js \ "tool_version").asOpt[String],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading Tool: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[Tool] {
+    def writes(p: Tool): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "name" -> JsString(p.name))
+
+      val theList = JsObject(List(
+        p.tool_version.map("tool_version" -> JsString(_)),
+        p.description.map("description" -> JsString(_)),
+        p.kill_chain_phases.map("kill_chain_phases" -> Json.toJson(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[Tool] = Format(theReads, theWrites)
 }
 
 /**
@@ -679,11 +1446,69 @@ case class Vulnerability(`type`: String = Vulnerability.`type`,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
-                         x_custom: Option[JsObject] = None) extends SDO
+                         custom: Option[CustomMap] = None) extends SDO
 
 object Vulnerability {
   val `type` = "vulnerability"
-  implicit val fmt = Json.format[Vulnerability]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(Vulnerability(name = "test"))
+
+  val theReads = new Reads[Vulnerability] {
+    def reads(js: JsValue): JsResult[Vulnerability] = {
+      if ((js \ "type").asOpt[String].contains(Vulnerability.`type`)) {
+        JsSuccess(new Vulnerability(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "name").as[String],
+          (js \ "description").asOpt[String],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading Vulnerability: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[Vulnerability] {
+    def writes(p: Vulnerability): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "name" -> JsString(p.name))
+
+      val theList = JsObject(List(
+        p.description.map("description" -> JsString(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[Vulnerability] = Format(theReads, theWrites)
 }
 
 //-----------------------------------------------------------------------
@@ -724,7 +1549,7 @@ case class Relationship(`type`: String = Relationship.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        x_custom: Option[JsObject] = None) extends SRO {
+                        custom: Option[CustomMap] = None) extends SRO {
 
   def this(source_ref: Identifier, relationship_type: String, target_ref: Identifier) =
     this(Relationship.`type`, Identifier(Relationship.`type`), Timestamp.now(), Timestamp.now(),
@@ -733,7 +1558,69 @@ case class Relationship(`type`: String = Relationship.`type`,
 
 object Relationship {
   val `type` = "relationship"
-  implicit val fmt = Json.format[Relationship]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(Relationship(source_ref = Identifier(Relationship.`type`), relationship_type = "test", target_ref = Identifier(Relationship.`type`)))
+
+  val theReads = new Reads[Relationship] {
+    def reads(js: JsValue): JsResult[Relationship] = {
+      if ((js \ "type").asOpt[String].contains(Relationship.`type`)) {
+        JsSuccess(new Relationship(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "source_ref").as[Identifier],
+          (js \ "relationship_type").as[String],
+          (js \ "target_ref").as[Identifier],
+          (js \ "description").asOpt[String],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading Relationship: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[Relationship] {
+    def writes(p: Relationship): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "source_ref" -> Json.toJson(p.source_ref),
+        "relationship_type" -> JsString(p.relationship_type),
+        "target_ref" -> Json.toJson(p.target_ref))
+
+      val theList = JsObject(List(
+        p.description.map("description" -> JsString(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[Relationship] = Format(theReads, theWrites)
 }
 
 /**
@@ -759,11 +1646,81 @@ case class Sighting(`type`: String = Sighting.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    x_custom: Option[JsObject] = None) extends SRO
+                    custom: Option[CustomMap] = None) extends SRO
 
 object Sighting {
   val `type` = "sighting"
-  implicit val fmt = Json.format[Sighting]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(Sighting(sighting_of_ref = Identifier(Sighting.`type`)))
+
+  val theReads = new Reads[Sighting] {
+    def reads(js: JsValue): JsResult[Sighting] = {
+      if ((js \ "type").asOpt[String].contains(Sighting.`type`)) {
+        JsSuccess(new Sighting(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "sighting_of_ref").as[Identifier],
+          (js \ "first_seen").asOpt[Timestamp],
+          (js \ "last_seen").asOpt[Timestamp],
+          (js \ "count").asOpt[Int],
+          (js \ "observed_data_refs").asOpt[List[Identifier]],
+          (js \ "where_sighted_refs").asOpt[List[Identifier]],
+          (js \ "summary").asOpt[Boolean],
+          (js \ "description").asOpt[String],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "confidence").asOpt[Int],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "lang").asOpt[String],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading Sighting: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[Sighting] {
+    def writes(p: Sighting): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "sighting_of_ref" -> Json.toJson(p.sighting_of_ref))
+
+      val theList = JsObject(List(
+        p.first_seen.map("first_seen" -> Json.toJson(_)),
+        p.last_seen.map("last_seen" -> Json.toJson(_)),
+        p.count.map("count" -> JsNumber(_)),
+        p.observed_data_refs.map("observed_data_refs" -> Json.toJson(_)),
+        p.where_sighted_refs.map("where_sighted_refs" -> Json.toJson(_)),
+        p.summary.map("summary" -> JsBoolean(_)),
+        p.description.map("description" -> JsString(_)),
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.confidence.map("confidence" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.lang.map("lang" -> JsString(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[Sighting] = Format(theReads, theWrites)
 }
 
 //-----------------------------------------------------------------------
@@ -786,11 +1743,67 @@ case class LanguageContent(`type`: String = LanguageContent.`type`,
                            external_references: Option[List[ExternalReference]] = None,
                            object_marking_refs: Option[List[Identifier]] = None,
                            granular_markings: Option[List[GranularMarking]] = None,
-                           x_custom: Option[JsObject] = None) extends StixObj
+                           custom: Option[CustomMap] = None) extends StixObj
 
 object LanguageContent {
   val `type` = "language-content"
-  implicit val fmt = Json.format[LanguageContent]
+
+  // get the names of all the fields but not the custom field.
+  private val omitList = getOmitList(LanguageContent(object_ref = Identifier(LanguageContent.`type`), contents = Map[String, Map[String, String]]()))
+
+  val theReads = new Reads[LanguageContent] {
+    def reads(js: JsValue): JsResult[LanguageContent] = {
+      if ((js \ "type").asOpt[String].contains(LanguageContent.`type`)) {
+        JsSuccess(new LanguageContent(
+          (js \ "type").as[String],
+          (js \ "id").as[Identifier],
+          (js \ "created").as[Timestamp],
+          (js \ "modified").as[Timestamp],
+          (js \ "object_modified").as[Timestamp],
+          (js \ "object_ref").as[Identifier],
+          (js \ "contents").as[Map[String, Map[String, String]]],
+          (js \ "created_by_ref").asOpt[Identifier],
+          (js \ "revoked").asOpt[Boolean],
+          (js \ "labels").asOpt[List[String]],
+          (js \ "external_references").asOpt[List[ExternalReference]],
+          (js \ "object_marking_refs").asOpt[List[Identifier]],
+          (js \ "granular_markings").asOpt[List[GranularMarking]],
+          CustomMap.readAttributes(js, omitList)))
+      }
+      else {
+        JsError(s"Error reading LanguageContent: $js")
+      }
+    }
+  }
+
+  val theWrites = new Writes[LanguageContent] {
+    def writes(p: LanguageContent): JsValue = {
+      val baseList = Json.obj(
+        "type" -> JsString(p.`type`),
+        "id" -> Json.toJson(p.id),
+        "created" -> Json.toJson(p.created),
+        "modified" -> Json.toJson(p.modified),
+        "object_modified" -> Json.toJson(p.object_modified),
+        "object_ref" -> Json.toJson(p.object_ref),
+        "contents" -> Json.toJson(p.contents))
+
+      val theList = JsObject(List(
+        p.revoked.map("revoked" -> JsBoolean(_)),
+        p.labels.map("labels" -> Json.toJson(_)),
+        p.external_references.map("external_references" -> Json.toJson(_)),
+        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
+        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
+        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
+      ).flatten)
+
+      p.custom match {
+        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
+        case None => baseList ++ theList
+      }
+    }
+  }
+
+  implicit val fmt: Format[LanguageContent] = Format(theReads, theWrites)
 }
 
 //-----------------------------------------------------------------------

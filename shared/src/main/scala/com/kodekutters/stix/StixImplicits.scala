@@ -46,6 +46,8 @@ object StixImplicits {
 
   implicit def GeojsonToOpt(value: GeoJson[LatLng]): Option[GeoJson[LatLng]] = Option(value)
 
+  implicit def CustomMapToOpt(value: CustomMap): Option[CustomMap] = Option(value)
+
   // ---------------------------------------------------------------------------------------
 
 

@@ -5,6 +5,7 @@ Change Log
 
 * using "org.threeten" % "threetenbp" instead of java.time, to cater for ZonedDateTime in scala and scala.js
 * made cross compile for jvm and js
+* add comprehensive custom properties, see also CustomMap
 
 
 ### changes in 0.2

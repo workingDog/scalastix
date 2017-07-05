@@ -5,6 +5,23 @@
   "objects": [
 
     {
+      "type": "attack-pattern",
+      "id": "attack-pattern--0c7b5b88-8ff8cd0061",
+      "created": "2016-05-12T08:17:27.000Z",
+      "modified": "2016-05-12T08:17:27.000Z",
+      "name": "Spear Phishing again",
+      "description": "some description again",
+      "x_a": "some text",
+      "x_b": 12,
+      "x_c": false,
+      "x_d": 45.67,
+      "x_array_a": [1,2,3,4,5,6],
+      "x_array_b": ["1", "2", "3", "4"],
+      "x_obj": {"name": "Jack", "age": 27},
+      "dog": "rover"
+    },
+
+    {
       "type": "sighting",
       "id": "sighting--ee20065d-2555-424f-ad9e-0f8428623c75",
       "created_by_ref": "identity--f431f809-377b-45e0-aa1c-6a4751cae5ff",
