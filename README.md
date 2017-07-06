@@ -73,7 +73,7 @@ Custom properties can be added to any Stix objects such as SDO and Observables b
                                     
 ### Usage
                          
-In a Scala application the creation of a Stix object can be done as follow:
+In a Scala application the creation of a Stix object can be done as follows:
 
     import StixImplicits._
     
