@@ -1,12 +1,16 @@
 Change Log
 ==========
 
-### changes in 0.3-SNAPSHOT  
+### changes in 0.4-SNAPSHOT  
 
-* using "org.threeten" % "threetenbp" instead of java.time, to cater for ZonedDateTime in scala and scala.js
+* add support for future Address and Location objects
+* add the play-geojson libs in the lib directory.
+
+### changes in 0.3  
+
+* bring back "org.threeten" % "threetenbp" instead of java.time, to cater for ZonedDateTime in scala and scala.js
 * made cross compile for jvm and js
-* add comprehensive custom properties, see also CustomMap
-
+* add support for custom properties for SDO, SRO and StixObj, see also CustomProps
 
 ### changes in 0.2
 

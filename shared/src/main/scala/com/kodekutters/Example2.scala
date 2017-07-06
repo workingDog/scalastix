@@ -23,7 +23,7 @@ object Example2 {
       kill_chain_phases = List(KillChainPhase("Kill", "Bill")),
       external_references = List(ExternalReference("a-source-name")),
       object_marking_refs = List(Identifier(Campaign.`type`)),
-      custom = CustomMap(Map("x_test" -> JsString("test1"))))
+      custom = CustomProps(Map("x_test" -> JsString("test1"))))
 
     println("\n----> attackPattern: " + attackPattern)
     // convert to json

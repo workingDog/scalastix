@@ -26,7 +26,7 @@ object Util {
     }
 
   // convenience for converting a CustomMap of custom properties into a json string representation
-  def asJsObject(cust: CustomMap) = Json.toJson[CustomMap](cust).asInstanceOf[JsObject]
+  def asJsObject(cust: CustomProps) = Json.toJson[CustomProps](cust).asInstanceOf[JsObject]
 
   // convenience for getting the list of all fields of an Stix object, but not the "custom" field.
   def getOmitList(obj: StixObj) = (for (f <- obj.getClass.getDeclaredFields) yield f.getName).toList.filterNot(_ == "custom")

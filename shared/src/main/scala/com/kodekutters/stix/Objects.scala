@@ -1,7 +1,7 @@
 package com.kodekutters.stix
 
 import org.threeten.bp._
-import play.extras.geojson._
+//import play.extras.geojson._
 import java.util.UUID
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -249,35 +249,35 @@ object ExternalReference {
   * a generic custom (key,value) dictionary representing the Custom Properties,
   * with key = a custom property name, i.e. starting with "x_", and value = the property JsValue
   */
-case class CustomMap(nodes: Map[String, JsValue])
+case class CustomProps(nodes: Map[String, JsValue])
 
-object CustomMap {
+object CustomProps {
 
-  def readAttributes(js: JsValue, omitList: List[String]): Option[CustomMap] = {
+  def readAttributes(js: JsValue, omitList: List[String]): Option[CustomProps] = {
     js match {
       case json: JsObject =>
         // get all fields of js, but not the fields in the omitList, this gives all the custom property fields
         val fList = json.fields.filterNot(p => omitList.contains(p._1))
-        if (fList.isEmpty) None else Some(new CustomMap(fList.toMap))
+        if (fList.isEmpty) None else Some(new CustomProps(fList.toMap))
 
       case x => JsError(s"Could not read custom field: $x"); None
     }
   }
 
-  val theReads = new Reads[CustomMap] {
-    def reads(json: JsValue): JsResult[CustomMap] = {
+  val theReads = new Reads[CustomProps] {
+    def reads(json: JsValue): JsResult[CustomProps] = {
       json match {
-        case js: JsObject => JsSuccess(new CustomMap(js.fields.toMap))
+        case js: JsObject => JsSuccess(new CustomProps(js.fields.toMap))
         case x => JsError(s"Error could not read custom: $x")
       }
     }
   }
 
-  val theWrites = new Writes[CustomMap] {
-    def writes(custom: CustomMap): JsObject = JsObject(custom.nodes)
+  val theWrites = new Writes[CustomProps] {
+    def writes(custom: CustomProps): JsObject = JsObject(custom.nodes)
   }
 
-  implicit val fmt: Format[CustomMap] = Format(theReads, theWrites)
+  implicit val fmt: Format[CustomProps] = Format(theReads, theWrites)
 }
 
 //-----------------------------------------------------------------------
@@ -288,7 +288,7 @@ object CustomMap {
 trait StixObj {
   val `type`: String
   val id: Identifier
-  val custom: Option[CustomMap] // the custom properties as a map of property names and values
+  val custom: Option[CustomProps] // the custom properties as a map of property names and values
 }
 
 /**
@@ -303,7 +303,7 @@ case class MarkingDefinition(`type`: String = MarkingDefinition.`type`,
                              object_marking_refs: Option[List[Identifier]] = None,
                              granular_markings: Option[List[GranularMarking]] = None,
                              created_by_ref: Option[Identifier] = None,
-                             custom: Option[CustomMap] = None) extends StixObj
+                             custom: Option[CustomProps] = None) extends StixObj
 
 object MarkingDefinition {
   val `type` = "marking-definition"
@@ -324,7 +324,7 @@ object MarkingDefinition {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading MarkingDefinition: $js")
@@ -364,27 +364,27 @@ object MarkingDefinition {
 /**
   * The Address is a sub-type used only by location and is used to describe civic (street) addresses.
   */
-case class Address(country: String,
-                   administrative_area: Option[String] = None,
-                   city: Option[String] = None,
-                   address: Option[String] = None,
-                   postal_code: Option[String] = None)
-
-object Address {
-  implicit val fmt = Json.format[Address]
-}
+//case class Address(country: String,
+//                   administrative_area: Option[String] = None,
+//                   city: Option[String] = None,
+//                   address: Option[String] = None,
+//                   postal_code: Option[String] = None)
+//
+//object Address {
+//  implicit val fmt = Json.format[Address]
+//}
 
 /**
   * Location is used to describe geographic locations.
   * It supports describing by general region, civic address, or using GeoJSON.
   */
-case class Location(region: String,
-                    address: Option[Address] = None,
-                    geojson: Option[GeoJson[LatLng]] = None)
-
-object Location {
-  implicit val fmt = Json.format[Location]
-}
+//case class Location(region: String,
+//                    address: Option[Address] = None,
+//                    geojson: Option[GeoJson[LatLng]] = None)
+//
+//object Location {
+//  implicit val fmt = Json.format[Location]
+//}
 
 //-----------------------------------------------------------------------
 //------------------STIX Domain Objects----------------------------------
@@ -424,7 +424,7 @@ case class AttackPattern(`type`: String = AttackPattern.`type`,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
-                         custom: Option[CustomMap] = None) extends SDO
+                         custom: Option[CustomProps] = None) extends SDO
 
 object AttackPattern {
   val `type` = "attack-pattern"
@@ -451,7 +451,7 @@ object AttackPattern {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading AttackPattern: $js")
@@ -513,7 +513,7 @@ case class Identity(`type`: String = Identity.`type`,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
                     //    location: Option[Location] = None,
-                    custom: Option[CustomMap] = None) extends SDO
+                    custom: Option[CustomProps] = None) extends SDO
 
 object Identity {
   val `type` = "identity"
@@ -542,7 +542,7 @@ object Identity {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading Identity: $js")
@@ -607,7 +607,7 @@ case class Campaign(`type`: String = Campaign.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    custom: Option[CustomMap] = None) extends SDO
+                    custom: Option[CustomProps] = None) extends SDO
 
 object Campaign {
   val `type` = "campaign"
@@ -637,7 +637,7 @@ object Campaign {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading Campaign: $js")
@@ -697,7 +697,7 @@ case class CourseOfAction(`type`: String = CourseOfAction.`type`,
                           object_marking_refs: Option[List[Identifier]] = None,
                           granular_markings: Option[List[GranularMarking]] = None,
                           created_by_ref: Option[Identifier] = None,
-                          custom: Option[CustomMap] = None) extends SDO
+                          custom: Option[CustomProps] = None) extends SDO
 
 object CourseOfAction {
   val `type` = "course-of-action"
@@ -723,7 +723,7 @@ object CourseOfAction {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading CourseOfAction: $js")
@@ -783,7 +783,7 @@ case class Indicator(`type`: String = Indicator.`type`,
                      object_marking_refs: Option[List[Identifier]] = None,
                      granular_markings: Option[List[GranularMarking]] = None,
                      created_by_ref: Option[Identifier] = None,
-                     custom: Option[CustomMap] = None) extends SDO
+                     custom: Option[CustomProps] = None) extends SDO
 
 object Indicator {
   val `type` = "indicator"
@@ -813,7 +813,7 @@ object Indicator {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading Indicator: $js")
@@ -882,7 +882,7 @@ case class IntrusionSet(`type`: String = IntrusionSet.`type`,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
                         //    locations: Option[List[Location]] = None,
-                        custom: Option[CustomMap] = None) extends SDO
+                        custom: Option[CustomProps] = None) extends SDO
 
 object IntrusionSet {
   val `type` = "intrusion-set"
@@ -915,7 +915,7 @@ object IntrusionSet {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading IntrusionSet: $js")
@@ -983,7 +983,7 @@ case class Malware(`type`: String = Malware.`type`,
                    object_marking_refs: Option[List[Identifier]] = None,
                    granular_markings: Option[List[GranularMarking]] = None,
                    created_by_ref: Option[Identifier] = None,
-                   custom: Option[CustomMap] = None) extends SDO
+                   custom: Option[CustomProps] = None) extends SDO
 
 object Malware {
   val `type` = "malware"
@@ -1010,7 +1010,7 @@ object Malware {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading Malware: $js")
@@ -1071,7 +1071,7 @@ case class ObservedData(`type`: String = ObservedData.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        custom: Option[CustomMap] = None) extends SDO
+                        custom: Option[CustomProps] = None) extends SDO
 
 object ObservedData {
   val `type` = "observed-data"
@@ -1102,7 +1102,7 @@ object ObservedData {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading ObservedData: $js")
@@ -1164,7 +1164,7 @@ case class Report(`type`: String = Report.`type`,
                   object_marking_refs: Option[List[Identifier]] = None,
                   granular_markings: Option[List[GranularMarking]] = None,
                   created_by_ref: Option[Identifier] = None,
-                  custom: Option[CustomMap] = None) extends SDO
+                  custom: Option[CustomProps] = None) extends SDO
 
 object Report {
   val `type` = "report"
@@ -1192,7 +1192,7 @@ object Report {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading Report: $js")
@@ -1259,7 +1259,7 @@ case class ThreatActor(`type`: String = ThreatActor.`type`,
                        object_marking_refs: Option[List[Identifier]] = None,
                        granular_markings: Option[List[GranularMarking]] = None,
                        created_by_ref: Option[Identifier] = None,
-                       custom: Option[CustomMap] = None) extends SDO
+                       custom: Option[CustomProps] = None) extends SDO
 
 object ThreatActor {
   val `type` = "threat-actor"
@@ -1293,7 +1293,7 @@ object ThreatActor {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading ThreatActor: $js")
@@ -1359,7 +1359,7 @@ case class Tool(`type`: String = Tool.`type`,
                 object_marking_refs: Option[List[Identifier]] = None,
                 granular_markings: Option[List[GranularMarking]] = None,
                 created_by_ref: Option[Identifier] = None,
-                custom: Option[CustomMap] = None) extends SDO
+                custom: Option[CustomProps] = None) extends SDO
 
 object Tool {
   val `type` = "tool"
@@ -1387,7 +1387,7 @@ object Tool {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading Tool: $js")
@@ -1446,7 +1446,7 @@ case class Vulnerability(`type`: String = Vulnerability.`type`,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
-                         custom: Option[CustomMap] = None) extends SDO
+                         custom: Option[CustomProps] = None) extends SDO
 
 object Vulnerability {
   val `type` = "vulnerability"
@@ -1472,7 +1472,7 @@ object Vulnerability {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading Vulnerability: $js")
@@ -1549,7 +1549,7 @@ case class Relationship(`type`: String = Relationship.`type`,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        custom: Option[CustomMap] = None) extends SRO {
+                        custom: Option[CustomProps] = None) extends SRO {
 
   def this(source_ref: Identifier, relationship_type: String, target_ref: Identifier) =
     this(Relationship.`type`, Identifier(Relationship.`type`), Timestamp.now(), Timestamp.now(),
@@ -1582,7 +1582,7 @@ object Relationship {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading Relationship: $js")
@@ -1646,7 +1646,7 @@ case class Sighting(`type`: String = Sighting.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    custom: Option[CustomMap] = None) extends SRO
+                    custom: Option[CustomProps] = None) extends SRO
 
 object Sighting {
   val `type` = "sighting"
@@ -1678,7 +1678,7 @@ object Sighting {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading Sighting: $js")
@@ -1743,7 +1743,7 @@ case class LanguageContent(`type`: String = LanguageContent.`type`,
                            external_references: Option[List[ExternalReference]] = None,
                            object_marking_refs: Option[List[Identifier]] = None,
                            granular_markings: Option[List[GranularMarking]] = None,
-                           custom: Option[CustomMap] = None) extends StixObj
+                           custom: Option[CustomProps] = None) extends StixObj
 
 object LanguageContent {
   val `type` = "language-content"
@@ -1768,7 +1768,7 @@ object LanguageContent {
           (js \ "external_references").asOpt[List[ExternalReference]],
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
-          CustomMap.readAttributes(js, omitList)))
+          CustomProps.readAttributes(js, omitList)))
       }
       else {
         JsError(s"Error reading LanguageContent: $js")
