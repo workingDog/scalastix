@@ -18,7 +18,7 @@ It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data t
 #### Note
 The older **ScalaStix** version 0.1 uses [circe](https://github.com/circe/circe) for JSON serialization and de-serialization. 
 
-**ScalaStix** version 0.2 uses the [Play JSON](https://github.com/playframework/play-json) library to provide the JSON 
+**ScalaStix** version >= 0.2 uses the [Play JSON](https://github.com/playframework/play-json) library to provide the JSON 
 serialization and de-serialization. See also the [Play Framwork documentation](https://www.playframework.com/documentation/2.6.x/ScalaJson) 
 for how to use Play JSON.  
 
@@ -35,14 +35,14 @@ for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org
 
 To use the last release add the following dependency to your build.sbt:
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.2"
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.3"
 
 The best way to compile and package **ScalaStix** from source is to use [SBT](http://www.scala-sbt.org/).
 To compile and generate a jar file from the source:
 
     sbt package
 
-This will produce a jar file "scalastix_2.12-0.3-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
+This will produce a jar file "scalastix_2.12-0.4-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
 
 To publish the library to your local (Ivy) repository, simply type:
 
@@ -50,13 +50,13 @@ To publish the library to your local (Ivy) repository, simply type:
 
 Then put this in your build.sbt file
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.3-SNAPSHOT"
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.4-SNAPSHOT"
  
 To assemble the library and all its dependencies into a single fat jar file type:
  
      sbt assembly
 
-This will produce a jar file "scalastix_2.12-0.3-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
+This will produce a jar file "scalastix_2.12-0.4-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
  
 ### Conventions
 
