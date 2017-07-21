@@ -32,12 +32,16 @@ object Util {
   def getOmitList(obj: StixObj) = (for (f <- obj.getClass.getDeclaredFields) yield f.getName).toList.filterNot(_ == "custom")
 
   // todo
-  // list of type names
-  val stixObjTypes = Seq(AttackPattern.`type`, Identity.`type`, Campaign.`type`,
+  // list of objects type names
+  val listOfObjectTypes = Seq(AttackPattern.`type`, Identity.`type`, Campaign.`type`,
     CourseOfAction.`type`, Indicator.`type`, IntrusionSet.`type`,
     Malware.`type`, ObservedData.`type`, Report.`type`, ThreatActor.`type`,
-    Tool.`type`, Vulnerability.`type`, Relationship.`type`, Sighting.`type`,
-    MarkingDefinition.`type`, LanguageContent.`type`, KillChainPhase.`type`,
+    Tool.`type`, Vulnerability.`type`,
+    MarkingDefinition.`type`, LanguageContent.`type`)
+  // Relationship.`type`, Sighting.`type`,
+
+  // list of supporting type names
+  val xxObjTypes = Seq(KillChainPhase.`type`,
     ExternalReference.`type`, GranularMarking.`type`, Identifier.`type`)
 
   // List of language tags according to RFC 5646.

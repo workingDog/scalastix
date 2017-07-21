@@ -5,7 +5,7 @@ version := (version in ThisBuild).value
 
 scalaVersion in ThisBuild := "2.12.2"
 
-val playJsonVersion = "2.6.1"
+val playJsonVersion = "2.6.2"
 
 lazy val root = project.in(file(".")).
   aggregate(scalastixJS, scalastixJVM).

@@ -35,14 +35,14 @@ for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org
 
 To use the last release add the following dependency to your build.sbt:
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.3"
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.4"
 
 The best way to compile and package **ScalaStix** from source is to use [SBT](http://www.scala-sbt.org/).
 To compile and generate a jar file from the source:
 
     sbt package
 
-This will produce a jar file "scalastix_2.12-0.4-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
+This will produce a jar file "scalastix_2.12-0.5-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
 
 To publish the library to your local (Ivy) repository, simply type:
 
@@ -50,13 +50,13 @@ To publish the library to your local (Ivy) repository, simply type:
 
 Then put this in your build.sbt file
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.4-SNAPSHOT"
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.5-SNAPSHOT"
  
 To assemble the library and all its dependencies into a single fat jar file type:
  
      sbt assembly
 
-This will produce a jar file "scalastix_2.12-0.4-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
+This will produce a jar file "scalastix_2.12-0.5-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
  
 ### Conventions
 

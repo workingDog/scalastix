@@ -1,10 +1,14 @@
 Change Log
 ==========
 
-### changes in 0.4-SNAPSHOT  
+### changes in 0.5-SNAPSHOT  
 
-* add support for future Address and Location objects
-* add the play-geojson libs in the lib directory.
+
+
+### changes in 0.4  
+
+* added the missing hashes to ExternalReference
+* removed toString from ExternalReference and GranularMarking
 
 ### changes in 0.3  
 

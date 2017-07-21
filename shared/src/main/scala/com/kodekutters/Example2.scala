@@ -45,6 +45,15 @@ object Example2 {
              "phase_name": "establish-foothold"
            }
           ],
+                "external_references": [
+         {
+           "source_name": "capec",
+           "external_id": "CAPEC-148",
+           "hashes": {
+             "MD5": "66e2ea40dc71d5ba701574ea215a81f1"
+           }
+         }
+       ],
        "x_a": "some text",
        "x_b": 12,
        "x_c": false,
@@ -63,4 +72,5 @@ object Example2 {
     println("\n---> attackOpt: " + attackOpt)
 
   }
+
 }

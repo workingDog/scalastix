@@ -6,6 +6,27 @@
 
     {
       "type": "attack-pattern",
+      "id": "attack-pattern--19da6e1c-71ab-4c2f-886d-d620d09d3b5a",
+      "created": "2016-08-08T15:50:10.983Z",
+      "modified": "2017-01-30T21:15:04.127Z",
+      "name": "Content Spoofing",
+      "external_references": [
+        {
+          "source_name": "capec",
+          "external_id": "CAPEC-148",
+          "hashes": {
+            "MD5": "66e2ea40dc71d5ba701574ea215a81f1"
+          }
+        }
+      ],
+      "object_marking_refs": [
+        "marking-definition--34098fce-860f-48ae-8e50-ebd3cc5e41da"
+      ],
+      "created_by_ref": "identity--f690c992-8e7d-4b9a-9303-3312616c0220"
+    },
+
+    {
+      "type": "attack-pattern",
       "id": "attack-pattern--0c7b5b88-8ff8cd0061",
       "created": "2016-05-12T08:17:27.000Z",
       "modified": "2016-05-12T08:17:27.000Z",
@@ -49,29 +70,6 @@
           "type": "file"
         }
       }
-    },
-
-    {
-      "type": "attack-pattern",
-      "id": "attack-pattern--0c7b5b88-8ff7-4a4d-aa9d-feb398cd0061",
-      "created": "2016-05-12T08:17:27.000Z",
-      "modified": "2016-05-12T08:17:27.000Z",
-      "name": "test attack",
-      "description": "zzzzzzzzzz",
-      "x_custom": {
-        "x_acme_org_confidence": "astringstring",
-        "x_acme_org_scoring": 34,
-        "x_some_obj": {
-          "name": "Jack",
-          "age": 42.3
-        }
-      },
-      "external_references": [
-        {
-          "source_name": "capec",
-          "id": "CAPEC-163"
-        }
-      ]
     },
 
     {
