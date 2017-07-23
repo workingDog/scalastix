@@ -26,17 +26,17 @@ object Util {
       case Right(b) => Bx.writes(b)
     }
 
-  // convenience for converting a CustomMap of custom properties into a json string representation
+  // convenience for converting a CustomMap of custom properties into a json object
   def asJsObject(cust: CustomProps): JsObject = Json.toJson[CustomProps](cust).asInstanceOf[JsObject]
 
-  val listOfObjectTypes = Seq(AttackPattern.`type`, Identity.`type`, Campaign.`type`,
+  val listOfSDOTypes = Seq(AttackPattern.`type`, Identity.`type`, Campaign.`type`,
     CourseOfAction.`type`, Indicator.`type`, IntrusionSet.`type`,
     Malware.`type`, ObservedData.`type`, Report.`type`, ThreatActor.`type`,
     Tool.`type`, Vulnerability.`type`)
 
   val listOfStixTypes = Seq( MarkingDefinition.`type`, LanguageContent.`type`)
 
-  val listOfRelTypes = Seq(Relationship.`type`, Sighting.`type`)
+  val listOfSROTypes = Seq(Relationship.`type`, Sighting.`type`)
 
   val supportObjTypes = Seq(KillChainPhase.`type`, ExternalReference.`type`, GranularMarking.`type`, Identifier.`type`)
 
