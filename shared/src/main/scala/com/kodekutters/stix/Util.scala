@@ -29,11 +29,6 @@ object Util {
   // convenience for converting a CustomMap of custom properties into a json string representation
   def asJsObject(cust: CustomProps): JsObject = Json.toJson[CustomProps](cust).asInstanceOf[JsObject]
 
-  // list of common field names
-  val commonOmitList = List("type", "id", "created", "modified", "revoked",
-    "labels", "confidence", "external_references", "lang",
-    "object_marking_refs", "granular_markings", "created_by_ref")
-
   val listOfObjectTypes = Seq(AttackPattern.`type`, Identity.`type`, Campaign.`type`,
     CourseOfAction.`type`, Indicator.`type`, IntrusionSet.`type`,
     Malware.`type`, ObservedData.`type`, Report.`type`, ThreatActor.`type`,

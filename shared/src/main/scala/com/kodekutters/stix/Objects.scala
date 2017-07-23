@@ -241,11 +241,11 @@ case class CustomProps(nodes: Map[String, JsValue])
 
 object CustomProps {
 
-  def readAttributes(js: JsValue, omitList: List[String]): Option[CustomProps] = {
+  def readCustomAttributes(js: JsValue): Option[CustomProps] = {
     js match {
       case json: JsObject =>
-        // get all fields of js, but not the fields in the omitList, this gives all the custom property fields
-        val fList = json.fields.filterNot(p => omitList.contains(p._1))
+        // get all custom property fields, i.e starting with "x_"
+        val fList = json.fields.filter(p => p._1.startsWith("x_"))
         if (fList.isEmpty) None else Some(new CustomProps(fList.toMap))
 
       case x => JsError(s"Could not read custom field: $x"); None
@@ -296,10 +296,6 @@ case class MarkingDefinition(`type`: String = MarkingDefinition.`type`,
 object MarkingDefinition {
   val `type` = "marking-definition"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = List("type", "id", "created", "definition_type", "definition", "external_references",
-    "object_marking_refs", "granular_markings", "created_by_ref")
-
   val theReads = new Reads[MarkingDefinition] {
     def reads(js: JsValue): JsResult[MarkingDefinition] = {
       if ((js \ "type").asOpt[String].contains(MarkingDefinition.`type`)) {
@@ -313,7 +309,7 @@ object MarkingDefinition {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading MarkingDefinition: $js")
@@ -418,9 +414,6 @@ case class AttackPattern(`type`: String = AttackPattern.`type`,
 object AttackPattern {
   val `type` = "attack-pattern"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "kill_chain_phases", "description")
-
   val theReads = new Reads[AttackPattern] {
     def reads(js: JsValue): JsResult[AttackPattern] = {
       if ((js \ "type").asOpt[String].contains(AttackPattern.`type`)) {
@@ -440,7 +433,7 @@ object AttackPattern {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading AttackPattern: $js")
@@ -507,9 +500,6 @@ case class Identity(`type`: String = Identity.`type`,
 object Identity {
   val `type` = "identity"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "description", "identity_class", "sectors", "contact_information")
-
   val theReads = new Reads[Identity] {
     def reads(js: JsValue): JsResult[Identity] = {
       if ((js \ "type").asOpt[String].contains(Identity.`type`)) {
@@ -531,7 +521,7 @@ object Identity {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading Identity: $js")
@@ -601,9 +591,6 @@ case class Campaign(`type`: String = Campaign.`type`,
 object Campaign {
   val `type` = "campaign"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "description", "aliases", "first_seen", "last_seen", "objective")
-
   val theReads = new Reads[Campaign] {
     def reads(js: JsValue): JsResult[Campaign] = {
       if ((js \ "type").asOpt[String].contains(Campaign.`type`)) {
@@ -626,7 +613,7 @@ object Campaign {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading Campaign: $js")
@@ -691,9 +678,6 @@ case class CourseOfAction(`type`: String = CourseOfAction.`type`,
 object CourseOfAction {
   val `type` = "course-of-action"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "description")
-
   val theReads = new Reads[CourseOfAction] {
     def reads(js: JsValue): JsResult[CourseOfAction] = {
       if ((js \ "type").asOpt[String].contains(CourseOfAction.`type`)) {
@@ -712,7 +696,7 @@ object CourseOfAction {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading CourseOfAction: $js")
@@ -777,9 +761,6 @@ case class Indicator(`type`: String = Indicator.`type`,
 object Indicator {
   val `type` = "indicator"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "description", "pattern", "valid_from", "valid_until", "kill_chain_phases")
-
   val theReads = new Reads[Indicator] {
     def reads(js: JsValue): JsResult[Indicator] = {
       if ((js \ "type").asOpt[String].contains(Indicator.`type`)) {
@@ -802,7 +783,7 @@ object Indicator {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading Indicator: $js")
@@ -876,10 +857,6 @@ case class IntrusionSet(`type`: String = IntrusionSet.`type`,
 object IntrusionSet {
   val `type` = "intrusion-set"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "description", "aliases", "first_seen", "last_seen", "goals", "resource_level",
-    "primary_motivation", "secondary_motivations")
-
   val theReads = new Reads[IntrusionSet] {
     def reads(js: JsValue): JsResult[IntrusionSet] = {
       if ((js \ "type").asOpt[String].contains(IntrusionSet.`type`)) {
@@ -905,7 +882,7 @@ object IntrusionSet {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading IntrusionSet: $js")
@@ -978,9 +955,6 @@ case class Malware(`type`: String = Malware.`type`,
 object Malware {
   val `type` = "malware"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "description", "kill_chain_phases")
-
   val theReads = new Reads[Malware] {
     def reads(js: JsValue): JsResult[Malware] = {
       if ((js \ "type").asOpt[String].contains(Malware.`type`)) {
@@ -1000,7 +974,7 @@ object Malware {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading Malware: $js")
@@ -1066,9 +1040,6 @@ case class ObservedData(`type`: String = ObservedData.`type`,
 object ObservedData {
   val `type` = "observed-data"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("description", "first_observed", "last_observed", "number_observed", "objects")
-
   val theReads = new Reads[ObservedData] {
     def reads(js: JsValue): JsResult[ObservedData] = {
       if ((js \ "type").asOpt[String].contains(ObservedData.`type`)) {
@@ -1090,7 +1061,7 @@ object ObservedData {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading ObservedData: $js")
@@ -1157,9 +1128,6 @@ case class Report(`type`: String = Report.`type`,
 object Report {
   val `type` = "report"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "description", "published", "object_refs")
-
   val theReads = new Reads[Report] {
     def reads(js: JsValue): JsResult[Report] = {
       if ((js \ "type").asOpt[String].contains(Report.`type`)) {
@@ -1180,7 +1148,7 @@ object Report {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading Report: $js")
@@ -1252,10 +1220,6 @@ case class ThreatActor(`type`: String = ThreatActor.`type`,
 object ThreatActor {
   val `type` = "threat-actor"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "description", "aliases", "roles", "goals", "sophistication",
-    "resource_level", "primary_motivation", "secondary_motivations", "personal_motivations")
-
   val theReads = new Reads[ThreatActor] {
     def reads(js: JsValue): JsResult[ThreatActor] = {
       if ((js \ "type").asOpt[String].contains(ThreatActor.`type`)) {
@@ -1282,7 +1246,7 @@ object ThreatActor {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading ThreatActor: $js")
@@ -1353,9 +1317,6 @@ case class Tool(`type`: String = Tool.`type`,
 object Tool {
   val `type` = "tool"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "description", "kill_chain_phases", "tool_version")
-
   val theReads = new Reads[Tool] {
     def reads(js: JsValue): JsResult[Tool] = {
       if ((js \ "type").asOpt[String].contains(Tool.`type`)) {
@@ -1376,7 +1337,7 @@ object Tool {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading Tool: $js")
@@ -1440,9 +1401,6 @@ case class Vulnerability(`type`: String = Vulnerability.`type`,
 object Vulnerability {
   val `type` = "vulnerability"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("name", "description")
-
   val theReads = new Reads[Vulnerability] {
     def reads(js: JsValue): JsResult[Vulnerability] = {
       if ((js \ "type").asOpt[String].contains(Vulnerability.`type`)) {
@@ -1461,7 +1419,7 @@ object Vulnerability {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading Vulnerability: $js")
@@ -1548,9 +1506,6 @@ case class Relationship(`type`: String = Relationship.`type`,
 object Relationship {
   val `type` = "relationship"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("description", "source_ref", "relationship_type", "target_ref")
-
   val theReads = new Reads[Relationship] {
     def reads(js: JsValue): JsResult[Relationship] = {
       if ((js \ "type").asOpt[String].contains(Relationship.`type`)) {
@@ -1571,7 +1526,7 @@ object Relationship {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading Relationship: $js")
@@ -1640,10 +1595,6 @@ case class Sighting(`type`: String = Sighting.`type`,
 object Sighting {
   val `type` = "sighting"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = commonOmitList ++ List("description", "sighting_of_ref", "first_seen", "last_seen", "count",
-    "observed_data_refs", "where_sighted_refs", "summary")
-
   val theReads = new Reads[Sighting] {
     def reads(js: JsValue): JsResult[Sighting] = {
       if ((js \ "type").asOpt[String].contains(Sighting.`type`)) {
@@ -1668,7 +1619,7 @@ object Sighting {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading Sighting: $js")
@@ -1738,10 +1689,6 @@ case class LanguageContent(`type`: String = LanguageContent.`type`,
 object LanguageContent {
   val `type` = "language-content"
 
-  // get the names of all the fields but not the custom field.
-  private val omitList = List("type", "id", "created", "modified", "object_modified", "object_ref", "contents",
-    "created_by_ref", "revoked", "labels", "external_references", "object_marking_refs", "granular_markings")
-
   val theReads = new Reads[LanguageContent] {
     def reads(js: JsValue): JsResult[LanguageContent] = {
       if ((js \ "type").asOpt[String].contains(LanguageContent.`type`)) {
@@ -1759,7 +1706,7 @@ object LanguageContent {
           (js \ "external_references").asOpt[List[ExternalReference]],
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
-          CustomProps.readAttributes(js, omitList)))
+          CustomProps.readCustomAttributes(js)))
       }
       else {
         JsError(s"Error reading LanguageContent: $js")
