@@ -297,7 +297,8 @@ object MarkingDefinition {
   val `type` = "marking-definition"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(MarkingDefinition(definition_type = "test", definition = StatementMarking("test")))
+  private val omitList = List("type", "id", "created", "definition_type", "definition", "external_references",
+    "object_marking_refs", "granular_markings", "created_by_ref")
 
   val theReads = new Reads[MarkingDefinition] {
     def reads(js: JsValue): JsResult[MarkingDefinition] = {
@@ -418,7 +419,7 @@ object AttackPattern {
   val `type` = "attack-pattern"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(AttackPattern(name = "test"))
+  private val omitList = commonOmitList ++ List("name", "kill_chain_phases", "description")
 
   val theReads = new Reads[AttackPattern] {
     def reads(js: JsValue): JsResult[AttackPattern] = {
@@ -507,7 +508,7 @@ object Identity {
   val `type` = "identity"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(Identity(name = "test", identity_class = "test"))
+  private val omitList = commonOmitList ++ List("name", "description", "identity_class", "sectors", "contact_information")
 
   val theReads = new Reads[Identity] {
     def reads(js: JsValue): JsResult[Identity] = {
@@ -601,7 +602,7 @@ object Campaign {
   val `type` = "campaign"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(Campaign(name = "test"))
+  private val omitList = commonOmitList ++ List("name", "description", "aliases", "first_seen", "last_seen", "objective")
 
   val theReads = new Reads[Campaign] {
     def reads(js: JsValue): JsResult[Campaign] = {
@@ -691,7 +692,7 @@ object CourseOfAction {
   val `type` = "course-of-action"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(CourseOfAction(name = "test"))
+  private val omitList = commonOmitList ++ List("name", "description")
 
   val theReads = new Reads[CourseOfAction] {
     def reads(js: JsValue): JsResult[CourseOfAction] = {
@@ -777,7 +778,7 @@ object Indicator {
   val `type` = "indicator"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(Indicator(pattern = "test", valid_from = Timestamp.now()))
+  private val omitList = commonOmitList ++ List("name", "description", "pattern", "valid_from", "valid_until", "kill_chain_phases")
 
   val theReads = new Reads[Indicator] {
     def reads(js: JsValue): JsResult[Indicator] = {
@@ -876,7 +877,8 @@ object IntrusionSet {
   val `type` = "intrusion-set"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(IntrusionSet(name = "test"))
+  private val omitList = commonOmitList ++ List("name", "description", "aliases", "first_seen", "last_seen", "goals", "resource_level",
+    "primary_motivation", "secondary_motivations")
 
   val theReads = new Reads[IntrusionSet] {
     def reads(js: JsValue): JsResult[IntrusionSet] = {
@@ -977,7 +979,7 @@ object Malware {
   val `type` = "malware"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(Malware(name = "test"))
+  private val omitList = commonOmitList ++ List("name", "description", "kill_chain_phases")
 
   val theReads = new Reads[Malware] {
     def reads(js: JsValue): JsResult[Malware] = {
@@ -1065,9 +1067,7 @@ object ObservedData {
   val `type` = "observed-data"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(ObservedData(first_observed = Timestamp.now(), last_observed = Timestamp.now(),
-    number_observed = 0,
-    objects = Map[String, Observable]()))
+  private val omitList = commonOmitList ++ List("description", "first_observed", "last_observed", "number_observed", "objects")
 
   val theReads = new Reads[ObservedData] {
     def reads(js: JsValue): JsResult[ObservedData] = {
@@ -1158,7 +1158,7 @@ object Report {
   val `type` = "report"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(Report(name = "test", published = Timestamp.now()))
+  private val omitList = commonOmitList ++ List("name", "description", "published", "object_refs")
 
   val theReads = new Reads[Report] {
     def reads(js: JsValue): JsResult[Report] = {
@@ -1253,7 +1253,8 @@ object ThreatActor {
   val `type` = "threat-actor"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(ThreatActor(name = "test"))
+  private val omitList = commonOmitList ++ List("name", "description", "aliases", "roles", "goals", "sophistication",
+    "resource_level", "primary_motivation", "secondary_motivations", "personal_motivations")
 
   val theReads = new Reads[ThreatActor] {
     def reads(js: JsValue): JsResult[ThreatActor] = {
@@ -1353,7 +1354,7 @@ object Tool {
   val `type` = "tool"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(Tool(name = "test"))
+  private val omitList = commonOmitList ++ List("name", "description", "kill_chain_phases", "tool_version")
 
   val theReads = new Reads[Tool] {
     def reads(js: JsValue): JsResult[Tool] = {
@@ -1440,7 +1441,7 @@ object Vulnerability {
   val `type` = "vulnerability"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(Vulnerability(name = "test"))
+  private val omitList = commonOmitList ++ List("name", "description")
 
   val theReads = new Reads[Vulnerability] {
     def reads(js: JsValue): JsResult[Vulnerability] = {
@@ -1548,7 +1549,7 @@ object Relationship {
   val `type` = "relationship"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(Relationship(source_ref = Identifier(Relationship.`type`), relationship_type = "test", target_ref = Identifier(Relationship.`type`)))
+  private val omitList = commonOmitList ++ List("description", "source_ref", "relationship_type", "target_ref")
 
   val theReads = new Reads[Relationship] {
     def reads(js: JsValue): JsResult[Relationship] = {
@@ -1640,7 +1641,8 @@ object Sighting {
   val `type` = "sighting"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(Sighting(sighting_of_ref = Identifier(Sighting.`type`)))
+  private val omitList = commonOmitList ++ List("description", "sighting_of_ref", "first_seen", "last_seen", "count",
+    "observed_data_refs", "where_sighted_refs", "summary")
 
   val theReads = new Reads[Sighting] {
     def reads(js: JsValue): JsResult[Sighting] = {
@@ -1737,7 +1739,8 @@ object LanguageContent {
   val `type` = "language-content"
 
   // get the names of all the fields but not the custom field.
-  private val omitList = getOmitList(LanguageContent(object_ref = Identifier(LanguageContent.`type`), contents = Map[String, Map[String, String]]()))
+  private val omitList = List("type", "id", "created", "modified", "object_modified", "object_ref", "contents",
+    "created_by_ref", "revoked", "labels", "external_references", "object_marking_refs", "granular_markings")
 
   val theReads = new Reads[LanguageContent] {
     def reads(js: JsValue): JsResult[LanguageContent] = {
