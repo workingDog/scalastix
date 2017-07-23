@@ -42,7 +42,7 @@ To compile and generate a jar file from the source:
 
     sbt package
 
-This will produce a jar file "scalastix_2.12-0.5-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
+This will produce a jar file "scalastix_2.12-0.5-SNAPSHOT.jar" in the "./jvm/target/scala-2.12" directory.
 
 To publish the library to your local (Ivy) repository, simply type:
 
@@ -56,7 +56,7 @@ To assemble the library and all its dependencies into a single fat jar file type
  
      sbt assembly
 
-This will produce a jar file "scalastix_2.12-0.5-SNAPSHOT.jar" in the "./target/scala-2.12" directory.
+This will produce a jar file "scalastix-assembly-0.5-SNAPSHOT.jar" in the "./jvm/target/scala-2.12" directory.
  
 ### Conventions
 
@@ -69,7 +69,7 @@ The "id" parameter is second, if omitted a random id is auto-generated.
 Similarly for bundle, "type" and "spec_version" are set automatically, "id" can also be auto-generated if desired.  
  
 Custom properties can be added to any Stix objects such as SDO and Observables by adding 
- the custom properties as a JsonObject to the field name "x_custom".
+ the custom properties as a JsonObject to the field name "custom".
                                     
 ### Usage
                          
@@ -96,4 +96,4 @@ See also the Examples.
 
 Work in progress
 
-Only very basic testing done.
+Only very basic testing done, see the stixfiles.

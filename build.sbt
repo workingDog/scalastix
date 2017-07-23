@@ -1,6 +1,8 @@
 
 import ReleaseTransformations._
 
+name := "scalastix"
+
 version := (version in ThisBuild).value
 
 scalaVersion in ThisBuild := "2.12.2"
@@ -11,7 +13,6 @@ lazy val root = project.in(file(".")).
   aggregate(scalastixJS, scalastixJVM).
   enablePlugins(ScalaJSPlugin).
   settings(
-    name := "scalastix",
     publish := {},
     publishLocal := {}
   )
