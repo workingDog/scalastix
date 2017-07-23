@@ -379,7 +379,7 @@ object MarkingDefinition {
 //-----------------------------------------------------------------------
 
 /**
-  * common properties of all SDO and SRO
+  * common properties of all SDO
   */
 trait SDO extends StixObj {
   val created: Timestamp

@@ -3,6 +3,7 @@ package com.kodekutters.stix
 import play.api.libs.json._
 import Util._
 
+
 /**
   * STIX-2.1 protocol, Cyber Observable Objects
   *

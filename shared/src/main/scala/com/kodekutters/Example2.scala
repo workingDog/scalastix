@@ -32,7 +32,7 @@ object Example2 {
     val bundle = Bundle(attackPattern)
     println("\n----> bundle: " + bundle)
     println("\n----> bundle to json: " + Json.prettyPrint(Json.toJson(bundle)))
-    //
+
     // starting with a string
     val theString =
     """{"type": "attack-pattern", "name" : "Spear Phishing reloaded",
@@ -50,7 +50,9 @@ object Example2 {
            "source_name": "capec",
            "external_id": "CAPEC-148",
            "hashes": {
-             "MD5": "66e2ea40dc71d5ba701574ea215a81f1"
+             "MD5": "66e2ea40dc71d5ba701574ea215a81f1",
+             "MD1": "66e2ea4sssss215a81f1",
+             "ZZZ": "xcxcvfgbfgb tyh tyh"
            }
          }
        ],

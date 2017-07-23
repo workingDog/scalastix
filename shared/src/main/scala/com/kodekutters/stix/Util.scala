@@ -18,6 +18,7 @@ object Util {
         }
       }
     }
+
   // write for Either
   implicit def eitherWrites[A, B](implicit Ax: Writes[A], Bx: Writes[B]): Writes[Either[A, B]] =
     Writes[Either[A, B]] {
@@ -26,23 +27,21 @@ object Util {
     }
 
   // convenience for converting a CustomMap of custom properties into a json string representation
-  def asJsObject(cust: CustomProps) = Json.toJson[CustomProps](cust).asInstanceOf[JsObject]
+  def asJsObject(cust: CustomProps): JsObject = Json.toJson[CustomProps](cust).asInstanceOf[JsObject]
 
   // convenience for getting the list of all fields of an Stix object, but not the "custom" field.
-  def getOmitList(obj: StixObj) = (for (f <- obj.getClass.getDeclaredFields) yield f.getName).toList.filterNot(_ == "custom")
+  def getOmitList(obj: StixObj): List[String] = (for (f <- obj.getClass.getDeclaredFields) yield f.getName).toList.filterNot(_ == "custom")
 
-  // todo
-  // list of objects type names
   val listOfObjectTypes = Seq(AttackPattern.`type`, Identity.`type`, Campaign.`type`,
     CourseOfAction.`type`, Indicator.`type`, IntrusionSet.`type`,
     Malware.`type`, ObservedData.`type`, Report.`type`, ThreatActor.`type`,
-    Tool.`type`, Vulnerability.`type`,
-    MarkingDefinition.`type`, LanguageContent.`type`)
-  // Relationship.`type`, Sighting.`type`,
+    Tool.`type`, Vulnerability.`type`)
 
-  // list of supporting type names
-  val xxObjTypes = Seq(KillChainPhase.`type`,
-    ExternalReference.`type`, GranularMarking.`type`, Identifier.`type`)
+  val listOfStixTypes = Seq( MarkingDefinition.`type`, LanguageContent.`type`)
+
+  val listOfRelTypes = Seq(Relationship.`type`, Sighting.`type`)
+
+  val supportObjTypes = Seq(KillChainPhase.`type`, ExternalReference.`type`, GranularMarking.`type`, Identifier.`type`)
 
   // List of language tags according to RFC 5646.
   // see: https://gist.github.com/msikma/8912e62ed866778ff8cd
