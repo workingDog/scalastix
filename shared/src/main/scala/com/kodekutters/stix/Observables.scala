@@ -31,14 +31,14 @@ trait Observable {
   * The Artifact Object permits capturing an array of bytes (8-bits), as a base64-encoded string,
   * or linking to a file-like payload.
   */
-case class Artifact private(`type`: String = Artifact.`type`,
-                            mime_type: Option[String] = None,
-                            payload_bin: Option[String] = None, // base64-encoded string
-                            url: Option[String] = None,
-                            hashes: Option[Map[String, String]] = None,
-                            description: Option[String] = None,
-                            extensions: Option[Map[String, Extension]] = None,
-                            x_custom: Option[JsObject] = None) extends Observable {
+case class Artifact(`type`: String = Artifact.`type`,
+                    mime_type: Option[String] = None,
+                    payload_bin: Option[String] = None, // base64-encoded string
+                    url: Option[String] = None,
+                    hashes: Option[Map[String, String]] = None,
+                    description: Option[String] = None,
+                    extensions: Option[Map[String, Extension]] = None,
+                    x_custom: Option[JsObject] = None) extends Observable {
 
   def this(mime_type: Option[String], payload_bin: String, description: Option[String],
            extensions: Option[Map[String, Extension]], x_custom: Option[JsObject]) =

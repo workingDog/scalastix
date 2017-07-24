@@ -24,8 +24,9 @@ lazy val scalastix = crossProject.in(file(".")).
   organization := "com.github.workingDog",
   homepage := Some(url("https://github.com/workingDog/scalastix")),
   licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  // the %%% will pick the appropriate lib for scala or scala.js
   libraryDependencies ++= Seq(
-    "org.threeten" % "threetenbp" % "1.3.6",
+    "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M12",
     "com.typesafe.play" %%% "play-json" % playJsonVersion
     //  "com.typesafe.play.extras" %%% "play-geojson" % "1.4.1"
   ),
@@ -78,9 +79,7 @@ lazy val scalastix = crossProject.in(file(".")).
     scalaJSStage in Global := FullOptStage,
     jsDependencies += RuntimeDOM,
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "0.9.3",
-      "org.scala-js" %%% "scalajs-java-time" % "0.2.2",
-      "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M12"
+      "org.scala-js" %%% "scalajs-dom" % "0.9.3"
     )
   )
 
