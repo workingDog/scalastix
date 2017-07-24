@@ -67,21 +67,15 @@ lazy val scalastix = crossProject.in(file(".")).
     fork := true,
     javaOptions in compile += "-Xmx8G",
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G"),
-    scalacOptions ++= Seq(
-      "-deprecation",
-      "-feature",
-      "-unchecked",
-      "-Xlint"
-    )
+    scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
   ).
   jsSettings(
     skip in packageJSDependencies := false,
     scalaJSStage in Global := FullOptStage,
     jsDependencies += RuntimeDOM,
-    libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "0.9.3"
-    )
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.3"
   )
 
 lazy val scalastixJVM = scalastix.jvm
 lazy val scalastixJS = scalastix.js
+
