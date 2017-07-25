@@ -35,7 +35,7 @@ object Example2 {
 
     // starting with a string
     val theString =
-    """{"type": "attack-pattern", "name" : "Spear Phishing reloaded",
+      """{"type": "attack-pattern", "name" : "Spear Phishing reloaded",
           "id" : "attack-pattern--0fe33f18-9717-4329-9179-429d7304ef73",
           "created": "2017-05-11T07:13:18.448Z",
           "modified": "2017-05-11T07:13:18.448Z",
@@ -72,6 +72,8 @@ object Example2 {
     // convert to a (option) Stix object
     val attackOpt = Json.fromJson[StixObj](theJson).asOpt
     println("\n---> attackOpt: " + attackOpt)
+
+    println("\n----> attack to json: " + Json.prettyPrint(Json.toJson(attackOpt.get)))
 
   }
 

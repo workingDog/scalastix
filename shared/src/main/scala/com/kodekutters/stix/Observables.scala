@@ -22,9 +22,8 @@ import Util._
   */
 trait Observable {
   val `type`: String
-  val description: Option[String]
   val extensions: Option[Map[String, Extension]]
-  val x_custom: Option[JsObject]
+  val custom: Option[JsObject] // todo custom properties
 }
 
 /**
@@ -36,17 +35,16 @@ case class Artifact(`type`: String = Artifact.`type`,
                     payload_bin: Option[String] = None, // base64-encoded string
                     url: Option[String] = None,
                     hashes: Option[Map[String, String]] = None,
-                    description: Option[String] = None,
                     extensions: Option[Map[String, Extension]] = None,
-                    x_custom: Option[JsObject] = None) extends Observable {
+                    custom: Option[JsObject] = None) extends Observable {
 
-  def this(mime_type: Option[String], payload_bin: String, description: Option[String],
-           extensions: Option[Map[String, Extension]], x_custom: Option[JsObject]) =
-    this(Artifact.`type`, mime_type, Option(payload_bin), None, None, description, extensions, x_custom)
+  def this(mime_type: Option[String], payload_bin: String,
+           extensions: Option[Map[String, Extension]], custom: Option[JsObject]) =
+    this(Artifact.`type`, mime_type, Option(payload_bin), None, None, extensions, custom)
 
-  def this(mime_type: Option[String], url: String, hashes: Map[String, String], description: Option[String],
-           extensions: Option[Map[String, Extension]], x_custom: Option[JsObject]) =
-    this(Artifact.`type`, mime_type, None, Option(url), Option(hashes), description, extensions, x_custom)
+  def this(mime_type: Option[String], url: String, hashes: Map[String, String],
+           extensions: Option[Map[String, Extension]], custom: Option[JsObject]) =
+    this(Artifact.`type`, mime_type, None, Option(url), Option(hashes), extensions, custom)
 
 }
 
@@ -62,9 +60,8 @@ case class AutonomousSystem(`type`: String = AutonomousSystem.`type`,
                             number: Int,
                             name: Option[String] = None,
                             rir: Option[String] = None,
-                            description: Option[String] = None,
                             extensions: Option[Map[String, Extension]] = None,
-                            x_custom: Option[JsObject] = None) extends Observable
+                            custom: Option[JsObject] = None) extends Observable
 
 object AutonomousSystem {
   val `type` = "autonomous-system"
@@ -81,9 +78,8 @@ case class Directory(`type`: String = Directory.`type`,
                      modified: Option[Timestamp] = None,
                      accessed: Option[Timestamp] = None,
                      contains_refs: Option[List[String]] = None, // todo object-ref must be file or directory type
-                     description: Option[String] = None,
                      extensions: Option[Map[String, Extension]] = None,
-                     x_custom: Option[JsObject] = None) extends Observable
+                     custom: Option[JsObject] = None) extends Observable
 
 object Directory {
   val `type` = "directory"
@@ -96,9 +92,8 @@ object Directory {
 case class DomainName(`type`: String = DomainName.`type`,
                       value: String,
                       resolves_to_refs: Option[List[String]] = None, // todo object-ref must be ipv4-addr or ipv6-addr or domain-name
-                      description: Option[String] = None,
                       extensions: Option[Map[String, Extension]] = None,
-                      x_custom: Option[JsObject] = None) extends Observable
+                      custom: Option[JsObject] = None) extends Observable
 
 object DomainName {
   val `type` = "domain-name"
@@ -111,9 +106,8 @@ object DomainName {
 case class EmailAddress(`type`: String = EmailAddress.`type`, value: String,
                         display_name: Option[String] = None,
                         belongs_to_ref: Option[String] = None, // todo  must be of type user-account
-                        description: Option[String] = None,
                         extensions: Option[Map[String, Extension]] = None,
-                        x_custom: Option[JsObject] = None) extends Observable
+                        custom: Option[JsObject] = None) extends Observable
 
 object EmailAddress {
   val `type` = "email-addr"
@@ -128,7 +122,7 @@ case class EmailMimeType(`type`: String = EmailMimeType.`type`,
                          body_raw_ref: Option[String] = None, // todo must be of type artifact or file.
                          content_type: Option[String] = None,
                          content_disposition: Option[String] = None,
-                         x_custom: Option[JsObject] = None)
+                         custom: Option[JsObject] = None)
 
 object EmailMimeType {
   val `type` = "mime-part-type"
@@ -154,9 +148,8 @@ case class EmailMessage(`type`: String = EmailMessage.`type`,
                         received_lines: Option[List[String]] = None,
                         additional_header_fields: Option[Map[String, String]] = None,
                         raw_email_ref: Option[String] = None, // todo must be of type artifact
-                        description: Option[String] = None,
                         extensions: Option[Map[String, Extension]] = None,
-                        x_custom: Option[JsObject] = None) extends Observable
+                        custom: Option[JsObject] = None) extends Observable
 
 object EmailMessage {
   val `type` = "email-message"
@@ -182,9 +175,8 @@ case class File(`type`: String = File.`type`,
                 decryption_key: Option[String] = None,
                 contains_refs: Option[List[String]] = None,
                 content_ref: Option[String] = None,
-                description: Option[String] = None,
                 extensions: Option[Map[String, Extension]] = None,
-                x_custom: Option[JsObject] = None) extends Observable
+                custom: Option[JsObject] = None) extends Observable
 
 object File {
   val `type` = "file"
@@ -198,9 +190,8 @@ case class IPv4Address(`type`: String = IPv4Address.`type`,
                        value: String,
                        resolves_to_refs: Option[List[String]] = None,
                        belongs_to_refs: Option[List[String]] = None,
-                       description: Option[String] = None,
                        extensions: Option[Map[String, Extension]] = None,
-                       x_custom: Option[JsObject] = None) extends Observable
+                       custom: Option[JsObject] = None) extends Observable
 
 object IPv4Address {
   val `type` = "ipv4-addr"
@@ -214,9 +205,8 @@ case class IPv6Address(`type`: String = IPv6Address.`type`,
                        value: String,
                        resolves_to_refs: Option[List[String]] = None,
                        belongs_to_refs: Option[List[String]] = None,
-                       description: Option[String] = None,
                        extensions: Option[Map[String, Extension]] = None,
-                       x_custom: Option[JsObject] = None) extends Observable
+                       custom: Option[JsObject] = None) extends Observable
 
 object IPv6Address {
   val `type` = "ipv6-addr"
@@ -228,9 +218,8 @@ object IPv6Address {
   */
 case class MACAddress(`type`: String = MACAddress.`type`,
                       value: String,
-                      description: Option[String] = None,
                       extensions: Option[Map[String, Extension]] = None,
-                      x_custom: Option[JsObject] = None) extends Observable
+                      custom: Option[JsObject] = None) extends Observable
 
 object MACAddress {
   val `type` = "mac-addr"
@@ -242,9 +231,8 @@ object MACAddress {
   */
 case class Mutex(`type`: String = Mutex.`type`,
                  name: String,
-                 description: Option[String] = None,
                  extensions: Option[Map[String, Extension]] = None,
-                 x_custom: Option[JsObject] = None) extends Observable
+                 custom: Option[JsObject] = None) extends Observable
 
 object Mutex {
   val `type` = "mutex"
@@ -272,9 +260,8 @@ case class NetworkTraffic(`type`: String = NetworkTraffic.`type`,
                           dst_payload_ref: Option[String] = None,
                           encapsulates_refs: Option[List[String]] = None,
                           encapsulated_by_ref: Option[String] = None,
-                          description: Option[String] = None,
                           extensions: Option[Map[String, Extension]] = None,
-                          x_custom: Option[JsObject] = None) extends Observable
+                          custom: Option[JsObject] = None) extends Observable
 
 object NetworkTraffic {
   val `type` = "network-traffic"
@@ -298,9 +285,8 @@ case class Process(`type`: String = Process.`type`,
                    binary_ref: Option[String] = None,
                    parent_ref: Option[String] = None,
                    child_refs: Option[List[String]] = None,
-                   description: Option[String] = None,
                    extensions: Option[Map[String, Extension]] = None,
-                   x_custom: Option[JsObject] = None) extends Observable
+                   custom: Option[JsObject] = None) extends Observable
 
 object Process {
   val `type` = "process"
@@ -316,9 +302,8 @@ case class Software(`type`: String = Software.`type`,
                     languages: Option[List[String]] = None,
                     vendor: Option[String] = None,
                     version: Option[String] = None,
-                    description: Option[String] = None,
                     extensions: Option[Map[String, Extension]] = None,
-                    x_custom: Option[JsObject] = None) extends Observable
+                    custom: Option[JsObject] = None) extends Observable
 
 object Software {
   val `type` = "software"
@@ -330,9 +315,8 @@ object Software {
   */
 case class URL(`type`: String = URL.`type`,
                value: String,
-               description: Option[String] = None,
                extensions: Option[Map[String, Extension]] = None,
-               x_custom: Option[JsObject] = None) extends Observable
+               custom: Option[JsObject] = None) extends Observable
 
 object URL {
   val `type` = "url"
@@ -356,9 +340,8 @@ case class UserAccount(`type`: String = UserAccount.`type`,
                        password_last_changed: Option[Timestamp] = None,
                        account_first_login: Option[Timestamp] = None,
                        account_last_login: Option[Timestamp] = None,
-                       description: Option[String] = None,
                        extensions: Option[Map[String, Extension]] = None,
-                       x_custom: Option[JsObject] = None) extends Observable
+                       custom: Option[JsObject] = None) extends Observable
 
 object UserAccount {
   val `type` = "user-account"
@@ -387,9 +370,8 @@ case class WindowsRegistryKey(`type`: String = WindowsRegistryKey.`type`,
                               modified: Option[Timestamp] = None,
                               creator_user_ref: Option[String] = None,
                               number_of_subkeys: Option[Int] = None,
-                              description: Option[String] = None,
                               extensions: Option[Map[String, Extension]] = None,
-                              x_custom: Option[JsObject] = None) extends Observable
+                              custom: Option[JsObject] = None) extends Observable
 
 object WindowsRegistryKey {
   val `type` = "windows-registry-key"
@@ -437,9 +419,8 @@ case class X509Certificate(`type`: String = X509Certificate.`type`,
                            subject_public_key_modulus: Option[String] = None,
                            subject_public_key_exponent: Option[Int] = None,
                            x509_v3_extensions: Option[X509V3ExtenstionsType] = None,
-                           description: Option[String] = None,
                            extensions: Option[Map[String, Extension]] = None,
-                           x_custom: Option[JsObject] = None) extends Observable
+                           custom: Option[JsObject] = None) extends Observable
 
 object X509Certificate {
   val `type` = "x509-certificate"
