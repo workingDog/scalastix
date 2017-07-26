@@ -35,36 +35,39 @@ object Example2 {
 
     // starting with a string
     val theString =
-      """{"type": "attack-pattern", "name" : "Spear Phishing reloaded",
-          "id" : "attack-pattern--0fe33f18-9717-4329-9179-429d7304ef73",
-          "created": "2017-05-11T07:13:18.448Z",
-          "modified": "2017-05-11T07:13:18.448Z",
-          "kill_chain_phases": [
-            {
-             "kill_chain_name": "mandiant-attack-lifecycle-model",
-             "phase_name": "establish-foothold"
-           }
-          ],
-                "external_references": [
-         {
-           "source_name": "capec",
-           "external_id": "CAPEC-148",
-           "hashes": {
-             "MD5": "66e2ea40dc71d5ba701574ea215a81f1",
-             "MD1": "66e2ea4sssss215a81f1",
-             "ZZZ": "xcxcvfgbfgb tyh tyh"
-           }
-         }
-       ],
-       "x_a": "some text",
-       "x_b": 12,
-       "x_c": false,
-       "x_d": 45.67,
-       "x_array_a": [1,2,3,4,5,6],
-       "x_array_b": ["1", "2", "3", "4"],
-       "x_obj": {"name": "Jack", "age": 27},
-       "dog": "rover"
-      }""".stripMargin
+      """{
+        |  "type" : "attack-pattern",
+        |  "id" : "attack-pattern--466b2b23-814b-4ff6-9764-d2aad901289a",
+        |  "created" : "2017-07-26T01:50:36.134Z",
+        |  "modified" : "2017-07-26T01:50:36.160Z",
+        |  "name" : "Spear Phishing",
+        |  "kill_chain_phases" : [ {
+        |    "kill_chain_name" : "Kill",
+        |    "phase_name" : "Bill"
+        |  } ],
+        |  "external_references": [
+        |         {
+        |           "source_name": "capec",
+        |           "external_id": "CAPEC-148",
+        |           "hashes": {
+        |             "MD5": "66e2ea40dc71d5ba701574ea215a81f1",
+        |             "MD1": "66e2ea4sssss215a81f1",
+        |             "ZZZ": "xcxcvfgbfgb tyh tyh"
+        |           }
+        |         }
+        |       ],
+        |  "lang" : "some language",
+        |  "object_marking_refs" : [ "campaign--24552e49-1452-40cb-ac1e-2b60820856ff" ],
+        |  "x_test" : "test1",
+        |  "x_a": "some text",
+        |         "x_b": 12,
+        |       "x_c": false,
+        |       "x_d": 45.67,
+        |       "x_array_a": [1,2,3,4,5,6],
+        |       "x_array_b": ["1", "2", "3", "4"],
+        |       "x_obj": {"name": "Jack", "age": 27},
+        |       "dog": "rover"
+        |}""".stripMargin
 
     // parse to json
     val theJson = Json.parse(theString)
