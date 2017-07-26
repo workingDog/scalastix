@@ -1,7 +1,10 @@
 Change Log
 ==========
 
-### changes in 0.5-SNAPSHOT  
+### changes in 0.6-SNAPSHOT  
+
+
+### changes in 0.5
 
 * remove description from all Observables
 * renamed x_custom to custom for all Observables
