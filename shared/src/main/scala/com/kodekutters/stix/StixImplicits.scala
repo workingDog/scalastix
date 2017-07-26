@@ -48,8 +48,8 @@ object StixImplicits {
 
   implicit def CustomMapToOpt(value: CustomProps): Option[CustomProps] = Option(value)
 
+  implicit def IdentifierToOpt(value: Identifier): Option[Identifier] = Option(value)
+
   // ---------------------------------------------------------------------------------------
-
-
 
 }

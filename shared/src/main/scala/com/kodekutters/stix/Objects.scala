@@ -19,6 +19,7 @@ import Util._
 //------------------supporting data types--------------------------------
 //-----------------------------------------------------------------------
 
+
 /**
   * a valid RFC 3339-formatted timestamp [RFC3339] using the format YYYY-MM-DDTHH:mm:ss[.s+]Z
   * where the “s+” represents 1 or more sub-second values.
@@ -241,28 +242,20 @@ case class CustomProps(nodes: Map[String, JsValue])
 
 object CustomProps {
 
-  def readCustomAttributes(js: JsValue): Option[CustomProps] = {
-    js match {
-      case json: JsObject =>
-        // get all custom property fields, i.e starting with "x_"
-        val fList = json.fields.filter(p => p._1.startsWith("x_"))
-        if (fList.isEmpty) None else Some(new CustomProps(fList.toMap))
-
-      case x => JsError(s"Could not read custom field: $x"); None
-    }
+  val theWrites = new Writes[CustomProps] {
+    def writes(custom: CustomProps): JsObject = JsObject(custom.nodes)
   }
 
   val theReads = new Reads[CustomProps] {
     def reads(json: JsValue): JsResult[CustomProps] = {
       json match {
-        case js: JsObject => JsSuccess(new CustomProps(js.fields.toMap))
+        case js: JsObject =>
+          val fList = js.fields.filter(p => p._1.startsWith("x_"))
+          JsSuccess(new CustomProps(fList.toMap))
+
         case x => JsError(s"Error could not read custom: $x")
       }
     }
-  }
-
-  val theWrites = new Writes[CustomProps] {
-    def writes(custom: CustomProps): JsObject = JsObject(custom.nodes)
   }
 
   implicit val fmt: Format[CustomProps] = Format(theReads, theWrites)
@@ -276,7 +269,7 @@ object CustomProps {
 trait StixObj {
   val `type`: String
   val id: Identifier
-  val custom: Option[CustomProps] // the custom properties as a map of property names and values
+  val custom: Option[CustomProps] // the custom properties as a map of property names and JsValues
 }
 
 /**
@@ -296,51 +289,19 @@ case class MarkingDefinition(`type`: String = MarkingDefinition.`type`,
 object MarkingDefinition {
   val `type` = "marking-definition"
 
-  val theReads = new Reads[MarkingDefinition] {
-    def reads(js: JsValue): JsResult[MarkingDefinition] = {
-      if ((js \ "type").asOpt[String].contains(MarkingDefinition.`type`)) {
-        JsSuccess(new MarkingDefinition(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "definition_type").as[String],
-          (js \ "definition").as[MarkingObject],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading MarkingDefinition: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[MarkingDefinition] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "definition_type").format[String] and
+      (__ \ "definition").format[MarkingObject] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (MarkingDefinition.apply, unlift(MarkingDefinition.unapply))
 
-  val theWrites = new Writes[MarkingDefinition] {
-    def writes(p: MarkingDefinition): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "definition_type" -> JsString(p.definition_type),
-        "definition" -> Json.toJson(p.definition))
-
-      val theList = JsObject(List(
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[MarkingDefinition] = Format(theReads, theWrites)
 }
 
 //-----------------------------------------------------------------------
@@ -414,63 +375,25 @@ case class AttackPattern(`type`: String = AttackPattern.`type`,
 object AttackPattern {
   val `type` = "attack-pattern"
 
-  val theReads = new Reads[AttackPattern] {
-    def reads(js: JsValue): JsResult[AttackPattern] = {
-      if ((js \ "type").asOpt[String].contains(AttackPattern.`type`)) {
-        JsSuccess(new AttackPattern(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "name").as[String],
-          (js \ "description").asOpt[String],
-          (js \ "kill_chain_phases").asOpt[List[KillChainPhase]],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading AttackPattern: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[AttackPattern] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "name").format[String] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "kill_chain_phases").formatNullable[List[KillChainPhase]] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (AttackPattern.apply, unlift(AttackPattern.unapply))
 
-  val theWrites = new Writes[AttackPattern] {
-    def writes(p: AttackPattern): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "name" -> JsString(p.name))
-
-      val theList = JsObject(List(
-        p.description.map("description" -> JsString(_)),
-        p.kill_chain_phases.map("kill_chain_phases" -> Json.toJson(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[AttackPattern] = Format(theReads, theWrites)
 }
 
 /**
@@ -500,67 +423,27 @@ case class Identity(`type`: String = Identity.`type`,
 object Identity {
   val `type` = "identity"
 
-  val theReads = new Reads[Identity] {
-    def reads(js: JsValue): JsResult[Identity] = {
-      if ((js \ "type").asOpt[String].contains(Identity.`type`)) {
-        JsSuccess(new Identity(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "name").as[String],
-          (js \ "identity_class").as[String],
-          (js \ "sectors").asOpt[List[String]],
-          (js \ "contact_information").asOpt[String],
-          (js \ "description").asOpt[String],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading Identity: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[Identity] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "name").format[String] and
+      (__ \ "identity_class").format[String] and
+      (__ \ "sectors").formatNullable[List[String]] and
+      (__ \ "contact_information").formatNullable[String] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (Identity.apply, unlift(Identity.unapply))
 
-  val theWrites = new Writes[Identity] {
-    def writes(p: Identity): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "name" -> JsString(p.name),
-        "identity_class" -> JsString(p.name))
-
-      val theList = JsObject(List(
-        p.sectors.map("sectors" -> Json.toJson(_)),
-        p.contact_information.map("contact_information" -> JsString(_)),
-        p.description.map("description" -> JsString(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[Identity] = Format(theReads, theWrites)
 }
 
 /**
@@ -591,69 +474,28 @@ case class Campaign(`type`: String = Campaign.`type`,
 object Campaign {
   val `type` = "campaign"
 
-  val theReads = new Reads[Campaign] {
-    def reads(js: JsValue): JsResult[Campaign] = {
-      if ((js \ "type").asOpt[String].contains(Campaign.`type`)) {
-        JsSuccess(new Campaign(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "name").as[String],
-          (js \ "description").asOpt[String],
-          (js \ "aliases").asOpt[List[String]],
-          (js \ "first_seen").asOpt[Timestamp],
-          (js \ "last_seen").asOpt[Timestamp],
-          (js \ "objective").asOpt[String],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading Campaign: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[Campaign] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "name").format[String] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "aliases").formatNullable[List[String]] and
+      (__ \ "first_seen").formatNullable[Timestamp] and
+      (__ \ "last_seen").formatNullable[Timestamp] and
+      (__ \ "objective").formatNullable[String] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (Campaign.apply, unlift(Campaign.unapply))
 
-  val theWrites = new Writes[Campaign] {
-    def writes(p: Campaign): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "name" -> JsString(p.name))
-
-      val theList = JsObject(List(
-        p.description.map("description" -> JsString(_)),
-        p.aliases.map("aliases" -> Json.toJson(_)),
-        p.first_seen.map("first_seen" -> Json.toJson(_)),
-        p.last_seen.map("last_seen" -> Json.toJson(_)),
-        p.objective.map("objective" -> JsString(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[Campaign] = Format(theReads, theWrites)
 }
 
 /**
@@ -678,61 +520,24 @@ case class CourseOfAction(`type`: String = CourseOfAction.`type`,
 object CourseOfAction {
   val `type` = "course-of-action"
 
-  val theReads = new Reads[CourseOfAction] {
-    def reads(js: JsValue): JsResult[CourseOfAction] = {
-      if ((js \ "type").asOpt[String].contains(CourseOfAction.`type`)) {
-        JsSuccess(new CourseOfAction(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "name").as[String],
-          (js \ "description").asOpt[String],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading CourseOfAction: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[CourseOfAction] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "name").format[String] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (CourseOfAction.apply, unlift(CourseOfAction.unapply))
 
-  val theWrites = new Writes[CourseOfAction] {
-    def writes(p: CourseOfAction): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "name" -> JsString(p.name))
-
-      val theList = JsObject(List(
-        p.description.map("description" -> JsString(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[CourseOfAction] = Format(theReads, theWrites)
 }
 
 /**
@@ -761,69 +566,28 @@ case class Indicator(`type`: String = Indicator.`type`,
 object Indicator {
   val `type` = "indicator"
 
-  val theReads = new Reads[Indicator] {
-    def reads(js: JsValue): JsResult[Indicator] = {
-      if ((js \ "type").asOpt[String].contains(Indicator.`type`)) {
-        JsSuccess(new Indicator(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "pattern").as[String],
-          (js \ "valid_from").as[Timestamp],
-          (js \ "name").asOpt[String],
-          (js \ "valid_until").asOpt[Timestamp],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "kill_chain_phases").asOpt[List[KillChainPhase]],
-          (js \ "description").asOpt[String],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading Indicator: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[Indicator] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "pattern").format[String] and
+      (__ \ "valid_from").format[Timestamp] and
+      (__ \ "name").formatNullable[String] and
+      (__ \ "valid_until").formatNullable[Timestamp] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "kill_chain_phases").formatNullable[List[KillChainPhase]] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (Indicator.apply, unlift(Indicator.unapply))
 
-  val theWrites = new Writes[Indicator] {
-    def writes(p: Indicator): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "pattern" -> JsString(p.pattern),
-        "valid_from" -> Json.toJson(p.valid_from))
-
-      val theList = JsObject(List(
-        p.name.map("name" -> JsString(_)),
-        p.valid_until.map("valid_until" -> Json.toJson(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.kill_chain_phases.map("kill_chain_phases" -> Json.toJson(_)),
-        p.description.map("description" -> JsString(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[Indicator] = Format(theReads, theWrites)
 }
 
 /**
@@ -857,75 +621,31 @@ case class IntrusionSet(`type`: String = IntrusionSet.`type`,
 object IntrusionSet {
   val `type` = "intrusion-set"
 
-  val theReads = new Reads[IntrusionSet] {
-    def reads(js: JsValue): JsResult[IntrusionSet] = {
-      if ((js \ "type").asOpt[String].contains(IntrusionSet.`type`)) {
-        JsSuccess(new IntrusionSet(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "name").as[String],
-          (js \ "description").asOpt[String],
-          (js \ "aliases").asOpt[List[String]],
-          (js \ "first_seen").asOpt[Timestamp],
-          (js \ "last_seen").asOpt[Timestamp],
-          (js \ "goals").asOpt[List[String]],
-          (js \ "resource_level").asOpt[String],
-          (js \ "primary_motivation").asOpt[String],
-          (js \ "secondary_motivations").asOpt[List[String]],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading IntrusionSet: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[IntrusionSet] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "name").format[String] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "aliases").formatNullable[List[String]] and
+      (__ \ "first_seen").formatNullable[Timestamp] and
+      (__ \ "last_seen").formatNullable[Timestamp] and
+      (__ \ "goals").formatNullable[List[String]] and
+      (__ \ "resource_level").formatNullable[String] and
+      (__ \ "primary_motivation").formatNullable[String] and
+      (__ \ "secondary_motivations").formatNullable[List[String]] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (IntrusionSet.apply, unlift(IntrusionSet.unapply))
 
-  val theWrites = new Writes[IntrusionSet] {
-    def writes(p: IntrusionSet): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "name" -> JsString(p.name))
-
-      val theList = JsObject(List(
-        p.description.map("description" -> JsString(_)),
-        p.aliases.map("aliases" -> Json.toJson(_)),
-        p.first_seen.map("first_seen" -> Json.toJson(_)),
-        p.last_seen.map("last_seen" -> Json.toJson(_)),
-        p.goals.map("goals" -> Json.toJson(_)),
-        p.resource_level.map("resource_level" -> JsString(_)),
-        p.primary_motivation.map("primary_motivation" -> JsString(_)),
-        p.secondary_motivations.map("last_seen" -> Json.toJson(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[IntrusionSet] = Format(theReads, theWrites)
 }
 
 /**
@@ -955,63 +675,25 @@ case class Malware(`type`: String = Malware.`type`,
 object Malware {
   val `type` = "malware"
 
-  val theReads = new Reads[Malware] {
-    def reads(js: JsValue): JsResult[Malware] = {
-      if ((js \ "type").asOpt[String].contains(Malware.`type`)) {
-        JsSuccess(new Malware(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "name").as[String],
-          (js \ "description").asOpt[String],
-          (js \ "kill_chain_phases").asOpt[List[KillChainPhase]],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading Malware: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[Malware] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "name").format[String] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "kill_chain_phases").formatNullable[List[KillChainPhase]] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (Malware.apply, unlift(Malware.unapply))
 
-  val theWrites = new Writes[Malware] {
-    def writes(p: Malware): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "name" -> JsString(p.name))
-
-      val theList = JsObject(List(
-        p.description.map("description" -> JsString(_)),
-        p.kill_chain_phases.map("kill_chain_phases" -> Json.toJson(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[Malware] = Format(theReads, theWrites)
 }
 
 /**
@@ -1040,67 +722,27 @@ case class ObservedData(`type`: String = ObservedData.`type`,
 object ObservedData {
   val `type` = "observed-data"
 
-  val theReads = new Reads[ObservedData] {
-    def reads(js: JsValue): JsResult[ObservedData] = {
-      if ((js \ "type").asOpt[String].contains(ObservedData.`type`)) {
-        JsSuccess(new ObservedData(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "first_observed").as[Timestamp],
-          (js \ "last_observed").as[Timestamp],
-          (js \ "number_observed").as[Int],
-          (js \ "objects").as[Map[String, Observable]],
-          (js \ "description").asOpt[String],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading ObservedData: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[ObservedData] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "first_observed").format[Timestamp] and
+      (__ \ "last_observed").format[Timestamp] and
+      (__ \ "number_observed").format[Int] and
+      (__ \ "objects").format[Map[String, Observable]] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (ObservedData.apply, unlift(ObservedData.unapply))
 
-  val theWrites = new Writes[ObservedData] {
-    def writes(p: ObservedData): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "first_observed" -> Json.toJson(p.first_observed),
-        "last_observed" -> Json.toJson(p.last_observed),
-        "number_observed" -> JsNumber(p.number_observed),
-        "objects" -> Json.toJson(p.objects))
-
-      val theList = JsObject(List(
-        p.description.map("description" -> JsString(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[ObservedData] = Format(theReads, theWrites)
 }
 
 /**
@@ -1128,65 +770,26 @@ case class Report(`type`: String = Report.`type`,
 object Report {
   val `type` = "report"
 
-  val theReads = new Reads[Report] {
-    def reads(js: JsValue): JsResult[Report] = {
-      if ((js \ "type").asOpt[String].contains(Report.`type`)) {
-        JsSuccess(new Report(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "name").as[String],
-          (js \ "published").as[Timestamp],
-          (js \ "object_refs").asOpt[List[Identifier]],
-          (js \ "description").asOpt[String],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading Report: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[Report] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "name").format[String] and
+      (__ \ "published").format[Timestamp] and
+      (__ \ "object_refs").formatNullable[List[Identifier]] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (Report.apply, unlift(Report.unapply))
 
-  val theWrites = new Writes[Report] {
-    def writes(p: Report): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "name" -> JsString(p.name),
-        "published" -> Json.toJson(p.published))
-
-      val theList = JsObject(List(
-        p.object_refs.map("object_refs" -> Json.toJson(_)),
-        p.description.map("description" -> JsString(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[Report] = Format(theReads, theWrites)
 }
 
 /**
@@ -1246,7 +849,7 @@ object ThreatActor {
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
+          CustomProps.theReads.reads(js).asOpt))
       }
       else {
         JsError(s"Error reading ThreatActor: $js")
@@ -1291,6 +894,35 @@ object ThreatActor {
   }
 
   implicit val fmt: Format[ThreatActor] = Format(theReads, theWrites)
+
+  // still cannot cope with > 22 attributes
+
+  //  implicit val fmt: Format[ThreatActor] = (
+  //    (__ \ "type").format[String] and
+  //      (__ \ "id").format[Identifier] and
+  //      (__ \ "created").format[Timestamp] and
+  //      (__ \ "modified").format[Timestamp] and
+  //      (__ \ "name").format[String] and
+  //      (__ \ "labels").formatNullable[List[String]] and
+  //      (__ \ "description").formatNullable[String] and
+  //      (__ \ "aliases").formatNullable[List[String]] and
+  //      (__ \ "roles").formatNullable[List[String]] and
+  //      (__ \ "goals").formatNullable[List[String]] and
+  //      (__ \ "sophistication").formatNullable[String] and
+  //      (__ \ "resource_level").formatNullable[String] and
+  //      (__ \ "primary_motivation").formatNullable[String] and
+  //      (__ \ "secondary_motivations").formatNullable[List[String]] and
+  //      (__ \ "personal_motivations").formatNullable[List[String]] and
+  //      (__ \ "revoked").formatNullable[Boolean] and
+  //      (__ \ "confidence").formatNullable[Int] and
+  //      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+  //      (__ \ "lang").formatNullable[String] and
+  //      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+  //      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+  //      (__ \ "created_by_ref").formatNullable[Identifier] and
+  //      JsPath.formatNullable[CustomProps]
+  //    ) (ThreatActor.apply, unlift(ThreatActor.unapply))
+
 }
 
 /**
@@ -1317,65 +949,26 @@ case class Tool(`type`: String = Tool.`type`,
 object Tool {
   val `type` = "tool"
 
-  val theReads = new Reads[Tool] {
-    def reads(js: JsValue): JsResult[Tool] = {
-      if ((js \ "type").asOpt[String].contains(Tool.`type`)) {
-        JsSuccess(new Tool(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "name").as[String],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "description").asOpt[String],
-          (js \ "kill_chain_phases").asOpt[List[KillChainPhase]],
-          (js \ "tool_version").asOpt[String],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading Tool: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[Tool] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "name").format[String] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "kill_chain_phases").formatNullable[List[KillChainPhase]] and
+      (__ \ "tool_version").formatNullable[String] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (Tool.apply, unlift(Tool.unapply))
 
-  val theWrites = new Writes[Tool] {
-    def writes(p: Tool): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "name" -> JsString(p.name))
-
-      val theList = JsObject(List(
-        p.tool_version.map("tool_version" -> JsString(_)),
-        p.description.map("description" -> JsString(_)),
-        p.kill_chain_phases.map("kill_chain_phases" -> Json.toJson(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[Tool] = Format(theReads, theWrites)
 }
 
 /**
@@ -1401,61 +994,24 @@ case class Vulnerability(`type`: String = Vulnerability.`type`,
 object Vulnerability {
   val `type` = "vulnerability"
 
-  val theReads = new Reads[Vulnerability] {
-    def reads(js: JsValue): JsResult[Vulnerability] = {
-      if ((js \ "type").asOpt[String].contains(Vulnerability.`type`)) {
-        JsSuccess(new Vulnerability(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "name").as[String],
-          (js \ "description").asOpt[String],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading Vulnerability: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[Vulnerability] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "name").format[String] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (Vulnerability.apply, unlift(Vulnerability.unapply))
 
-  val theWrites = new Writes[Vulnerability] {
-    def writes(p: Vulnerability): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "name" -> JsString(p.name))
-
-      val theList = JsObject(List(
-        p.description.map("description" -> JsString(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[Vulnerability] = Format(theReads, theWrites)
 }
 
 //-----------------------------------------------------------------------
@@ -1506,65 +1062,26 @@ case class Relationship(`type`: String = Relationship.`type`,
 object Relationship {
   val `type` = "relationship"
 
-  val theReads = new Reads[Relationship] {
-    def reads(js: JsValue): JsResult[Relationship] = {
-      if ((js \ "type").asOpt[String].contains(Relationship.`type`)) {
-        JsSuccess(new Relationship(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "source_ref").as[Identifier],
-          (js \ "relationship_type").as[String],
-          (js \ "target_ref").as[Identifier],
-          (js \ "description").asOpt[String],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading Relationship: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[Relationship] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "source_ref").format[Identifier] and
+      (__ \ "relationship_type").format[String] and
+      (__ \ "target_ref").format[Identifier] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (Relationship.apply, unlift(Relationship.unapply))
 
-  val theWrites = new Writes[Relationship] {
-    def writes(p: Relationship): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "source_ref" -> Json.toJson(p.source_ref),
-        "relationship_type" -> JsString(p.relationship_type),
-        "target_ref" -> Json.toJson(p.target_ref))
-
-      val theList = JsObject(List(
-        p.description.map("description" -> JsString(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[Relationship] = Format(theReads, theWrites)
 }
 
 /**
@@ -1595,73 +1112,30 @@ case class Sighting(`type`: String = Sighting.`type`,
 object Sighting {
   val `type` = "sighting"
 
-  val theReads = new Reads[Sighting] {
-    def reads(js: JsValue): JsResult[Sighting] = {
-      if ((js \ "type").asOpt[String].contains(Sighting.`type`)) {
-        JsSuccess(new Sighting(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "sighting_of_ref").as[Identifier],
-          (js \ "first_seen").asOpt[Timestamp],
-          (js \ "last_seen").asOpt[Timestamp],
-          (js \ "count").asOpt[Int],
-          (js \ "observed_data_refs").asOpt[List[Identifier]],
-          (js \ "where_sighted_refs").asOpt[List[Identifier]],
-          (js \ "summary").asOpt[Boolean],
-          (js \ "description").asOpt[String],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "confidence").asOpt[Int],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading Sighting: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[Sighting] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "sighting_of_ref").format[Identifier] and
+      (__ \ "first_seen").formatNullable[Timestamp] and
+      (__ \ "last_seen").formatNullable[Timestamp] and
+      (__ \ "count").formatNullable[Int] and
+      (__ \ "observed_data_refs").formatNullable[List[Identifier]] and
+      (__ \ "where_sighted_refs").formatNullable[List[Identifier]] and
+      (__ \ "summary").formatNullable[Boolean] and
+      (__ \ "description").formatNullable[String] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (Sighting.apply, unlift(Sighting.unapply))
 
-  val theWrites = new Writes[Sighting] {
-    def writes(p: Sighting): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "sighting_of_ref" -> Json.toJson(p.sighting_of_ref))
-
-      val theList = JsObject(List(
-        p.first_seen.map("first_seen" -> Json.toJson(_)),
-        p.last_seen.map("last_seen" -> Json.toJson(_)),
-        p.count.map("count" -> JsNumber(_)),
-        p.observed_data_refs.map("observed_data_refs" -> Json.toJson(_)),
-        p.where_sighted_refs.map("where_sighted_refs" -> Json.toJson(_)),
-        p.summary.map("summary" -> JsBoolean(_)),
-        p.description.map("description" -> JsString(_)),
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[Sighting] = Format(theReads, theWrites)
 }
 
 //-----------------------------------------------------------------------
@@ -1689,59 +1163,23 @@ case class LanguageContent(`type`: String = LanguageContent.`type`,
 object LanguageContent {
   val `type` = "language-content"
 
-  val theReads = new Reads[LanguageContent] {
-    def reads(js: JsValue): JsResult[LanguageContent] = {
-      if ((js \ "type").asOpt[String].contains(LanguageContent.`type`)) {
-        JsSuccess(new LanguageContent(
-          (js \ "type").as[String],
-          (js \ "id").as[Identifier],
-          (js \ "created").as[Timestamp],
-          (js \ "modified").as[Timestamp],
-          (js \ "object_modified").as[Timestamp],
-          (js \ "object_ref").as[Identifier],
-          (js \ "contents").as[Map[String, Map[String, String]]],
-          (js \ "created_by_ref").asOpt[Identifier],
-          (js \ "revoked").asOpt[Boolean],
-          (js \ "labels").asOpt[List[String]],
-          (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "object_marking_refs").asOpt[List[Identifier]],
-          (js \ "granular_markings").asOpt[List[GranularMarking]],
-          CustomProps.readCustomAttributes(js)))
-      }
-      else {
-        JsError(s"Error reading LanguageContent: $js")
-      }
-    }
-  }
+  implicit val fmt: Format[LanguageContent] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "object_modified").format[Timestamp] and
+      (__ \ "object_ref").format[Identifier] and
+      (__ \ "contents").format[Map[String, Map[String, String]]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      JsPath.formatNullable[CustomProps]
+    ) (LanguageContent.apply, unlift(LanguageContent.unapply))
 
-  val theWrites = new Writes[LanguageContent] {
-    def writes(p: LanguageContent): JsValue = {
-      val baseList = Json.obj(
-        "type" -> JsString(p.`type`),
-        "id" -> Json.toJson(p.id),
-        "created" -> Json.toJson(p.created),
-        "modified" -> Json.toJson(p.modified),
-        "object_modified" -> Json.toJson(p.object_modified),
-        "object_ref" -> Json.toJson(p.object_ref),
-        "contents" -> Json.toJson(p.contents))
-
-      val theList = JsObject(List(
-        p.revoked.map("revoked" -> JsBoolean(_)),
-        p.labels.map("labels" -> Json.toJson(_)),
-        p.external_references.map("external_references" -> Json.toJson(_)),
-        p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
-        p.granular_markings.map("granular_markings" -> Json.toJson(_)),
-        p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
-      ).flatten)
-
-      p.custom match {
-        case Some(cust) => baseList ++ theList ++ asJsObject(cust)
-        case None => baseList ++ theList
-      }
-    }
-  }
-
-  implicit val fmt: Format[LanguageContent] = Format(theReads, theWrites)
 }
 
 //-----------------------------------------------------------------------
