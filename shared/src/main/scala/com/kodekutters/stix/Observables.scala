@@ -2,7 +2,8 @@ package com.kodekutters.stix
 
 import play.api.libs.json._
 import Util._
-
+import play.api.libs.functional.syntax.unlift
+import play.api.libs.functional.syntax._
 
 /**
   * STIX-2.1 protocol, Cyber Observable Objects
@@ -23,7 +24,7 @@ import Util._
 trait Observable {
   val `type`: String
   val extensions: Option[Map[String, Extension]]
-  val custom: Option[JsObject] // todo custom properties
+  val custom: Option[CustomProps]
 }
 
 /**
@@ -36,21 +37,31 @@ case class Artifact(`type`: String = Artifact.`type`,
                     url: Option[String] = None,
                     hashes: Option[Map[String, String]] = None,
                     extensions: Option[Map[String, Extension]] = None,
-                    custom: Option[JsObject] = None) extends Observable {
+                    custom: Option[CustomProps] = None) extends Observable {
 
   def this(mime_type: Option[String], payload_bin: String,
-           extensions: Option[Map[String, Extension]], custom: Option[JsObject]) =
+           extensions: Option[Map[String, Extension]], custom: Option[CustomProps]) =
     this(Artifact.`type`, mime_type, Option(payload_bin), None, None, extensions, custom)
 
   def this(mime_type: Option[String], url: String, hashes: Map[String, String],
-           extensions: Option[Map[String, Extension]], custom: Option[JsObject]) =
+           extensions: Option[Map[String, Extension]], custom: Option[CustomProps]) =
     this(Artifact.`type`, mime_type, None, Option(url), Option(hashes), extensions, custom)
 
 }
 
 object Artifact {
   val `type` = "artifact"
-  implicit val fmt = Json.format[Artifact]
+
+  implicit val fmt: Format[Artifact] = (
+    (__ \ "type").format[String] and
+      (__ \ "mime_type").formatNullable[String] and
+      (__ \ "payload_bin").formatNullable[String] and
+      (__ \ "url").formatNullable[String] and
+      (__ \ "hashes").formatNullable[Map[String, String]] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (Artifact.apply, unlift(Artifact.unapply))
+
 }
 
 /**
@@ -61,11 +72,20 @@ case class AutonomousSystem(`type`: String = AutonomousSystem.`type`,
                             name: Option[String] = None,
                             rir: Option[String] = None,
                             extensions: Option[Map[String, Extension]] = None,
-                            custom: Option[JsObject] = None) extends Observable
+                            custom: Option[CustomProps] = None) extends Observable
 
 object AutonomousSystem {
   val `type` = "autonomous-system"
-  implicit val fmt = Json.format[AutonomousSystem]
+
+  implicit val fmt: Format[AutonomousSystem] = (
+    (__ \ "type").format[String] and
+      (__ \ "number").format[Int] and
+      (__ \ "name").formatNullable[String] and
+      (__ \ "rir").formatNullable[String] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (AutonomousSystem.apply, unlift(AutonomousSystem.unapply))
+
 }
 
 /**
@@ -79,11 +99,23 @@ case class Directory(`type`: String = Directory.`type`,
                      accessed: Option[Timestamp] = None,
                      contains_refs: Option[List[String]] = None, // todo object-ref must be file or directory type
                      extensions: Option[Map[String, Extension]] = None,
-                     custom: Option[JsObject] = None) extends Observable
+                     custom: Option[CustomProps] = None) extends Observable
 
 object Directory {
   val `type` = "directory"
-  implicit val fmt = Json.format[Directory]
+
+  implicit val fmt: Format[Directory] = (
+    (__ \ "type").format[String] and
+      (__ \ "path").format[String] and
+      (__ \ "path_enc").formatNullable[String] and
+      (__ \ "created").formatNullable[Timestamp] and
+      (__ \ "modified").formatNullable[Timestamp] and
+      (__ \ "accessed").formatNullable[Timestamp] and
+      (__ \ "contains_refs").formatNullable[List[String]] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (Directory.apply, unlift(Directory.unapply))
+
 }
 
 /**
@@ -93,11 +125,19 @@ case class DomainName(`type`: String = DomainName.`type`,
                       value: String,
                       resolves_to_refs: Option[List[String]] = None, // todo object-ref must be ipv4-addr or ipv6-addr or domain-name
                       extensions: Option[Map[String, Extension]] = None,
-                      custom: Option[JsObject] = None) extends Observable
+                      custom: Option[CustomProps] = None) extends Observable
 
 object DomainName {
   val `type` = "domain-name"
-  implicit val fmt = Json.format[DomainName]
+
+  implicit val fmt: Format[DomainName] = (
+    (__ \ "type").format[String] and
+      (__ \ "value").format[String] and
+      (__ \ "resolves_to_refs").formatNullable[List[String]] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (DomainName.apply, unlift(DomainName.unapply))
+
 }
 
 /**
@@ -107,11 +147,20 @@ case class EmailAddress(`type`: String = EmailAddress.`type`, value: String,
                         display_name: Option[String] = None,
                         belongs_to_ref: Option[String] = None, // todo  must be of type user-account
                         extensions: Option[Map[String, Extension]] = None,
-                        custom: Option[JsObject] = None) extends Observable
+                        custom: Option[CustomProps] = None) extends Observable
 
 object EmailAddress {
   val `type` = "email-addr"
-  implicit val fmt = Json.format[EmailAddress]
+
+  implicit val fmt: Format[EmailAddress] = (
+    (__ \ "type").format[String] and
+      (__ \ "value").format[String] and
+      (__ \ "display_name").formatNullable[String] and
+      (__ \ "belongs_to_ref").formatNullable[String] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (EmailAddress.apply, unlift(EmailAddress.unapply))
+
 }
 
 /**
@@ -122,11 +171,20 @@ case class EmailMimeType(`type`: String = EmailMimeType.`type`,
                          body_raw_ref: Option[String] = None, // todo must be of type artifact or file.
                          content_type: Option[String] = None,
                          content_disposition: Option[String] = None,
-                         custom: Option[JsObject] = None)
+                         custom: Option[CustomProps] = None)
 
 object EmailMimeType {
   val `type` = "mime-part-type"
-  implicit val fmt = Json.format[EmailMimeType]
+
+  implicit val fmt: Format[EmailMimeType] = (
+    (__ \ "type").format[String] and
+      (__ \ "body").formatNullable[String] and
+      (__ \ "content_type").formatNullable[String] and
+      (__ \ "content_type").formatNullable[String] and
+      (__ \ "content_disposition").formatNullable[String] and
+      JsPath.formatNullable[CustomProps]
+    ) (EmailMimeType.apply, unlift(EmailMimeType.unapply))
+
 }
 
 /**
@@ -149,11 +207,31 @@ case class EmailMessage(`type`: String = EmailMessage.`type`,
                         additional_header_fields: Option[Map[String, String]] = None,
                         raw_email_ref: Option[String] = None, // todo must be of type artifact
                         extensions: Option[Map[String, Extension]] = None,
-                        custom: Option[JsObject] = None) extends Observable
+                        custom: Option[CustomProps] = None) extends Observable
 
 object EmailMessage {
   val `type` = "email-message"
-  implicit val fmt = Json.format[EmailMessage]
+
+  implicit val fmt: Format[EmailMessage] = (
+    (__ \ "type").format[String] and
+      (__ \ "is_multipart").format[Boolean] and
+      (__ \ "body_multipart").formatNullable[List[EmailMimeType]] and
+      (__ \ "body").formatNullable[String] and
+      (__ \ "date").formatNullable[Timestamp] and
+      (__ \ "content_type").formatNullable[String] and
+      (__ \ "from_ref").formatNullable[String] and
+      (__ \ "sender_ref").formatNullable[String] and
+      (__ \ "to_refs").formatNullable[List[String]] and
+      (__ \ "cc_refs").formatNullable[List[String]] and
+      (__ \ "bcc_refs").formatNullable[List[String]] and
+      (__ \ "subject").formatNullable[String] and
+      (__ \ "received_lines").formatNullable[List[String]] and
+      (__ \ "additional_header_fields").formatNullable[Map[String, String]] and
+      (__ \ "raw_email_ref").formatNullable[String] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (EmailMessage.apply, unlift(EmailMessage.unapply))
+
 }
 
 /**
@@ -176,11 +254,32 @@ case class File(`type`: String = File.`type`,
                 contains_refs: Option[List[String]] = None,
                 content_ref: Option[String] = None,
                 extensions: Option[Map[String, Extension]] = None,
-                custom: Option[JsObject] = None) extends Observable
+                custom: Option[CustomProps] = None) extends Observable
 
 object File {
   val `type` = "file"
-  implicit val fmt = Json.format[File]
+
+  implicit val fmt: Format[File] = (
+    (__ \ "type").format[String] and
+      (__ \ "hashes").formatNullable[Map[String, String]] and
+      (__ \ "size").formatNullable[Int] and
+      (__ \ "name").formatNullable[String] and
+      (__ \ "name_enc").formatNullable[String] and
+      (__ \ "magic_number_hex").formatNullable[String] and
+      (__ \ "mime_type").formatNullable[String] and
+      (__ \ "created").formatNullable[Timestamp] and
+      (__ \ "modified").formatNullable[Timestamp] and
+      (__ \ "accessed").formatNullable[Timestamp] and
+      (__ \ "parent_directory_ref").formatNullable[String] and
+      (__ \ "is_encrypted").formatNullable[Boolean] and
+      (__ \ "encryption_algorithm").formatNullable[String] and
+      (__ \ "decryption_key").formatNullable[String] and
+      (__ \ "contains_refs").formatNullable[List[String]] and
+      (__ \ "content_ref").formatNullable[String] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (File.apply, unlift(File.unapply))
+
 }
 
 /**
@@ -191,11 +290,20 @@ case class IPv4Address(`type`: String = IPv4Address.`type`,
                        resolves_to_refs: Option[List[String]] = None,
                        belongs_to_refs: Option[List[String]] = None,
                        extensions: Option[Map[String, Extension]] = None,
-                       custom: Option[JsObject] = None) extends Observable
+                       custom: Option[CustomProps] = None) extends Observable
 
 object IPv4Address {
   val `type` = "ipv4-addr"
-  implicit val fmt = Json.format[IPv4Address]
+
+  implicit val fmt: Format[IPv4Address] = (
+    (__ \ "type").format[String] and
+      (__ \ "value").format[String] and
+      (__ \ "resolves_to_refs").formatNullable[List[String]] and
+      (__ \ "belongs_to_refs").formatNullable[List[String]] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (IPv4Address.apply, unlift(IPv4Address.unapply))
+
 }
 
 /**
@@ -206,11 +314,20 @@ case class IPv6Address(`type`: String = IPv6Address.`type`,
                        resolves_to_refs: Option[List[String]] = None,
                        belongs_to_refs: Option[List[String]] = None,
                        extensions: Option[Map[String, Extension]] = None,
-                       custom: Option[JsObject] = None) extends Observable
+                       custom: Option[CustomProps] = None) extends Observable
 
 object IPv6Address {
   val `type` = "ipv6-addr"
-  implicit val fmt = Json.format[IPv6Address]
+
+  implicit val fmt: Format[IPv6Address] = (
+    (__ \ "type").format[String] and
+      (__ \ "value").format[String] and
+      (__ \ "resolves_to_refs").formatNullable[List[String]] and
+      (__ \ "belongs_to_refs").formatNullable[List[String]] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (IPv6Address.apply, unlift(IPv6Address.unapply))
+
 }
 
 /**
@@ -219,11 +336,18 @@ object IPv6Address {
 case class MACAddress(`type`: String = MACAddress.`type`,
                       value: String,
                       extensions: Option[Map[String, Extension]] = None,
-                      custom: Option[JsObject] = None) extends Observable
+                      custom: Option[CustomProps] = None) extends Observable
 
 object MACAddress {
   val `type` = "mac-addr"
-  implicit val fmt = Json.format[MACAddress]
+
+  implicit val fmt: Format[MACAddress] = (
+    (__ \ "type").format[String] and
+      (__ \ "value").format[String] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (MACAddress.apply, unlift(MACAddress.unapply))
+
 }
 
 /**
@@ -232,11 +356,18 @@ object MACAddress {
 case class Mutex(`type`: String = Mutex.`type`,
                  name: String,
                  extensions: Option[Map[String, Extension]] = None,
-                 custom: Option[JsObject] = None) extends Observable
+                 custom: Option[CustomProps] = None) extends Observable
 
 object Mutex {
   val `type` = "mutex"
-  implicit val fmt = Json.format[Mutex]
+
+  implicit val fmt: Format[Mutex] = (
+    (__ \ "type").format[String] and
+      (__ \ "name").format[String] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (Mutex.apply, unlift(Mutex.unapply))
+
 }
 
 /**
@@ -261,11 +392,34 @@ case class NetworkTraffic(`type`: String = NetworkTraffic.`type`,
                           encapsulates_refs: Option[List[String]] = None,
                           encapsulated_by_ref: Option[String] = None,
                           extensions: Option[Map[String, Extension]] = None,
-                          custom: Option[JsObject] = None) extends Observable
+                          custom: Option[CustomProps] = None) extends Observable
 
 object NetworkTraffic {
   val `type` = "network-traffic"
-  implicit val fmt = Json.format[NetworkTraffic]
+
+  implicit val fmt: Format[NetworkTraffic] = (
+    (__ \ "type").format[String] and
+      (__ \ "start").formatNullable[Timestamp] and
+      (__ \ "end").formatNullable[Timestamp] and
+      (__ \ "is_active").formatNullable[Boolean] and
+      (__ \ "src_ref").formatNullable[String] and
+      (__ \ "dst_ref").formatNullable[String] and
+      (__ \ "src_port").formatNullable[Int] and
+      (__ \ "dst_port").formatNullable[Int] and
+      (__ \ "protocols").formatNullable[List[String]] and
+      (__ \ "src_byte_count").formatNullable[Int] and
+      (__ \ "dst_byte_count").formatNullable[Int] and
+      (__ \ "src_packets").formatNullable[Int] and
+      (__ \ "dst_packets").formatNullable[Int] and
+      (__ \ "ipfix").formatNullable[Map[String, Either[Int, String]]] and
+      (__ \ "src_payload_ref").formatNullable[String] and
+      (__ \ "dst_payload_ref").formatNullable[String] and
+      (__ \ "encapsulates_refs").formatNullable[List[String]] and
+      (__ \ "encapsulated_by_ref").formatNullable[String] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (NetworkTraffic.apply, unlift(NetworkTraffic.unapply))
+
 }
 
 /**
@@ -286,11 +440,30 @@ case class Process(`type`: String = Process.`type`,
                    parent_ref: Option[String] = None,
                    child_refs: Option[List[String]] = None,
                    extensions: Option[Map[String, Extension]] = None,
-                   custom: Option[JsObject] = None) extends Observable
+                   custom: Option[CustomProps] = None) extends Observable
 
 object Process {
   val `type` = "process"
-  implicit val fmt = Json.format[Process]
+
+  implicit val fmt: Format[Process] = (
+    (__ \ "type").format[String] and
+      (__ \ "is_hidden").formatNullable[Boolean] and
+      (__ \ "pid").formatNullable[Int] and
+      (__ \ "name").formatNullable[String] and
+      (__ \ "created").formatNullable[Timestamp] and
+      (__ \ "cwd").formatNullable[String] and
+      (__ \ "arguments").formatNullable[List[String]] and
+      (__ \ "command_line").formatNullable[String] and
+      (__ \ "environment_variables").formatNullable[Map[String, String]] and
+      (__ \ "opened_connection_refs").formatNullable[List[String]] and
+      (__ \ "creator_user_ref").formatNullable[String] and
+      (__ \ "binary_ref").formatNullable[String] and
+      (__ \ "parent_ref").formatNullable[String] and
+      (__ \ "child_refs").formatNullable[List[String]] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (Process.apply, unlift(Process.unapply))
+
 }
 
 /**
@@ -303,11 +476,22 @@ case class Software(`type`: String = Software.`type`,
                     vendor: Option[String] = None,
                     version: Option[String] = None,
                     extensions: Option[Map[String, Extension]] = None,
-                    custom: Option[JsObject] = None) extends Observable
+                    custom: Option[CustomProps] = None) extends Observable
 
 object Software {
   val `type` = "software"
-  implicit val fmt = Json.format[Software]
+
+  implicit val fmt: Format[Software] = (
+    (__ \ "type").format[String] and
+      (__ \ "name").format[String] and
+      (__ \ "cpe").formatNullable[String] and
+      (__ \ "languages").formatNullable[List[String]] and
+      (__ \ "vendor").formatNullable[String] and
+      (__ \ "version").formatNullable[String] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (Software.apply, unlift(Software.unapply))
+
 }
 
 /**
@@ -316,11 +500,18 @@ object Software {
 case class URL(`type`: String = URL.`type`,
                value: String,
                extensions: Option[Map[String, Extension]] = None,
-               custom: Option[JsObject] = None) extends Observable
+               custom: Option[CustomProps] = None) extends Observable
 
 object URL {
   val `type` = "url"
-  implicit val fmt = Json.format[URL]
+
+  implicit val fmt: Format[URL] = (
+    (__ \ "type").format[String] and
+      (__ \ "value").format[String] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (URL.apply, unlift(URL.unapply))
+
 }
 
 /**
@@ -341,11 +532,30 @@ case class UserAccount(`type`: String = UserAccount.`type`,
                        account_first_login: Option[Timestamp] = None,
                        account_last_login: Option[Timestamp] = None,
                        extensions: Option[Map[String, Extension]] = None,
-                       custom: Option[JsObject] = None) extends Observable
+                       custom: Option[CustomProps] = None) extends Observable
 
 object UserAccount {
   val `type` = "user-account"
-  implicit val fmt = Json.format[UserAccount]
+
+  implicit val fmt: Format[UserAccount] = (
+    (__ \ "type").format[String] and
+      (__ \ "user_id").format[String] and
+      (__ \ "account_login").formatNullable[String] and
+      (__ \ "account_type").formatNullable[String] and
+      (__ \ "display_name").formatNullable[String] and
+      (__ \ "is_service_account").formatNullable[Boolean] and
+      (__ \ "is_privileged").formatNullable[Boolean] and
+      (__ \ "can_escalate_privs").formatNullable[Boolean] and
+      (__ \ "is_disabled").formatNullable[Boolean] and
+      (__ \ "account_created").formatNullable[Timestamp] and
+      (__ \ "account_expires").formatNullable[Timestamp] and
+      (__ \ "password_last_changed").formatNullable[Timestamp] and
+      (__ \ "account_first_login").formatNullable[Timestamp] and
+      (__ \ "account_last_login").formatNullable[Timestamp] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (UserAccount.apply, unlift(UserAccount.unapply))
+
 }
 
 /**
@@ -358,6 +568,7 @@ case class WindowsRegistryValueType(`type`: String = WindowsRegistryValueType.`t
 
 object WindowsRegistryValueType {
   val `type` = "windows-registry-value-type"
+
   implicit val fmt = Json.format[WindowsRegistryValueType]
 }
 
@@ -371,11 +582,22 @@ case class WindowsRegistryKey(`type`: String = WindowsRegistryKey.`type`,
                               creator_user_ref: Option[String] = None,
                               number_of_subkeys: Option[Int] = None,
                               extensions: Option[Map[String, Extension]] = None,
-                              custom: Option[JsObject] = None) extends Observable
+                              custom: Option[CustomProps] = None) extends Observable
 
 object WindowsRegistryKey {
   val `type` = "windows-registry-key"
-  implicit val fmt = Json.format[WindowsRegistryKey]
+
+  implicit val fmt: Format[WindowsRegistryKey] = (
+    (__ \ "type").format[String] and
+      (__ \ "key").format[String] and
+      (__ \ "values").formatNullable[List[WindowsRegistryValueType]] and
+      (__ \ "modified").formatNullable[Timestamp] and
+      (__ \ "creator_user_ref").formatNullable[String] and
+      (__ \ "number_of_subkeys").formatNullable[Int] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (WindowsRegistryKey.apply, unlift(WindowsRegistryKey.unapply))
+
 }
 
 /**
@@ -420,11 +642,30 @@ case class X509Certificate(`type`: String = X509Certificate.`type`,
                            subject_public_key_exponent: Option[Int] = None,
                            x509_v3_extensions: Option[X509V3ExtenstionsType] = None,
                            extensions: Option[Map[String, Extension]] = None,
-                           custom: Option[JsObject] = None) extends Observable
+                           custom: Option[CustomProps] = None) extends Observable
 
 object X509Certificate {
   val `type` = "x509-certificate"
-  implicit val fmt = Json.format[X509Certificate]
+
+  implicit val fmt: Format[X509Certificate] = (
+    (__ \ "type").format[String] and
+      (__ \ "is_self_signed").formatNullable[Boolean] and
+      (__ \ "hashes").formatNullable[Map[String, String]] and
+      (__ \ "version").formatNullable[String] and
+      (__ \ "serial_number").formatNullable[String] and
+      (__ \ "signature_algorithm").formatNullable[String] and
+      (__ \ "issuer").formatNullable[String] and
+      (__ \ "validity_not_before").formatNullable[Timestamp] and
+      (__ \ "validity_not_after").formatNullable[Timestamp] and
+      (__ \ "subject").formatNullable[String] and
+      (__ \ "subject_public_key_algorithm").formatNullable[String] and
+      (__ \ "subject_public_key_modulus").formatNullable[String] and
+      (__ \ "subject_public_key_exponent").formatNullable[Int] and
+      (__ \ "x509_v3_extensions").formatNullable[X509V3ExtenstionsType] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (X509Certificate.apply, unlift(X509Certificate.unapply))
+
 }
 
 /**

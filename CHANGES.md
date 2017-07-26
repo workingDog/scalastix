@@ -5,6 +5,7 @@ Change Log
 
 * remove description from all Observables
 * renamed x_custom to custom for all Observables
+* added custom Format
 * removed most theReads and theWrites and use Format instead
 
 ### changes in 0.4  
