@@ -700,7 +700,7 @@ object Observable {
   }
 
   val theWrites = new Writes[Observable] {
-    def writes(obj: Observable) = {
+    def writes(obj: Observable): JsValue = {
       obj match {
         case ext: Artifact => Artifact.fmt.writes(ext)
         case ext: AutonomousSystem => AutonomousSystem.fmt.writes(ext)

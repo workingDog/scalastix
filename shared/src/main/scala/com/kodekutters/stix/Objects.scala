@@ -19,7 +19,6 @@ import Util._
 //------------------supporting data types--------------------------------
 //-----------------------------------------------------------------------
 
-
 /**
   * a valid RFC 3339-formatted timestamp [RFC3339] using the format YYYY-MM-DDTHH:mm:ss[.s+]Z
   * where the “s+” represents 1 or more sub-second values.
@@ -250,6 +249,7 @@ object CustomProps {
     def reads(json: JsValue): JsResult[CustomProps] = {
       json match {
         case js: JsObject =>
+          // get all fields starting with "x_"
           val fList = js.fields.filter(p => p._1.startsWith("x_"))
           JsSuccess(new CustomProps(fList.toMap))
 
@@ -897,31 +897,31 @@ object ThreatActor {
 
   // still cannot cope with > 22 attributes
 
-  //  implicit val fmt: Format[ThreatActor] = (
-  //    (__ \ "type").format[String] and
-  //      (__ \ "id").format[Identifier] and
-  //      (__ \ "created").format[Timestamp] and
-  //      (__ \ "modified").format[Timestamp] and
-  //      (__ \ "name").format[String] and
-  //      (__ \ "labels").formatNullable[List[String]] and
-  //      (__ \ "description").formatNullable[String] and
-  //      (__ \ "aliases").formatNullable[List[String]] and
-  //      (__ \ "roles").formatNullable[List[String]] and
-  //      (__ \ "goals").formatNullable[List[String]] and
-  //      (__ \ "sophistication").formatNullable[String] and
-  //      (__ \ "resource_level").formatNullable[String] and
-  //      (__ \ "primary_motivation").formatNullable[String] and
-  //      (__ \ "secondary_motivations").formatNullable[List[String]] and
-  //      (__ \ "personal_motivations").formatNullable[List[String]] and
-  //      (__ \ "revoked").formatNullable[Boolean] and
-  //      (__ \ "confidence").formatNullable[Int] and
-  //      (__ \ "external_references").formatNullable[List[ExternalReference]] and
-  //      (__ \ "lang").formatNullable[String] and
-  //      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
-  //      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
-  //      (__ \ "created_by_ref").formatNullable[Identifier] and
-  //      JsPath.formatNullable[CustomProps]
-  //    ) (ThreatActor.apply, unlift(ThreatActor.unapply))
+  //    implicit val fmt: Format[ThreatActor] = (
+  //      (__ \ "type").format[String] and
+  //        (__ \ "id").format[Identifier] and
+  //        (__ \ "created").format[Timestamp] and
+  //        (__ \ "modified").format[Timestamp] and
+  //        (__ \ "name").format[String] and
+  //        (__ \ "labels").formatNullable[List[String]] and
+  //        (__ \ "description").formatNullable[String] and
+  //        (__ \ "aliases").formatNullable[List[String]] and
+  //        (__ \ "roles").formatNullable[List[String]] and
+  //        (__ \ "goals").formatNullable[List[String]] and
+  //        (__ \ "sophistication").formatNullable[String] and
+  //        (__ \ "resource_level").formatNullable[String] and
+  //        (__ \ "primary_motivation").formatNullable[String] and
+  //        (__ \ "secondary_motivations").formatNullable[List[String]] and
+  //        (__ \ "personal_motivations").formatNullable[List[String]] and
+  //        (__ \ "revoked").formatNullable[Boolean] and
+  //        (__ \ "confidence").formatNullable[Int] and
+  //        (__ \ "external_references").formatNullable[List[ExternalReference]] and
+  //        (__ \ "lang").formatNullable[String] and
+  //        (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+  //        (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+  //        (__ \ "created_by_ref").formatNullable[Identifier] and
+  //        JsPath.formatNullable[CustomProps]
+  //      ) (ThreatActor.apply, unlift(ThreatActor.unapply))
 
 }
 

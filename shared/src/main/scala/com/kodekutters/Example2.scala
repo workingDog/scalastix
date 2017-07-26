@@ -2,7 +2,7 @@ package com.kodekutters
 
 import com.kodekutters.stix._
 import StixImplicits._
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.{JsNumber, JsString, Json}
 
 
 /**
@@ -13,7 +13,7 @@ object Example2 {
     test()
   }
 
-  def test() = {
+    def test() = {
 
     println("---> in Example2 test")
 
