@@ -67,8 +67,7 @@ The "id" parameter is second, if omitted a random id is auto-generated.
  
 Similarly for bundle, "type" and "spec_version" are set automatically, "id" can also be auto-generated if desired.  
  
-Custom properties can be added to any Stix objects such as SDO and Observables by adding 
- the custom properties as a JsonObject to the field name "custom".
+Custom properties can be added to any Scala SDO or Observable objects via the field name "custom".
                                     
 ### Usage
                          
@@ -80,7 +79,8 @@ In a Scala application the creation of a Stix object can be done as follows:
     val attack = new AttackPattern(name = "Spear Phishing",
                       kill_chain_phases = List(KillChainPhase("Kill", "Bill")),
                       external_references = List(ExternalReference("a-source-name")),
-                      object_marking_refs = List(Identifier(Campaign.`type`)))
+                      object_marking_refs = List(Identifier(Campaign.`type`)),
+                      custom = CustomProps(Map("x_test" -> JsString("test1"))))
                       
     // convert to json
     val attackjson = Json.toJson(attack)

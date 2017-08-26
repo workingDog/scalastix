@@ -28,7 +28,7 @@ lazy val scalastix = crossProject.in(file(".")).
   libraryDependencies ++= Seq(
     "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M12",
     "com.typesafe.play" %%% "play-json" % playJsonVersion
-    //"au.id.jazzy.play" %% "play-geojson" % "1.5.0" <--- not scalajs yet
+    //"au.id.jazzy" %% "play-geojson" % "1.5.0" <--- not scalajs yet
   ),
   pomExtra := {
     <scm>
