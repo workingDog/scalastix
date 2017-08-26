@@ -89,10 +89,9 @@ In a Scala application the creation of a Stix object can be done as follows:
     // convert to json
     val bundlejson = Json.toJson(bundle)
                                                    
-See also the Examples.
  
 ### Status
 
 Work in progress
 
-Only very basic testing done, see the stixfiles and examples.
+Only very basic testing done.
