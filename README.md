@@ -89,6 +89,24 @@ In a Scala application the creation of a Stix object can be done as follows:
     // convert to json
     val bundlejson = Json.toJson(bundle)
                                                    
+ Reading STIX-2 bundles:
+ 
+     // read a STIX-2 bundle from a file
+     val jsondoc = Source.fromFile("./stixfiles/test1.json").mkString
+     // create a bundle object from it
+     Json.fromJson[Bundle](Json.parse(jsondoc)).asOpt match {
+       case Some(bundle) =>
+         // print all individual sdo
+         bundle.objects.foreach(sdo => println("sdo: " + sdo))
+         // get all attack pattern
+         val allAttacks = bundle.objects.filter(_.`type` == AttackPattern.`type`)
+         allAttacks.foreach(x => println("attack: " + x))
+         // convert them to json and print
+         allAttacks.foreach(x => println(Json.prettyPrint(Json.toJson(x))))
+ 
+       case None => println("invalid JSON")
+     }
+ 
  
 ### Status
 
