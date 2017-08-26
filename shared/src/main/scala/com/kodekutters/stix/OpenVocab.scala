@@ -1,9 +1,9 @@
 package com.kodekutters.stix
 
 /**
-  * STIX vocabularies part of STIX-2.1 protocol
+  * STIX-2.1 vocabularies part of STIX-2.1 protocol
   *
-  * https://docs.google.com/document/d/1nipwFIaFwkHo4Gzw-qxZQpCjP_5tX7rbI3Ic5C56Z88/edit
+  * https://oasis-open.github.io/cti-documentation/
   *
   * Author: R. Wathelet May 2017
   */

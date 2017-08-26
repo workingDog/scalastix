@@ -1,5 +1,6 @@
 resolvers += Resolver.sonatypeRepo("public")
 resolvers += Resolver.sonatypeRepo("releases")
+resolvers += Resolver.bintrayRepo("jroper", "maven")
 
 // for scala.js
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.18")

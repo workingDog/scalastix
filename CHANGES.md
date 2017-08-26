@@ -3,6 +3,9 @@ Change Log
 
 ### changes in 0.6-SNAPSHOT  
 
+* restructuring of directories
+* remove examples and stixfiles to another repo
+
 
 ### changes in 0.5
 

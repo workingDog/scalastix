@@ -1,7 +1,7 @@
 ## STIX 2.1 protocol in Scala
 
-[[1]](https://docs.google.com/document/d/1yvqWaPPnPW-2NiVCLqzRszcx91ffMowfT5MmE9Nsy_w/edit#) 
-"Structured Threat Information Expression [STIX™]([STIX-2.1](https://docs.google.com/document/d/1yvqWaPPnPW-2NiVCLqzRszcx91ffMowfT5MmE9Nsy_w/edit)) 
+[[1]](https://oasis-open.github.io/cti-documentation/) 
+"Structured Threat Information Expression [STIX™] 
 is a language and serialization format 
 used to exchange [cyber threat intelligence (CTI)](https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=cti). STIX enables organizations to share 
 CTI with one another in a consistent and machine readable manner, allowing security 
@@ -10,7 +10,7 @@ see and to anticipate and/or respond to those attacks faster and more effectivel
 STIX is designed to improve many different capabilities, such as collaborative 
 threat analysis, automated threat exchange, automated detection and response, and more."
 
-This library **ScalaStix** is a [Scala](https://www.scala-lang.org/) library of classes and methods 
+This library **ScalaStix** is a [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/) library of classes and methods 
 for STIX Domain Objects (SDO) and associated data types. 
 It is an API for serializing and de-serializing STIX 2.1 JSON content.
 It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data types.
@@ -24,39 +24,38 @@ for how to use Play JSON.
 
 ### References
  
-1) [STIX 2.1 Specification](https://docs.google.com/document/d/1yvqWaPPnPW-2NiVCLqzRszcx91ffMowfT5MmE9Nsy_w/edit)
+1) [STIX 2.1 Specification](https://oasis-open.github.io/cti-documentation/)
    
 ### Dependencies
 
-1) [Play JSON](https://github.com/playframework/play-json) library providing the JSON serialization and de-serialization 
-for [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/).
+1) [Play JSON](https://github.com/playframework/play-json) library providing the JSON serialization and de-serialization.
+2) [Scala Java-Time](https://github.com/cquiroz/scala-java-time) provides an implementation of the java.time package.
+
  
 ### Installation and packaging
 
-To use the last release add the following dependency to your build.sbt:
+To use the latest release add the following dependency to your build.sbt:
 
     libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.5"
 
 The best way to compile and package **ScalaStix** from source is to use [SBT](http://www.scala-sbt.org/).
-To compile and generate a jar file from the source:
+To compile and generate a jar file from source:
 
     sbt package
 
-This will produce a jar file "scalastix_2.12-0.6-SNAPSHOT.jar" in the "./jvm/target/scala-2.12" directory.
+This will produce a jar file "scalastix_2.12-0.6-SNAPSHOT.jar" in the "./jvm/target/scala-2.12" directory 
+for use in Scala applications, and 
+"scalastix_sjs0.6_2.12-0.6-SNAPSHOT.jar" in the "./js/target/scala-2.12" directory 
+for use in Scala.js applications.
 
-To publish the library to your local (Ivy) repository, simply type:
+
+To publish the libraries to your local (Ivy) repository, simply type:
 
     sbt publishLocal
 
-Then put this in your build.sbt file
+Then put this in your Scala app build.sbt file
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.6-SNAPSHOT"
- 
-To assemble the library and all its dependencies into a single fat jar file type:
- 
-     sbt assembly
-
-This will produce a jar file "scalastix-assembly-0.6-SNAPSHOT.jar" in the "./jvm/target/scala-2.12" directory.
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.6-SNAPSHOT" 
  
 ### Conventions
 
@@ -96,4 +95,4 @@ See also the Examples.
 
 Work in progress
 
-Only very basic testing done, see the stixfiles.
+Only very basic testing done, see the stixfiles and examples.

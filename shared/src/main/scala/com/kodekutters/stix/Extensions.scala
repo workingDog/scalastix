@@ -6,6 +6,15 @@ import play.api.libs.functional.syntax._
 import Util._
 
 /**
+  * STIX-2.1 Extensions
+  *
+  * reference: https://oasis-open.github.io/cti-documentation/
+  *
+  * Author: R. Wathelet May 2017
+  */
+
+
+/**
   * represents a Predefined Cyber Observable Object Extension.
   * To create a Custom Object Extension, simply extends this trait
   */

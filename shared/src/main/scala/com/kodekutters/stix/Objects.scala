@@ -1,7 +1,7 @@
 package com.kodekutters.stix
 
 import org.threeten.bp._
-//import play.extras.geojson._
+
 import java.util.UUID
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -10,7 +10,7 @@ import Util._
 /**
   * STIX-2.1 protocol
   *
-  * https://docs.google.com/document/d/1nipwFIaFwkHo4Gzw-qxZQpCjP_5tX7rbI3Ic5C56Z88/edit
+  * reference: https://oasis-open.github.io/cti-documentation/
   *
   * Author: R. Wathelet May 2017
   */

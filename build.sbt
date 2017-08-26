@@ -5,9 +5,9 @@ name := "scalastix"
 
 version := (version in ThisBuild).value
 
-scalaVersion in ThisBuild := "2.12.2"
+scalaVersion in ThisBuild := "2.12.3"
 
-val playJsonVersion = "2.6.2"
+val playJsonVersion = "2.6.3"
 
 lazy val root = project.in(file(".")).
   aggregate(scalastixJS, scalastixJVM).
@@ -28,7 +28,7 @@ lazy val scalastix = crossProject.in(file(".")).
   libraryDependencies ++= Seq(
     "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M12",
     "com.typesafe.play" %%% "play-json" % playJsonVersion
-    //  "com.typesafe.play.extras" %%% "play-geojson" % "1.4.1"
+    //"au.id.jazzy.play" %% "play-geojson" % "1.5.0" <--- not scalajs yet
   ),
   pomExtra := {
     <scm>
@@ -73,7 +73,7 @@ lazy val scalastix = crossProject.in(file(".")).
     skip in packageJSDependencies := false,
     scalaJSStage in Global := FullOptStage,
     jsDependencies += RuntimeDOM,
-    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.3"
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M12"
   )
 
 lazy val scalastixJVM = scalastix.jvm
