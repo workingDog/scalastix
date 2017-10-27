@@ -1,11 +1,13 @@
 package com.kodekutters.stix
 
 import org.threeten.bp._
-
 import java.util.UUID
+
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import Util._
+
+import scala.collection.mutable.ListBuffer
 
 /**
   * STIX-2.1 protocol
@@ -1247,11 +1249,11 @@ object StixObj {
 case class Bundle(`type`: String = Bundle.`type`,
                   id: Identifier = Identifier(Bundle.`type`),
                   spec_version: String = Bundle.spec_version,
-                  objects: List[StixObj]) {
+                  objects: ListBuffer[StixObj] = ListBuffer[StixObj]()) {
 
-  def this(objects: List[StixObj]) = this(Bundle.`type`, Identifier(Bundle.`type`), Bundle.spec_version, objects)
+  def this(objects: ListBuffer[StixObj]) = this(Bundle.`type`, Identifier(Bundle.`type`), Bundle.spec_version, objects)
 
-  def this(objects: StixObj*) = this(objects.toList)
+  def this(objects: StixObj*) = this(objects.to[ListBuffer])
 
 }
 
@@ -1259,9 +1261,9 @@ object Bundle {
   val `type` = "bundle"
   val spec_version = "2.1"
 
-  def apply(objects: List[StixObj]) = new Bundle(objects)
+  def apply(objects: ListBuffer[StixObj]) = new Bundle(objects)
 
-  def apply(objects: StixObj*) = new Bundle(objects.toList)
+  def apply(objects: StixObj*) = new Bundle(objects.to[ListBuffer])
 
   implicit val fmt = Json.format[Bundle]
 }

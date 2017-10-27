@@ -5,7 +5,7 @@ Change Log
 
 * restructuring of directories
 * remove examples and stixfiles to another repo
-
+* updated scala, sbt, plugins and dependencies  
 
 ### changes in 0.5
 

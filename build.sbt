@@ -5,9 +5,9 @@ name := "scalastix"
 
 version := (version in ThisBuild).value
 
-scalaVersion in ThisBuild := "2.12.3"
+scalaVersion in ThisBuild := "2.12.4"
 
-val playJsonVersion = "2.6.3"
+val playJsonVersion = "2.6.6"
 
 lazy val root = project.in(file(".")).
   aggregate(scalastixJS, scalastixJVM).
@@ -56,10 +56,10 @@ lazy val scalastix = crossProject.in(file(".")).
     commitReleaseVersion,
     tagRelease,
     publishArtifacts,
-    ReleaseStep(action = Command.process("publishSigned", _), enableCrossBuild = true),
+ //   ReleaseStep(action = Command.process("publishSigned", _), enableCrossBuild = true),
     setNextVersion,
     commitNextVersion,
-    ReleaseStep(action = Command.process("sonatypeReleaseAll", _), enableCrossBuild = true),
+ //   ReleaseStep(action = Command.process("sonatypeReleaseAll", _), enableCrossBuild = true),
     pushChanges
   )
 ).
@@ -67,12 +67,16 @@ lazy val scalastix = crossProject.in(file(".")).
     fork := true,
     javaOptions in compile += "-Xmx8G",
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G"),
-    scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
+    scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked", "-Xlint"),
+    // to allow Scala.js annotations (e.g. @JSExportTopLevel, @JSExportAll, etc...) to compile on the JVM
+    libraryDependencies += "org.scala-js" %% "scalajs-stubs" % scalaJSVersion % "provided"
   ).
   jsSettings(
+    scalacOptions += "-P:scalajs:sjsDefinedByDefault",
     skip in packageJSDependencies := false,
     scalaJSStage in Global := FullOptStage,
-    jsDependencies += RuntimeDOM,
+  //  jsDependencies += RuntimeDOM,
+    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
     libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-M12"
   )
 
