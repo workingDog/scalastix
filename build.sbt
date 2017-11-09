@@ -5,7 +5,7 @@ name := "scalastix"
 
 version := (version in ThisBuild).value
 
-scalaVersion in ThisBuild := "2.12.4"
+scalaVersion in ThisBuild := "2.12.3"
 
 val playJsonVersion = "2.6.6"
 
