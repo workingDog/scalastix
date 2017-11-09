@@ -14,7 +14,7 @@ import scala.collection.mutable.ListBuffer
   *
   * reference: https://oasis-open.github.io/cti-documentation/
   *
-  * Author: R. Wathelet May 2017
+  * Author: Ringo Wathelet May 2017
   */
 
 //-----------------------------------------------------------------------
