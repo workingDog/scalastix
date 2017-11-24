@@ -5,9 +5,9 @@ name := "scalastix"
 
 version := (version in ThisBuild).value
 
-scalaVersion in ThisBuild := "2.12.3"
+scalaVersion in ThisBuild := "2.12.4"
 
-val playJsonVersion = "2.6.6"
+val playJsonVersion = "2.6.7"
 
 lazy val root = project.in(file(".")).
   aggregate(scalastixJS, scalastixJVM).
