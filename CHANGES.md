@@ -5,7 +5,8 @@ Change Log
 
 * restructuring of directories
 * remove examples and stixfiles to another repo
-* updated scala, sbt, plugins and dependencies  
+* updated scala, sbt, plugins and dependencies 
+* renamed assemply.sbt to assembly.sbt in project
 
 ### changes in 0.5
 

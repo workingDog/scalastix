@@ -1238,6 +1238,7 @@ object StixObj {
   }
 
   implicit val fmt: Format[StixObj] = Format(theReads, theWrites)
+
 }
 
 /**
