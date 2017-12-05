@@ -10,17 +10,10 @@ see and to anticipate and/or respond to those attacks faster and more effectivel
 STIX is designed to improve many different capabilities, such as collaborative 
 threat analysis, automated threat exchange, automated detection and response, and more."
 
-This library **ScalaStix** is a [Scala](https://www.scala-lang.org/) and [Scala.js](https://www.scala-js.org/) library of classes and methods 
+This library **scalastix** is a [Scala](https://www.scala-lang.org/) library of classes and methods 
 for STIX Domain Objects (SDO) and associated data types. 
 It is an API for serializing and de-serializing STIX 2.1 JSON content.
 It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data types.
-
-#### Note
-The older **ScalaStix** version 0.1 uses [circe](https://github.com/circe/circe) for JSON serialization and de-serialization. 
-
-**ScalaStix** versions >= 0.2 use the [Play JSON](https://github.com/playframework/play-json) library to provide the JSON 
-serialization and de-serialization. See also the [Play Framwork documentation](https://www.playframework.com/documentation/2.6.x/ScalaJson) 
-for how to use Play JSON.  
 
 ### References
  
@@ -44,9 +37,7 @@ To compile and generate a jar file from source:
     sbt package
 
 This will produce a jar file "scalastix_2.12-0.6-SNAPSHOT.jar" in the "./jvm/target/scala-2.12" directory 
-for use in Scala applications, and 
-"scalastix_sjs0.6_2.12-0.6-SNAPSHOT.jar" in the "./js/target/scala-2.12" directory 
-for use in Scala.js applications.
+for use in Scala applications.
 
 
 To publish the libraries to your local (Ivy) repository, simply type:
