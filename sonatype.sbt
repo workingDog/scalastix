@@ -15,10 +15,37 @@ pomExtra := {
 
 pomIncludeRepository := { _ => false }
 
+scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/workingDog/scalastix"),
+    "scm:git:git@github.com:workingDog/scalastix.git"
+  )
+)
+
+developers := List(
+  Developer(
+    id = "workingDog",
+    name = "Ringo Wathelet",
+    email = "",
+    url = url("https://github.com/workingDog")
+  )
+)
+
+publishMavenStyle := true
+
+publishArtifact in Test := false
+
+publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value)
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}
+
 // Release settings
 sonatypeProfileName := "com.github.workingDog"
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
-releaseCrossBuild := true
 releaseTagName := (version in ThisBuild).value
 
 import ReleaseTransformations._
@@ -30,10 +57,9 @@ releaseProcess := Seq[ReleaseStep](
   commitReleaseVersion,
   tagRelease,
   publishArtifacts,
-//  ReleaseStep(action = Command.process("publishSigned", _), enableCrossBuild = true),
+//  releaseStepCommand("sonatypeRelease"),
+//  releaseStepCommand("publishSigned"),
   setNextVersion,
   commitNextVersion,
-//  ReleaseStep(action = Command.process("sonatypeReleaseAll", _), enableCrossBuild = true),
   pushChanges
 )
-

@@ -1,13 +1,19 @@
 Change Log
 ==========
 
-### changes in 0.6-SNAPSHOT  
+
+### changes in 0.7-SNAPSHOT 
+
+
+
+### changes in 0.6
 
 * restructuring of directories
 * remove examples and stixfiles to another repo
 * updated scala, sbt, plugins and dependencies 
 * renamed assemply.sbt to assembly.sbt in project
 * added CustomStix, CustomExtension, CustomObservable
+* removed all scalajs dependencies
 
 
 ### changes in 0.5
