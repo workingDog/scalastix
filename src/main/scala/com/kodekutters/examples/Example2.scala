@@ -1,4 +1,5 @@
 
+package com.kodekutters.examples
 
 import com.kodekutters.stix._
 import StixImplicits._
