@@ -31,7 +31,7 @@ To use the latest release add the following dependency to your build.sbt:
 
     libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.5"
 
-The best way to compile and package **ScalaStix** from source is to use [SBT](http://www.scala-sbt.org/).
+The best way to compile and package **scalastix** from source is to use [SBT](http://www.scala-sbt.org/).
 To compile and generate a jar file from source:
 
     sbt package
