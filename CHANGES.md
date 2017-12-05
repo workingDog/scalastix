@@ -7,6 +7,8 @@ Change Log
 * remove examples and stixfiles to another repo
 * updated scala, sbt, plugins and dependencies 
 * renamed assemply.sbt to assembly.sbt in project
+* added CustomStix, CustomExtension, CustomObservable
+
 
 ### changes in 0.5
 

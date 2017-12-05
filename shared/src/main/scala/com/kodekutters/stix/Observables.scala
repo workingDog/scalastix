@@ -669,6 +669,23 @@ object X509Certificate {
 }
 
 /**
+  * A custom observable object
+  */
+case class CustomObservable(`type`: String = CustomObservable.`type`,
+                            extensions: Option[Map[String, Extension]] = None,
+                            custom: Option[CustomProps] = None) extends Observable
+
+object CustomObservable {
+  val `type` = "x-custom-observable"
+
+  implicit val fmt: Format[CustomObservable] = (
+    (__ \ "type").format[String] and
+      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      JsPath.formatNullable[CustomProps]
+    ) (CustomObservable.apply, unlift(CustomObservable.unapply))
+}
+
+/**
   * STIX Cyber Observables document
   */
 object Observable {
@@ -694,6 +711,7 @@ object Observable {
         case UserAccount.`type` => UserAccount.fmt.reads(js)
         case WindowsRegistryKey.`type` => WindowsRegistryKey.fmt.reads(js)
         case X509Certificate.`type` => X509Certificate.fmt.reads(js)
+        case _ => CustomObservable.fmt.reads(js)
         // todo ---> custom observables
       }).getOrElse(JsError("Error reading Observable"))
     }
@@ -720,6 +738,7 @@ object Observable {
         case ext: UserAccount => UserAccount.fmt.writes(ext)
         case ext: WindowsRegistryKey => WindowsRegistryKey.fmt.writes(ext)
         case ext: X509Certificate => X509Certificate.fmt.writes(ext)
+        case ext: CustomObservable => CustomObservable.fmt.writes(ext)
         // todo ---> custom observables
         case _ => JsNull
       }

@@ -225,6 +225,15 @@ object WindowPEBinExt {
 }
 
 /**
+  * to represent an unknown custom extension object
+  */
+case class CustomExtension(`type`: String) extends Extension
+
+object CustomExtension {
+  implicit val fmt = Json.format[CustomExtension]
+}
+
+/**
   * represents a Predefined Cyber Observable Object Extension
   */
 object Extension {
@@ -237,6 +246,7 @@ object Extension {
         case PdfFileExt.`type` => PdfFileExt.fmt.reads(js)
         case RasterImgExt.`type` => RasterImgExt.fmt.reads(js)
         case WindowPEBinExt.`type` => WindowPEBinExt.fmt.reads(js)
+        case x => CustomExtension.fmt.reads(js)
         // todo ---> custom Extensions
       }).getOrElse(JsError("Error reading Extension"))
     }
@@ -250,6 +260,7 @@ object Extension {
         case ext: PdfFileExt => PdfFileExt.fmt.writes(ext)
         case ext: RasterImgExt => RasterImgExt.fmt.writes(ext)
         case ext: WindowPEBinExt => WindowPEBinExt.fmt.writes(ext)
+        case ext: CustomExtension => CustomExtension.fmt.writes(ext)
         // todo ---> custom Extensions
         case _ => JsNull
       }

@@ -372,7 +372,7 @@ case class AttackPattern(`type`: String = AttackPattern.`type`,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
-                         custom: Option[CustomProps] = None) extends SDO 
+                         custom: Option[CustomProps] = None) extends SDO
 
 object AttackPattern {
   val `type` = "attack-pattern"
@@ -420,7 +420,7 @@ case class Identity(`type`: String = Identity.`type`,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
                     //    location: Option[Location] = None,
-                    custom: Option[CustomProps] = None) extends SDO  
+                    custom: Option[CustomProps] = None) extends SDO
 
 object Identity {
   val `type` = "identity"
@@ -471,7 +471,7 @@ case class Campaign(`type`: String = Campaign.`type`,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    custom: Option[CustomProps] = None) extends SDO  
+                    custom: Option[CustomProps] = None) extends SDO
 
 object Campaign {
   val `type` = "campaign"
@@ -517,7 +517,7 @@ case class CourseOfAction(`type`: String = CourseOfAction.`type`,
                           object_marking_refs: Option[List[Identifier]] = None,
                           granular_markings: Option[List[GranularMarking]] = None,
                           created_by_ref: Option[Identifier] = None,
-                          custom: Option[CustomProps] = None) extends SDO  
+                          custom: Option[CustomProps] = None) extends SDO
 
 object CourseOfAction {
   val `type` = "course-of-action"
@@ -618,7 +618,7 @@ case class IntrusionSet(`type`: String = IntrusionSet.`type`,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
                         //    locations: Option[List[Location]] = None,
-                        custom: Option[CustomProps] = None) extends SDO  
+                        custom: Option[CustomProps] = None) extends SDO
 
 object IntrusionSet {
   val `type` = "intrusion-set"
@@ -672,7 +672,7 @@ case class Malware(`type`: String = Malware.`type`,
                    object_marking_refs: Option[List[Identifier]] = None,
                    granular_markings: Option[List[GranularMarking]] = None,
                    created_by_ref: Option[Identifier] = None,
-                   custom: Option[CustomProps] = None) extends SDO  
+                   custom: Option[CustomProps] = None) extends SDO
 
 object Malware {
   val `type` = "malware"
@@ -767,7 +767,7 @@ case class Report(`type`: String = Report.`type`,
                   object_marking_refs: Option[List[Identifier]] = None,
                   granular_markings: Option[List[GranularMarking]] = None,
                   created_by_ref: Option[Identifier] = None,
-                  custom: Option[CustomProps] = None) extends SDO  
+                  custom: Option[CustomProps] = None) extends SDO
 
 object Report {
   val `type` = "report"
@@ -820,7 +820,7 @@ case class ThreatActor(`type`: String = ThreatActor.`type`,
                        object_marking_refs: Option[List[Identifier]] = None,
                        granular_markings: Option[List[GranularMarking]] = None,
                        created_by_ref: Option[Identifier] = None,
-                       custom: Option[CustomProps] = None) extends SDO  
+                       custom: Option[CustomProps] = None) extends SDO
 
 object ThreatActor {
   val `type` = "threat-actor"
@@ -946,7 +946,7 @@ case class Tool(`type`: String = Tool.`type`,
                 object_marking_refs: Option[List[Identifier]] = None,
                 granular_markings: Option[List[GranularMarking]] = None,
                 created_by_ref: Option[Identifier] = None,
-                custom: Option[CustomProps] = None) extends SDO  
+                custom: Option[CustomProps] = None) extends SDO
 
 object Tool {
   val `type` = "tool"
@@ -991,7 +991,7 @@ case class Vulnerability(`type`: String = Vulnerability.`type`,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
-                         custom: Option[CustomProps] = None) extends SDO  
+                         custom: Option[CustomProps] = None) extends SDO
 
 object Vulnerability {
   val `type` = "vulnerability"
@@ -1184,6 +1184,44 @@ object LanguageContent {
 
 }
 
+/**
+  * represents an ad-hock custom stix object
+  */
+case class CustomStix(`type`: String = CustomStix.`type`,
+                      id: Identifier = Identifier(AttackPattern.`type`),
+                      created: Timestamp = Timestamp.now(),
+                      modified: Timestamp = Timestamp.now(),
+                      revoked: Option[Boolean] = None,
+                      labels: Option[List[String]] = None,
+                      confidence: Option[Int] = None,
+                      external_references: Option[List[ExternalReference]] = None,
+                      lang: Option[String] = None,
+                      object_marking_refs: Option[List[Identifier]] = None,
+                      granular_markings: Option[List[GranularMarking]] = None,
+                      created_by_ref: Option[Identifier] = None,
+                      custom: Option[CustomProps] = None) extends SDO
+
+object CustomStix {
+  val `type` = "x-custom-object"
+
+  implicit val fmt: Format[CustomStix] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "confidence").formatNullable[Int] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "lang").formatNullable[String] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (CustomStix.apply, unlift(CustomStix.unapply))
+
+}
+
 //-----------------------------------------------------------------------
 //------------------STIX and Bundle object-------------------------------
 //-----------------------------------------------------------------------
@@ -1209,6 +1247,7 @@ object StixObj {
         case Sighting.`type` => Sighting.fmt.reads(js)
         case MarkingDefinition.`type` => MarkingDefinition.fmt.reads(js)
         case LanguageContent.`type` => LanguageContent.fmt.reads(js)
+        case _ => CustomStix.fmt.reads(js)
       }).getOrElse(JsError("Error reading StixObj"))
     }
   }
@@ -1232,6 +1271,7 @@ object StixObj {
         case stix: Sighting => Sighting.fmt.writes(stix)
         case stix: MarkingDefinition => MarkingDefinition.fmt.writes(stix)
         case stix: LanguageContent => LanguageContent.fmt.writes(stix)
+        case stix: CustomStix => CustomStix.fmt.writes(stix)
         case _ => JsNull
       }
     }
