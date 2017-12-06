@@ -26,7 +26,6 @@ publishTo := Some(
     Opts.resolver.sonatypeStaging
 )
 
-// Release settings
 sonatypeProfileName := "com.github.workingDog"
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 releaseTagName := (version in ThisBuild).value

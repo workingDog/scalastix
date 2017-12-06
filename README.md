@@ -29,14 +29,14 @@ It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data t
 
 To use the latest release add the following dependency to your build.sbt:
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.5"
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.6"
 
 The best way to compile and package **scalastix** from source is to use [SBT](http://www.scala-sbt.org/).
 To compile and generate a jar file from source:
 
     sbt package
 
-This will produce a jar file "scalastix_2.12-0.6-SNAPSHOT.jar" in the "./jvm/target/scala-2.12" directory 
+This will produce a jar file "scalastix_2.12-0.7-SNAPSHOT.jar" in the "./jvm/target/scala-2.12" directory 
 for use in Scala applications.
 
 
@@ -46,7 +46,7 @@ To publish the libraries to your local (Ivy) repository, simply type:
 
 Then put this in your Scala app build.sbt file
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.6-SNAPSHOT" 
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.7-SNAPSHOT" 
  
 ### Conventions
 
