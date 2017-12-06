@@ -36,7 +36,7 @@ To compile and generate a jar file from source:
 
     sbt package
 
-This will produce a jar file "scalastix_2.12-0.7-SNAPSHOT.jar" in the "./jvm/target/scala-2.12" directory 
+This will produce a jar file "scalastix_2.12-0.7-SNAPSHOT.jar" in the "./target/scala-2.12" directory 
 for use in Scala applications.
 
 
