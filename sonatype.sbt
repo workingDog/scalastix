@@ -15,51 +15,18 @@ pomExtra := {
 
 pomIncludeRepository := { _ => false }
 
-scmInfo := Some(
-  ScmInfo(
-    url("https://github.com/workingDog/scalastix"),
-    "scm:git:git@github.com:workingDog/scalastix.git"
-  )
-)
-
-developers := List(
-  Developer(
-    id = "workingDog",
-    name = "Ringo Wathelet",
-    email = "",
-    url = url("https://github.com/workingDog")
-  )
-)
-
 publishMavenStyle := true
 
 publishArtifact in Test := false
 
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
+publishTo := Some(
   if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
+    Opts.resolver.sonatypeSnapshots
   else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
+    Opts.resolver.sonatypeStaging
+)
 
 // Release settings
 sonatypeProfileName := "com.github.workingDog"
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 releaseTagName := (version in ThisBuild).value
-
-import ReleaseTransformations._
-
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  publishArtifacts,
-//  releaseStepCommand("sonatypeRelease"),
-//  releaseStepCommand("publishSigned"),
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
-)
