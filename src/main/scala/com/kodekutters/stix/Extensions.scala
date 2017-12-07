@@ -227,7 +227,7 @@ object WindowPEBinExt {
 /**
   * to represent an unknown custom extension object
   */
-case class CustomExtension(`type`: String) extends Extension
+case class CustomExtension(`type`: String, custom: Option[CustomProps] = None) extends Extension
 
 object CustomExtension {
   implicit val fmt = Json.format[CustomExtension]

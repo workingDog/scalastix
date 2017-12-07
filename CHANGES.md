@@ -4,6 +4,8 @@ Change Log
 
 ### changes in 0.7-SNAPSHOT 
 * bug fix: change id default in CustomStix to --> id: Identifier = Identifier(CustomStix.`type`) 
+* added the parameter, custom: Option[CustomProps] to CustomExtension Extension object
+
 
 
 ### changes in 0.6
