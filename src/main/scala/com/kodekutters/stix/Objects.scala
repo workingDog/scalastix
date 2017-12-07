@@ -1188,7 +1188,7 @@ object LanguageContent {
   * represents an ad-hock custom stix object
   */
 case class CustomStix(`type`: String = CustomStix.`type`,
-                      id: Identifier = Identifier(AttackPattern.`type`),
+                      id: Identifier = Identifier(CustomStix.`type`),
                       created: Timestamp = Timestamp.now(),
                       modified: Timestamp = Timestamp.now(),
                       revoked: Option[Boolean] = None,

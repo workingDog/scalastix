@@ -3,7 +3,7 @@ Change Log
 
 
 ### changes in 0.7-SNAPSHOT 
-
+* bug fix: change id default in CustomStix to --> id: Identifier = Identifier(CustomStix.`type`) 
 
 
 ### changes in 0.6
