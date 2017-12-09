@@ -1,11 +1,11 @@
 package com.kodekutters.stix
 
 /**
-  * STIX-2.1 vocabularies part of STIX-2.1 protocol
+  * STIX-2.0 vocabularies part of STIX-2.0 protocol
   *
   * https://oasis-open.github.io/cti-documentation/
   *
-  * Author: R. Wathelet May 2017
+  * Author: R. Wathelet  2017
   */
 
 sealed trait OpenVocab
@@ -35,7 +35,6 @@ object attack_resource_level_ov extends OpenVocab {
 object identity_class_ov extends OpenVocab {
   val individual = "individual"
   val group = "group"
-  val contest = "contest"
   val organization = "organization"
   val `class` = "class"
   val unknown = "unknown"
@@ -45,7 +44,6 @@ object indicator_label_ov extends OpenVocab {
   val anomalous_activity = "anomalous-activity"
   val anonymization = "anonymization"
   val benign = "benign"
-  val organization = "organization"
   val compromised = "compromised"
   val malicious_activity = "malicious-activity"
   val attribution = "attribution"

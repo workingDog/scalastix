@@ -1,4 +1,4 @@
-## STIX 2.1 protocol in Scala
+## STIX 2.0 protocol in Scala
 
 [[1]](https://oasis-open.github.io/cti-documentation/) 
 "Structured Threat Information Expression [STIX™] 
@@ -11,42 +11,45 @@ STIX is designed to improve many different capabilities, such as collaborative
 threat analysis, automated threat exchange, automated detection and response, and more."
 
 This library **scalastix** is a [Scala](https://www.scala-lang.org/) library of classes and methods 
-for STIX Domain Objects (SDO) and associated data types. 
-It is an API for serializing and de-serializing STIX 2.1 JSON content.
+for STIX-2 Domain Objects (SDO) and associated data types. 
+It is an API for serializing and de-serializing STIX-2 JSON content.
 It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data types.
 
 ### References
  
-1) [STIX 2.1 Specification](https://oasis-open.github.io/cti-documentation/)
+1) [STIX 2.0 Specifications](https://oasis-open.github.io/cti-documentation/)
    
 ### Dependencies
 
 1) [Play JSON](https://github.com/playframework/play-json) library providing the JSON serialization and de-serialization.
-2) [Scala Java-Time](https://github.com/cquiroz/scala-java-time) provides an implementation of the java.time package.
 
  
 ### Installation and packaging
 
-To use the latest release add the following dependency to your build.sbt:
+***Note:*** previous versions of **scalastix** (< 0.7) were aimed at the unapproved STIX-2.1 specifications. 
+Starting with version 0.7, 
+this library attempts to follow the [OASIS published STIX-2.0 specifications](https://oasis-open.github.io/cti-documentation/).
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.6"
+To use the latest release add the following dependency to your *build.sbt*:
+
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.7"
 
 The best way to compile and package **scalastix** from source is to use [SBT](http://www.scala-sbt.org/).
 To compile and generate a jar file from source:
 
     sbt package
 
-This will produce a jar file "scalastix_2.12-0.7-SNAPSHOT.jar" in the "./target/scala-2.12" directory 
+This will produce a jar file "scalastix_2.12-0.8-SNAPSHOT.jar" in the "./target/scala-2.12" directory 
 for use in Scala applications.
 
 
-To publish the libraries to your local (Ivy) repository, simply type:
+To publish the library to your local (Ivy) repository, simply type:
 
     sbt publishLocal
 
-Then put this in your Scala app build.sbt file
+Then put this in your Scala app *build.sbt* file:
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.7-SNAPSHOT" 
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "0.8-SNAPSHOT" 
  
 ### Conventions
 

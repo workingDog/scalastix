@@ -1,11 +1,23 @@
 Change Log
 ==========
 
+### changes in 0.8-SNAPSHOT
 
-### changes in 0.7-SNAPSHOT 
+
+### changes in 0.7
+Major restructure to align with STIX-2.0 specifications.
+ 
+* to align with STIX-2.0 specs; 
+** removed all confidence and lang fields from all objects.
+** default bundle spec_version="2.0"
+** removed contest, organization from OpenVocab
+** change object_refs to List[Identifier] in Report
+
 * bug fix: change id default in CustomStix to --> id: Identifier = Identifier(CustomStix.`type`) 
 * added the parameter, custom: Option[CustomProps] to CustomExtension Extension object
+* removed dependence on https://github.com/cquiroz/scala-java-time, using java time now.
 
+* NOTE: although not part of STIX-2.0 LanguageContent has been kept for compatibility.
 
 
 ### changes in 0.6

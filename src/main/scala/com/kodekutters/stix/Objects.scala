@@ -1,6 +1,6 @@
 package com.kodekutters.stix
 
-import org.threeten.bp._
+import java.time.{ZoneId, ZonedDateTime}
 import java.util.UUID
 
 import play.api.libs.json._
@@ -10,11 +10,11 @@ import Util._
 import scala.collection.mutable.ListBuffer
 
 /**
-  * STIX-2.1 protocol
+  * STIX-2.0 protocol
   *
   * reference: https://oasis-open.github.io/cti-documentation/
   *
-  * Author: Ringo Wathelet May 2017
+  * Author: Ringo Wathelet 2017
   */
 
 //-----------------------------------------------------------------------
@@ -232,7 +232,7 @@ object ExternalReference {
 }
 
 //-----------------------------------------------------------------------
-//------------------x-custom support-------------------------------------
+//------------------x-custom properties support--------------------------
 //-----------------------------------------------------------------------
 
 /**
@@ -266,7 +266,8 @@ object CustomProps {
 //-----------------------------------------------------------------------
 
 /**
-  * a general STIX object representing the SDOs, SROs, LanguageContent and MarkingDefinition
+  * a general STIX object representing the SDOs, SROs and MarkingDefinition (and LanguageContent)
+  * all StixObj can be added to a Bundle.
   */
 trait StixObj {
   val `type`: String
@@ -307,34 +308,6 @@ object MarkingDefinition {
 }
 
 //-----------------------------------------------------------------------
-//------------------Address and Location---------------------------------
-//-----------------------------------------------------------------------
-/**
-  * The Address is a sub-type used only by location and is used to describe civic (street) addresses.
-  */
-//case class Address(country: String,
-//                   administrative_area: Option[String] = None,
-//                   city: Option[String] = None,
-//                   address: Option[String] = None,
-//                   postal_code: Option[String] = None)
-//
-//object Address {
-//  implicit val fmt = Json.format[Address]
-//}
-
-/**
-  * Location is used to describe geographic locations.
-  * It supports describing by general region, civic address, or using GeoJSON.
-  */
-//case class Location(region: String,
-//                    address: Option[Address] = None,
-//                    geojson: Option[GeoJson[LatLng]] = None)
-//
-//object Location {
-//  implicit val fmt = Json.format[Location]
-//}
-
-//-----------------------------------------------------------------------
 //------------------STIX Domain Objects----------------------------------
 //-----------------------------------------------------------------------
 
@@ -347,9 +320,7 @@ trait SDO extends StixObj {
   val created_by_ref: Option[Identifier]
   val revoked: Option[Boolean]
   val labels: Option[List[String]]
-  val confidence: Option[Int]
   val external_references: Option[List[ExternalReference]]
-  val lang: Option[String]
   val object_marking_refs: Option[List[Identifier]]
   val granular_markings: Option[List[GranularMarking]]
 }
@@ -366,9 +337,7 @@ case class AttackPattern(`type`: String = AttackPattern.`type`,
                          kill_chain_phases: Option[List[KillChainPhase]] = None,
                          revoked: Option[Boolean] = None,
                          labels: Option[List[String]] = None,
-                         confidence: Option[Int] = None,
                          external_references: Option[List[ExternalReference]] = None,
-                         lang: Option[String] = None,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
@@ -387,9 +356,7 @@ object AttackPattern {
       (__ \ "kill_chain_phases").formatNullable[List[KillChainPhase]] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -413,13 +380,10 @@ case class Identity(`type`: String = Identity.`type`,
                     description: Option[String] = None,
                     revoked: Option[Boolean] = None,
                     labels: Option[List[String]] = None,
-                    confidence: Option[Int] = None,
                     external_references: Option[List[ExternalReference]] = None,
-                    lang: Option[String] = None,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
-                    //    location: Option[Location] = None,
                     custom: Option[CustomProps] = None) extends SDO
 
 object Identity {
@@ -437,9 +401,7 @@ object Identity {
       (__ \ "description").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -465,9 +427,7 @@ case class Campaign(`type`: String = Campaign.`type`,
                     objective: Option[String] = None,
                     revoked: Option[Boolean] = None,
                     labels: Option[List[String]] = None,
-                    confidence: Option[Int] = None,
                     external_references: Option[List[ExternalReference]] = None,
-                    lang: Option[String] = None,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
@@ -489,9 +449,7 @@ object Campaign {
       (__ \ "objective").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -511,9 +469,7 @@ case class CourseOfAction(`type`: String = CourseOfAction.`type`,
                           description: Option[String] = None,
                           revoked: Option[Boolean] = None,
                           labels: Option[List[String]] = None,
-                          confidence: Option[Int] = None,
                           external_references: Option[List[ExternalReference]] = None,
-                          lang: Option[String] = None,
                           object_marking_refs: Option[List[Identifier]] = None,
                           granular_markings: Option[List[GranularMarking]] = None,
                           created_by_ref: Option[Identifier] = None,
@@ -531,9 +487,7 @@ object CourseOfAction {
       (__ \ "description").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -557,9 +511,7 @@ case class Indicator(`type`: String = Indicator.`type`,
                      kill_chain_phases: Option[List[KillChainPhase]] = None,
                      description: Option[String] = None,
                      revoked: Option[Boolean] = None,
-                     confidence: Option[Int] = None,
                      external_references: Option[List[ExternalReference]] = None,
-                     lang: Option[String] = None,
                      object_marking_refs: Option[List[Identifier]] = None,
                      granular_markings: Option[List[GranularMarking]] = None,
                      created_by_ref: Option[Identifier] = None,
@@ -581,9 +533,7 @@ object Indicator {
       (__ \ "kill_chain_phases").formatNullable[List[KillChainPhase]] and
       (__ \ "description").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -595,6 +545,7 @@ object Indicator {
 /**
   * An Intrusion Set is a grouped set of adversarial behaviors and resources with common properties that is believed
   * to be orchestrated by a single organization.
+  *
   */
 case class IntrusionSet(`type`: String = IntrusionSet.`type`,
                         id: Identifier = Identifier(IntrusionSet.`type`),
@@ -610,14 +561,11 @@ case class IntrusionSet(`type`: String = IntrusionSet.`type`,
                         primary_motivation: Option[String] = None,
                         secondary_motivations: Option[List[String]] = None,
                         revoked: Option[Boolean] = None,
-                        labels: Option[List[String]] = None,
-                        confidence: Option[Int] = None,
+                        labels: Option[List[String]] = None, // todo ---> should not be optional
                         external_references: Option[List[ExternalReference]] = None,
-                        lang: Option[String] = None,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
-                        //    locations: Option[List[Location]] = None,
                         custom: Option[CustomProps] = None) extends SDO
 
 object IntrusionSet {
@@ -639,9 +587,7 @@ object IntrusionSet {
       (__ \ "secondary_motivations").formatNullable[List[String]] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -666,9 +612,7 @@ case class Malware(`type`: String = Malware.`type`,
                    kill_chain_phases: Option[List[KillChainPhase]] = None,
                    revoked: Option[Boolean] = None,
                    labels: Option[List[String]] = None,
-                   confidence: Option[Int] = None,
                    external_references: Option[List[ExternalReference]] = None,
-                   lang: Option[String] = None,
                    object_marking_refs: Option[List[Identifier]] = None,
                    granular_markings: Option[List[GranularMarking]] = None,
                    created_by_ref: Option[Identifier] = None,
@@ -687,9 +631,7 @@ object Malware {
       (__ \ "kill_chain_phases").formatNullable[List[KillChainPhase]] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -713,9 +655,7 @@ case class ObservedData(`type`: String = ObservedData.`type`,
                         description: Option[String] = None,
                         revoked: Option[Boolean] = None,
                         labels: Option[List[String]] = None,
-                        confidence: Option[Int] = None,
                         external_references: Option[List[ExternalReference]] = None,
-                        lang: Option[String] = None,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
@@ -736,9 +676,7 @@ object ObservedData {
       (__ \ "description").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -757,13 +695,11 @@ case class Report(`type`: String = Report.`type`,
                   modified: Timestamp = Timestamp.now(),
                   name: String,
                   published: Timestamp,
-                  object_refs: Option[List[Identifier]] = None,
+                  object_refs: List[Identifier],
                   description: Option[String] = None,
                   revoked: Option[Boolean] = None,
                   labels: Option[List[String]] = None,
-                  confidence: Option[Int] = None,
                   external_references: Option[List[ExternalReference]] = None,
-                  lang: Option[String] = None,
                   object_marking_refs: Option[List[Identifier]] = None,
                   granular_markings: Option[List[GranularMarking]] = None,
                   created_by_ref: Option[Identifier] = None,
@@ -779,13 +715,11 @@ object Report {
       (__ \ "modified").format[Timestamp] and
       (__ \ "name").format[String] and
       (__ \ "published").format[Timestamp] and
-      (__ \ "object_refs").formatNullable[List[Identifier]] and
+      (__ \ "object_refs").format[List[Identifier]] and
       (__ \ "description").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -814,9 +748,7 @@ case class ThreatActor(`type`: String = ThreatActor.`type`,
                        secondary_motivations: Option[List[String]] = None,
                        personal_motivations: Option[List[String]] = None,
                        revoked: Option[Boolean] = None,
-                       confidence: Option[Int] = None,
                        external_references: Option[List[ExternalReference]] = None,
-                       lang: Option[String] = None,
                        object_marking_refs: Option[List[Identifier]] = None,
                        granular_markings: Option[List[GranularMarking]] = None,
                        created_by_ref: Option[Identifier] = None,
@@ -845,9 +777,7 @@ object ThreatActor {
           (js \ "secondary_motivations").asOpt[List[String]],
           (js \ "personal_motivations").asOpt[List[String]],
           (js \ "revoked").asOpt[Boolean],
-          (js \ "confidence").asOpt[Int],
           (js \ "external_references").asOpt[List[ExternalReference]],
-          (js \ "lang").asOpt[String],
           (js \ "object_marking_refs").asOpt[List[Identifier]],
           (js \ "granular_markings").asOpt[List[GranularMarking]],
           (js \ "created_by_ref").asOpt[Identifier],
@@ -880,9 +810,7 @@ object ThreatActor {
         p.secondary_motivations.map("secondary_motivations" -> Json.toJson(_)),
         p.personal_motivations.map("personal_motivations" -> Json.toJson(_)),
         p.revoked.map("revoked" -> JsBoolean(_)),
-        p.confidence.map("confidence" -> Json.toJson(_)),
         p.external_references.map("external_references" -> Json.toJson(_)),
-        p.lang.map("lang" -> JsString(_)),
         p.object_marking_refs.map("object_marking_refs" -> Json.toJson(_)),
         p.granular_markings.map("granular_markings" -> Json.toJson(_)),
         p.created_by_ref.map("created_by_ref" -> Json.toJson(_))
@@ -940,9 +868,7 @@ case class Tool(`type`: String = Tool.`type`,
                 kill_chain_phases: Option[List[KillChainPhase]] = None,
                 tool_version: Option[String] = None,
                 revoked: Option[Boolean] = None,
-                confidence: Option[Int] = None,
                 external_references: Option[List[ExternalReference]] = None,
-                lang: Option[String] = None,
                 object_marking_refs: Option[List[Identifier]] = None,
                 granular_markings: Option[List[GranularMarking]] = None,
                 created_by_ref: Option[Identifier] = None,
@@ -962,9 +888,7 @@ object Tool {
       (__ \ "kill_chain_phases").formatNullable[List[KillChainPhase]] and
       (__ \ "tool_version").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -985,9 +909,7 @@ case class Vulnerability(`type`: String = Vulnerability.`type`,
                          description: Option[String] = None,
                          revoked: Option[Boolean] = None,
                          labels: Option[List[String]] = None,
-                         confidence: Option[Int] = None,
                          external_references: Option[List[ExternalReference]] = None,
-                         lang: Option[String] = None,
                          object_marking_refs: Option[List[Identifier]] = None,
                          granular_markings: Option[List[GranularMarking]] = None,
                          created_by_ref: Option[Identifier] = None,
@@ -1005,14 +927,46 @@ object Vulnerability {
       (__ \ "description").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
       JsPath.formatNullable[CustomProps]
     ) (Vulnerability.apply, unlift(Vulnerability.unapply))
+
+}
+
+/**
+  * represents an ad-hock custom stix object
+  */
+case class CustomStix(`type`: String = CustomStix.`type`,
+                      id: Identifier = Identifier(CustomStix.`type`),
+                      created: Timestamp = Timestamp.now(),
+                      modified: Timestamp = Timestamp.now(),
+                      revoked: Option[Boolean] = None,
+                      labels: Option[List[String]] = None,
+                      external_references: Option[List[ExternalReference]] = None,
+                      object_marking_refs: Option[List[Identifier]] = None,
+                      granular_markings: Option[List[GranularMarking]] = None,
+                      created_by_ref: Option[Identifier] = None,
+                      custom: Option[CustomProps] = None) extends SDO
+
+object CustomStix {
+  val `type` = "x-custom-object"
+
+  implicit val fmt: Format[CustomStix] = (
+    (__ \ "type").format[String] and
+      (__ \ "id").format[Identifier] and
+      (__ \ "created").format[Timestamp] and
+      (__ \ "modified").format[Timestamp] and
+      (__ \ "revoked").formatNullable[Boolean] and
+      (__ \ "labels").formatNullable[List[String]] and
+      (__ \ "external_references").formatNullable[List[ExternalReference]] and
+      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
+      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
+      (__ \ "created_by_ref").formatNullable[Identifier] and
+      JsPath.formatNullable[CustomProps]
+    ) (CustomStix.apply, unlift(CustomStix.unapply))
 
 }
 
@@ -1026,9 +980,7 @@ trait SRO extends StixObj {
   val created_by_ref: Option[Identifier]
   val revoked: Option[Boolean]
   val labels: Option[List[String]]
-  val confidence: Option[Int]
   val external_references: Option[List[ExternalReference]]
-  val lang: Option[String]
   val object_marking_refs: Option[List[Identifier]]
   val granular_markings: Option[List[GranularMarking]]
 }
@@ -1048,9 +1000,7 @@ case class Relationship(`type`: String = Relationship.`type`,
                         description: Option[String] = None,
                         revoked: Option[Boolean] = None,
                         labels: Option[List[String]] = None,
-                        confidence: Option[Int] = None,
                         external_references: Option[List[ExternalReference]] = None,
-                        lang: Option[String] = None,
                         object_marking_refs: Option[List[Identifier]] = None,
                         granular_markings: Option[List[GranularMarking]] = None,
                         created_by_ref: Option[Identifier] = None,
@@ -1075,9 +1025,7 @@ object Relationship {
       (__ \ "description").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -1103,9 +1051,7 @@ case class Sighting(`type`: String = Sighting.`type`,
                     description: Option[String] = None,
                     revoked: Option[Boolean] = None,
                     labels: Option[List[String]] = None,
-                    confidence: Option[Int] = None,
                     external_references: Option[List[ExternalReference]] = None,
-                    lang: Option[String] = None,
                     object_marking_refs: Option[List[Identifier]] = None,
                     granular_markings: Option[List[GranularMarking]] = None,
                     created_by_ref: Option[Identifier] = None,
@@ -1129,9 +1075,7 @@ object Sighting {
       (__ \ "description").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
       (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
       (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
       (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
       (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
       (__ \ "created_by_ref").formatNullable[Identifier] and
@@ -1140,8 +1084,9 @@ object Sighting {
 
 }
 
+
 //-----------------------------------------------------------------------
-//------------------Language content-------------------------------------
+//------------------Language content---> this is not part of STIX-2.0
 //-----------------------------------------------------------------------
 
 /**
@@ -1184,46 +1129,8 @@ object LanguageContent {
 
 }
 
-/**
-  * represents an ad-hock custom stix object
-  */
-case class CustomStix(`type`: String = CustomStix.`type`,
-                      id: Identifier = Identifier(CustomStix.`type`),
-                      created: Timestamp = Timestamp.now(),
-                      modified: Timestamp = Timestamp.now(),
-                      revoked: Option[Boolean] = None,
-                      labels: Option[List[String]] = None,
-                      confidence: Option[Int] = None,
-                      external_references: Option[List[ExternalReference]] = None,
-                      lang: Option[String] = None,
-                      object_marking_refs: Option[List[Identifier]] = None,
-                      granular_markings: Option[List[GranularMarking]] = None,
-                      created_by_ref: Option[Identifier] = None,
-                      custom: Option[CustomProps] = None) extends SDO
-
-object CustomStix {
-  val `type` = "x-custom-object"
-
-  implicit val fmt: Format[CustomStix] = (
-    (__ \ "type").format[String] and
-      (__ \ "id").format[Identifier] and
-      (__ \ "created").format[Timestamp] and
-      (__ \ "modified").format[Timestamp] and
-      (__ \ "revoked").formatNullable[Boolean] and
-      (__ \ "labels").formatNullable[List[String]] and
-      (__ \ "confidence").formatNullable[Int] and
-      (__ \ "external_references").formatNullable[List[ExternalReference]] and
-      (__ \ "lang").formatNullable[String] and
-      (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
-      (__ \ "granular_markings").formatNullable[List[GranularMarking]] and
-      (__ \ "created_by_ref").formatNullable[Identifier] and
-      JsPath.formatNullable[CustomProps]
-    ) (CustomStix.apply, unlift(CustomStix.unapply))
-
-}
-
 //-----------------------------------------------------------------------
-//------------------STIX and Bundle object-------------------------------
+//------------------STIX and the Bundle object---------------------------
 //-----------------------------------------------------------------------
 
 object StixObj {
@@ -1300,7 +1207,7 @@ case class Bundle(`type`: String = Bundle.`type`,
 
 object Bundle {
   val `type` = "bundle"
-  val spec_version = "2.1"
+  val spec_version = "2.0"
 
   def apply(objects: ListBuffer[StixObj]) = new Bundle(objects)
 
@@ -1308,5 +1215,3 @@ object Bundle {
 
   implicit val fmt = Json.format[Bundle]
 }
-
-

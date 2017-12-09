@@ -34,7 +34,7 @@ object Util {
     Malware.`type`, ObservedData.`type`, Report.`type`, ThreatActor.`type`,
     Tool.`type`, Vulnerability.`type`)
 
-  val listOfStixTypes = Seq( MarkingDefinition.`type`, LanguageContent.`type`)
+  val listOfStixTypes = Seq(MarkingDefinition.`type`)
 
   val listOfSROTypes = Seq(Relationship.`type`, Sighting.`type`)
 

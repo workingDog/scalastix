@@ -2,15 +2,15 @@ package com.kodekutters.stix
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-
 import Util._
 
+
 /**
-  * STIX-2.1 Extensions
+  * STIX-2.0 Extensions
   *
   * reference: https://oasis-open.github.io/cti-documentation/
   *
-  * Author: R. Wathelet May 2017
+  * Author: R. Wathelet 2017
   */
 
 
@@ -20,6 +20,15 @@ import Util._
   */
 trait Extension {
   val `type`: String
+}
+
+/**
+  * a generic unknown custom extension object
+  */
+case class CustomExtension(`type`: String, custom: Option[CustomProps] = None) extends Extension
+
+object CustomExtension {
+  implicit val fmt = Json.format[CustomExtension]
 }
 
 /**
@@ -225,15 +234,6 @@ object WindowPEBinExt {
 }
 
 /**
-  * to represent an unknown custom extension object
-  */
-case class CustomExtension(`type`: String, custom: Option[CustomProps] = None) extends Extension
-
-object CustomExtension {
-  implicit val fmt = Json.format[CustomExtension]
-}
-
-/**
   * represents a Predefined Cyber Observable Object Extension
   */
 object Extension {
@@ -247,7 +247,6 @@ object Extension {
         case RasterImgExt.`type` => RasterImgExt.fmt.reads(js)
         case WindowPEBinExt.`type` => WindowPEBinExt.fmt.reads(js)
         case x => CustomExtension.fmt.reads(js)
-        // todo ---> custom Extensions
       }).getOrElse(JsError("Error reading Extension"))
     }
   }
@@ -261,7 +260,6 @@ object Extension {
         case ext: RasterImgExt => RasterImgExt.fmt.writes(ext)
         case ext: WindowPEBinExt => WindowPEBinExt.fmt.writes(ext)
         case ext: CustomExtension => CustomExtension.fmt.writes(ext)
-        // todo ---> custom Extensions
         case _ => JsNull
       }
     }

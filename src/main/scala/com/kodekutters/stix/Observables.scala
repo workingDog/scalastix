@@ -6,14 +6,14 @@ import play.api.libs.functional.syntax.unlift
 import play.api.libs.functional.syntax._
 
 /**
-  * STIX-2.1 protocol, Cyber Observable Objects
+  * STIX-2.0 protocol, Cyber Observable Objects
   *
   * STIX Cyber Observables document the facts concerning what happened on a network or host,
   * but not necessarily the who or when, and never the why.
   *
   * reference: https://oasis-open.github.io/cti-documentation/
   *
-  * Author: R. Wathelet May 2017
+  * Author: R. Wathelet 2017
   *
   */
 
@@ -669,7 +669,7 @@ object X509Certificate {
 }
 
 /**
-  * A custom observable object
+  * A generic custom observable object
   */
 case class CustomObservable(`type`: String = CustomObservable.`type`,
                             extensions: Option[Map[String, Extension]] = None,
@@ -686,7 +686,7 @@ object CustomObservable {
 }
 
 /**
-  * STIX Cyber Observables document
+  * STIX-2 Cyber Observables document
   */
 object Observable {
 
@@ -712,7 +712,6 @@ object Observable {
         case WindowsRegistryKey.`type` => WindowsRegistryKey.fmt.reads(js)
         case X509Certificate.`type` => X509Certificate.fmt.reads(js)
         case _ => CustomObservable.fmt.reads(js)
-        // todo ---> custom observables
       }).getOrElse(JsError("Error reading Observable"))
     }
   }
@@ -739,7 +738,6 @@ object Observable {
         case ext: WindowsRegistryKey => WindowsRegistryKey.fmt.writes(ext)
         case ext: X509Certificate => X509Certificate.fmt.writes(ext)
         case ext: CustomObservable => CustomObservable.fmt.writes(ext)
-        // todo ---> custom observables
         case _ => JsNull
       }
     }

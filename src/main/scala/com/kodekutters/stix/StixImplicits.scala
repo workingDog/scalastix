@@ -1,7 +1,5 @@
 package com.kodekutters.stix
 
-//import play.extras.geojson.{GeoJson, LatLng}
-
 import scala.language.implicitConversions
 
 /**
@@ -39,12 +37,6 @@ object StixImplicits {
   implicit def MapStringToOp(value: Map[String, String]): Option[Map[String, String]] = Option(value)
 
   implicit def ListOfKillChainPhaseToOp(value: List[KillChainPhase]): Option[List[KillChainPhase]] = Option(value)
-
-//  implicit def AddressToOpt(value: Address): Option[Address] = Option(value)
-//
-//  implicit def LocationToOpt(value: Location): Option[Location] = Option(value)
-//
-//  implicit def GeojsonToOpt(value: GeoJson[LatLng]): Option[GeoJson[LatLng]] = Option(value)
 
   implicit def CustomMapToOpt(value: CustomProps): Option[CustomProps] = Option(value)
 
