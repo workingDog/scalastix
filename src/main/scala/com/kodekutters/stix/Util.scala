@@ -29,10 +29,19 @@ object Util {
   // convenience for converting a CustomMap of custom properties into a json object
   def asJsObject(cust: CustomProps): JsObject = Json.toJson[CustomProps](cust).asInstanceOf[JsObject]
 
-  val listOfSDOTypes = Seq(AttackPattern.`type`, Identity.`type`, Campaign.`type`,
-    CourseOfAction.`type`, Indicator.`type`, IntrusionSet.`type`,
-    Malware.`type`, ObservedData.`type`, Report.`type`, ThreatActor.`type`,
-    Tool.`type`, Vulnerability.`type`)
+  val listOfSDOTypes = Seq(
+    AttackPattern.`type`,
+    Identity.`type`,
+    Campaign.`type`,
+    CourseOfAction.`type`,
+    Indicator.`type`,
+    IntrusionSet.`type`,
+    Malware.`type`,
+    ObservedData.`type`,
+    Report.`type`,
+    ThreatActor.`type`,
+    Tool.`type`,
+    Vulnerability.`type`)
 
   val listOfStixTypes = Seq(MarkingDefinition.`type`)
 
