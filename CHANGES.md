@@ -3,6 +3,9 @@ Change Log
 
 ### changes in 0.8-SNAPSHOT
 
+* updated scala, sbt and associated dependencies
+
+
 
 ### changes in 0.7
 Major restructure to align with STIX-2.0 specifications.

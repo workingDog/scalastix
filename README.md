@@ -26,9 +26,7 @@ It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data t
  
 ### Installation and packaging
 
-***Note:*** previous versions of **scalastix** (< 0.7) were aimed at the unapproved STIX-2.1 specifications. 
-Starting with version 0.7, 
-this library attempts to follow the [OASIS published STIX-2.0 specifications](https://oasis-open.github.io/cti-documentation/).
+This library attempts to follow the [OASIS published STIX-2.0 specifications](https://oasis-open.github.io/cti-documentation/).
 
 To use the latest release add the following dependency to your *build.sbt*:
 
