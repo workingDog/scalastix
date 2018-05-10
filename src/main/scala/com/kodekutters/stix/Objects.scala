@@ -82,6 +82,30 @@ object Identifier {
 
   implicit val fmt: Format[Identifier] = Format(theReads, theWrites)
 
+  /** convert a string to an Identifier object
+    * check the validity of the string and return an Identifier option
+    */
+  def stringToIdentifierOption(s: String): Option[Identifier] = {
+    if (s == null) return None
+    if (s.split("--").length != 2 || s.contains("---")) {
+      None
+    } else {
+      val part1 = s.split("--").lift(0)
+      val part2 = s.split("--").lift(1)
+      (part1, part2) match {
+        case (Some(p1), Some(p2)) =>
+          // check we have a valid object type
+          if (Util.listOfSDOTypes.contains(p1)) {
+            // check we have a valid RFC4122 UUID
+            if (p2.matches(uuidPattern.toString())) Option(new Identifier(p1, p2)) else None
+          } else None
+
+        case _ => None
+      }
+    }
+  }
+
+  // should not be used, will eventually be removed
   def stringToIdentifier(s: String): Identifier = {
     val part = s.split("--")
     new Identifier(part(0), part(1))

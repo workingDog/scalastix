@@ -7,6 +7,9 @@ import play.api.libs.json._
   */
 object Util {
 
+  // regex pattern for valid RFC4122 UUID
+  val uuidPattern = """^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$""".r
+
   // reads for Either
   implicit def eitherReads[A, B](implicit Ax: Reads[A], Bx: Reads[B]): Reads[Either[A, B]] =
     Reads[Either[A, B]] { json =>

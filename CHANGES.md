@@ -4,7 +4,7 @@ Change Log
 ### changes in 0.8-SNAPSHOT
 
 * updated scala, sbt and associated dependencies
-
+* added def stringToIdentifierOption(s: String) to Identifier
 
 
 ### changes in 0.7
