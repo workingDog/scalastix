@@ -4,6 +4,7 @@ Change Log
 ### changes in 0.9-SNAPSHOT
 
 
+
 ### changes in 0.8
 
 * updated scala, sbt and associated dependencies
