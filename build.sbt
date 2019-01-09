@@ -3,10 +3,10 @@ name := "scalastix"
 
 version := (version in ThisBuild).value
 
-scalaVersion in ThisBuild := "2.12.6"
+scalaVersion in ThisBuild := "2.12.8"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-json" % "2.6.9"
+  "com.typesafe.play" %% "play-json" % "2.7.0-RC2"
 )
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G")
