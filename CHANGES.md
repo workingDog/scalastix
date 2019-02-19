@@ -1,7 +1,11 @@
 Change Log
 ==========
 
-### changes in 0.9-SNAPSHOT
+### changes in 1.0-SNAPSHOT
+
+
+
+### changes in 0.9
 
 * removed the 'type' parameter from WindowsRegistryValueType Observables
 * removed the 'type' parameter from X509V3ExtenstionsType Observables
@@ -11,8 +15,7 @@ Change Log
 * removed the 'type' parameter from WindowPEOptionalHeaderType Extensions
 * removed the 'type' parameter from WindowPESectionType Extensions
 
-* change all Int (32 bit) to Long (64 bit), because the specs require 64 integers
-
+* change all Int (32 bit) to Long (64 bit), because the specs require 64 bit integers
 
 ### changes in 0.8
 
