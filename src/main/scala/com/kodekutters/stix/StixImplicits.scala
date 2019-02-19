@@ -14,7 +14,7 @@ object StixImplicits {
 
   implicit def DoubleToDoubleOp(value: Double): Option[Double] = Option(value)
 
-  implicit def IntToIntOp(value: Int): Option[Int] = Option(value)
+  implicit def LongToIntOp(value: Long): Option[Long] = Option(value)
 
   implicit def BoolToBoolOp(value: Boolean): Option[Boolean] = Option(value)
 

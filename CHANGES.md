@@ -3,13 +3,21 @@ Change Log
 
 ### changes in 0.9-SNAPSHOT
 
+* removed the 'type' parameter from WindowsRegistryValueType Observables
+* removed the 'type' parameter from X509V3ExtenstionsType Observables
+* removed the 'type' parameter from EmailMimeType Observables
+
+* removed the 'type' parameter from AlternateDataStream Extensions
+* removed the 'type' parameter from WindowPEOptionalHeaderType Extensions
+* removed the 'type' parameter from WindowPESectionType Extensions
+
+* change all Int (32 bit) to Long (64 bit), because the specs require 64 integers
 
 
 ### changes in 0.8
 
 * updated scala, sbt and associated dependencies
 * added def stringToIdentifierOption(s: String) to Identifier
-
 
 ### changes in 0.7
 Major restructure to align with STIX-2.0 specifications.

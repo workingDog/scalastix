@@ -68,7 +68,7 @@ object Artifact {
   * represents the properties of an Autonomous System (AS).
   */
 case class AutonomousSystem(`type`: String = AutonomousSystem.`type`,
-                            number: Int,
+                            number: Long,
                             name: Option[String] = None,
                             rir: Option[String] = None,
                             extensions: Option[Map[String, Extension]] = None,
@@ -79,7 +79,7 @@ object AutonomousSystem {
 
   implicit val fmt: Format[AutonomousSystem] = (
     (__ \ "type").format[String] and
-      (__ \ "number").format[Int] and
+      (__ \ "number").format[Long] and
       (__ \ "name").formatNullable[String] and
       (__ \ "rir").formatNullable[String] and
       (__ \ "extensions").formatNullable[Map[String, Extension]] and
@@ -166,18 +166,15 @@ object EmailAddress {
 /**
   * Specifies one component of a multi-part email body.
   */
-case class EmailMimeType(`type`: String = EmailMimeType.`type`,
-                         body: Option[String] = None,
+case class EmailMimeType(body: Option[String] = None,
                          body_raw_ref: Option[String] = None, // todo must be of type artifact or file.
                          content_type: Option[String] = None,
                          content_disposition: Option[String] = None,
                          custom: Option[CustomProps] = None)
 
 object EmailMimeType {
-  val `type` = "mime-part-type"
 
   implicit val fmt: Format[EmailMimeType] = (
-    (__ \ "type").format[String] and
       (__ \ "body").formatNullable[String] and
       (__ \ "content_type").formatNullable[String] and
       (__ \ "content_type").formatNullable[String] and
@@ -239,7 +236,7 @@ object EmailMessage {
   */
 case class File(`type`: String = File.`type`,
                 hashes: Option[Map[String, String]] = None,
-                size: Option[Int] = None,
+                size: Option[Long] = None,
                 name: Option[String] = None,
                 name_enc: Option[String] = None,
                 magic_number_hex: Option[String] = None, // hex
@@ -262,7 +259,7 @@ object File {
   implicit val fmt: Format[File] = (
     (__ \ "type").format[String] and
       (__ \ "hashes").formatNullable[Map[String, String]] and
-      (__ \ "size").formatNullable[Int] and
+      (__ \ "size").formatNullable[Long] and
       (__ \ "name").formatNullable[String] and
       (__ \ "name_enc").formatNullable[String] and
       (__ \ "magic_number_hex").formatNullable[String] and
@@ -379,14 +376,14 @@ case class NetworkTraffic(`type`: String = NetworkTraffic.`type`,
                           is_active: Option[Boolean] = None,
                           src_ref: Option[String] = None,
                           dst_ref: Option[String] = None,
-                          src_port: Option[Int] = None,
-                          dst_port: Option[Int] = None,
+                          src_port: Option[Long] = None,
+                          dst_port: Option[Long] = None,
                           protocols: Option[List[String]] = None,
-                          src_byte_count: Option[Int] = None,
-                          dst_byte_count: Option[Int] = None,
-                          src_packets: Option[Int] = None,
-                          dst_packets: Option[Int] = None,
-                          ipfix: Option[Map[String, Either[Int, String]]] = None,
+                          src_byte_count: Option[Long] = None,
+                          dst_byte_count: Option[Long] = None,
+                          src_packets: Option[Long] = None,
+                          dst_packets: Option[Long] = None,
+                          ipfix: Option[Map[String, Either[Long, String]]] = None,
                           src_payload_ref: Option[String] = None,
                           dst_payload_ref: Option[String] = None,
                           encapsulates_refs: Option[List[String]] = None,
@@ -404,14 +401,14 @@ object NetworkTraffic {
       (__ \ "is_active").formatNullable[Boolean] and
       (__ \ "src_ref").formatNullable[String] and
       (__ \ "dst_ref").formatNullable[String] and
-      (__ \ "src_port").formatNullable[Int] and
-      (__ \ "dst_port").formatNullable[Int] and
+      (__ \ "src_port").formatNullable[Long] and
+      (__ \ "dst_port").formatNullable[Long] and
       (__ \ "protocols").formatNullable[List[String]] and
-      (__ \ "src_byte_count").formatNullable[Int] and
-      (__ \ "dst_byte_count").formatNullable[Int] and
-      (__ \ "src_packets").formatNullable[Int] and
-      (__ \ "dst_packets").formatNullable[Int] and
-      (__ \ "ipfix").formatNullable[Map[String, Either[Int, String]]] and
+      (__ \ "src_byte_count").formatNullable[Long] and
+      (__ \ "dst_byte_count").formatNullable[Long] and
+      (__ \ "src_packets").formatNullable[Long] and
+      (__ \ "dst_packets").formatNullable[Long] and
+      (__ \ "ipfix").formatNullable[Map[String, Either[Long, String]]] and
       (__ \ "src_payload_ref").formatNullable[String] and
       (__ \ "dst_payload_ref").formatNullable[String] and
       (__ \ "encapsulates_refs").formatNullable[List[String]] and
@@ -427,7 +424,7 @@ object NetworkTraffic {
   */
 case class Process(`type`: String = Process.`type`,
                    is_hidden: Option[Boolean] = None,
-                   pid: Option[Int] = None,
+                   pid: Option[Long] = None,
                    name: Option[String] = None,
                    created: Option[Timestamp] = None,
                    cwd: Option[String] = None,
@@ -448,7 +445,7 @@ object Process {
   implicit val fmt: Format[Process] = (
     (__ \ "type").format[String] and
       (__ \ "is_hidden").formatNullable[Boolean] and
-      (__ \ "pid").formatNullable[Int] and
+      (__ \ "pid").formatNullable[Long] and
       (__ \ "name").formatNullable[String] and
       (__ \ "created").formatNullable[Timestamp] and
       (__ \ "cwd").formatNullable[String] and
@@ -561,14 +558,11 @@ object UserAccount {
 /**
   * The Windows Registry Value type captures the properties of a Windows Registry Key Value.
   */
-case class WindowsRegistryValueType(`type`: String = WindowsRegistryValueType.`type`,
-                                    name: String,
+case class WindowsRegistryValueType(name: String,
                                     data: Option[String] = None,
                                     data_type: Option[String] = None)
 
 object WindowsRegistryValueType {
-  val `type` = "windows-registry-value-type"
-
   implicit val fmt = Json.format[WindowsRegistryValueType]
 }
 
@@ -580,7 +574,7 @@ case class WindowsRegistryKey(`type`: String = WindowsRegistryKey.`type`,
                               values: Option[List[WindowsRegistryValueType]] = None,
                               modified: Option[Timestamp] = None,
                               creator_user_ref: Option[String] = None,
-                              number_of_subkeys: Option[Int] = None,
+                              number_of_subkeys: Option[Long] = None,
                               extensions: Option[Map[String, Extension]] = None,
                               custom: Option[CustomProps] = None) extends Observable
 
@@ -593,7 +587,7 @@ object WindowsRegistryKey {
       (__ \ "values").formatNullable[List[WindowsRegistryValueType]] and
       (__ \ "modified").formatNullable[Timestamp] and
       (__ \ "creator_user_ref").formatNullable[String] and
-      (__ \ "number_of_subkeys").formatNullable[Int] and
+      (__ \ "number_of_subkeys").formatNullable[Long] and
       (__ \ "extensions").formatNullable[Map[String, Extension]] and
       JsPath.formatNullable[CustomProps]
     ) (WindowsRegistryKey.apply, unlift(WindowsRegistryKey.unapply))
@@ -603,8 +597,7 @@ object WindowsRegistryKey {
 /**
   * The X.509 v3 Extensions type captures properties associated with X.509 v3 extensions, which serve as a mechanism for specifying additional information such as alternative subject names.
   */
-case class X509V3ExtenstionsType(`type`: String = X509V3ExtenstionsType.`type`,
-                                 basic_constraints: Option[String] = None,
+case class X509V3ExtenstionsType(basic_constraints: Option[String] = None,
                                  name_constraints: Option[String] = None,
                                  policy_constraints: Option[String] = None,
                                  key_usage: Option[String] = None,
@@ -615,12 +608,11 @@ case class X509V3ExtenstionsType(`type`: String = X509V3ExtenstionsType.`type`,
                                  issuer_alternative_name: Option[String] = None,
                                  subject_directory_attributes: Option[String] = None,
                                  crl_distribution_points: Option[String] = None,
-                                 inhibit_any_policy: Option[Int] = None,
+                                 inhibit_any_policy: Option[Long] = None,
                                  private_key_usage_period_not_before: Option[Timestamp] = None,
                                  private_key_usage_period_not_after: Option[Timestamp] = None)
 
 object X509V3ExtenstionsType {
-  val `type` = "x509-v3-extensions-type"
   implicit val fmt = Json.format[X509V3ExtenstionsType]
 }
 
@@ -639,7 +631,7 @@ case class X509Certificate(`type`: String = X509Certificate.`type`,
                            subject: Option[String] = None,
                            subject_public_key_algorithm: Option[String] = None,
                            subject_public_key_modulus: Option[String] = None,
-                           subject_public_key_exponent: Option[Int] = None,
+                           subject_public_key_exponent: Option[Long] = None,
                            x509_v3_extensions: Option[X509V3ExtenstionsType] = None,
                            extensions: Option[Map[String, Extension]] = None,
                            custom: Option[CustomProps] = None) extends Observable
@@ -660,7 +652,7 @@ object X509Certificate {
       (__ \ "subject").formatNullable[String] and
       (__ \ "subject_public_key_algorithm").formatNullable[String] and
       (__ \ "subject_public_key_modulus").formatNullable[String] and
-      (__ \ "subject_public_key_exponent").formatNullable[Int] and
+      (__ \ "subject_public_key_exponent").formatNullable[Long] and
       (__ \ "x509_v3_extensions").formatNullable[X509V3ExtenstionsType] and
       (__ \ "extensions").formatNullable[Map[String, Extension]] and
       JsPath.formatNullable[CustomProps]

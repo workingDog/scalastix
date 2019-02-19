@@ -47,13 +47,11 @@ object ArchiveFileExt {
 /**
   * The Alternate Data Stream type represents an NTFS alternate data stream.
   */
-case class AlternateDataStream(`type`: String = AlternateDataStream.`type`,
-                               name: String,
+case class AlternateDataStream(name: String,
                                hashes: Option[Map[String, String]] = None,
-                               size: Option[Int] = None)
+                               size: Option[Long] = None)
 
 object AlternateDataStream {
-  val `type` = "alternate-data-stream"
   implicit val fmt = Json.format[AlternateDataStream]
 }
 
@@ -87,11 +85,11 @@ object PdfFileExt {
   * The Raster Image file extension specifies a default extension for capturing properties specific to raster image files.
   */
 case class RasterImgExt(`type`: String = RasterImgExt.`type`,
-                        image_height: Option[Int] = None,
-                        image_width: Option[Int] = None,
-                        bits_per_pixel: Option[Int] = None,
+                        image_height: Option[Long] = None,
+                        image_width: Option[Long] = None,
+                        bits_per_pixel: Option[Long] = None,
                         image_compression_algorithm: Option[String] = None,
-                        exif_tags: Option[Map[String, Either[Int, String]]]) extends Extension
+                        exif_tags: Option[Map[String, Either[Long, String]]]) extends Extension
 
 object RasterImgExt {
   val `type` = "raster-image-ext"
@@ -101,95 +99,92 @@ object RasterImgExt {
 /**
   * The Windows PE Optional Header type represents the properties of the PE optional header.
   */
-case class WindowPEOptionalHeaderType(`type`: String = WindowPEOptionalHeaderType.`type`,
-                                      magic_hex: Option[String] = None,
-                                      major_linker_version: Option[Int] = None,
-                                      minor_linker_version: Option[Int] = None,
-                                      size_of_code: Option[Int] = None,
-                                      size_of_initialized_data: Option[Int] = None,
-                                      size_of_uninitialized_data: Option[Int] = None,
-                                      address_of_entry_point: Option[Int] = None,
-                                      base_of_code: Option[Int] = None,
-                                      base_of_data: Option[Int] = None,
-                                      image_base: Option[Int] = None,
-                                      section_alignment: Option[Int] = None,
-                                      file_alignment: Option[Int] = None,
-                                      major_os_version: Option[Int] = None,
-                                      minor_os_version: Option[Int] = None,
-                                      major_image_version: Option[Int] = None,
-                                      minor_image_version: Option[Int] = None,
-                                      major_subsystem_version: Option[Int] = None,
-                                      minor_subsystem_version: Option[Int] = None,
+case class WindowPEOptionalHeaderType(magic_hex: Option[String] = None,
+                                      major_linker_version: Option[Long] = None,
+                                      minor_linker_version: Option[Long] = None,
+                                      size_of_code: Option[Long] = None,
+                                      size_of_initialized_data: Option[Long] = None,
+                                      size_of_uninitialized_data: Option[Long] = None,
+                                      address_of_entry_point: Option[Long] = None,
+                                      base_of_code: Option[Long] = None,
+                                      base_of_data: Option[Long] = None,
+                                      image_base: Option[Long] = None,
+                                      section_alignment: Option[Long] = None,
+                                      file_alignment: Option[Long] = None,
+                                      major_os_version: Option[Long] = None,
+                                      minor_os_version: Option[Long] = None,
+                                      major_image_version: Option[Long] = None,
+                                      minor_image_version: Option[Long] = None,
+                                      major_subsystem_version: Option[Long] = None,
+                                      minor_subsystem_version: Option[Long] = None,
                                       win32_version_value_hex: Option[String] = None,
-                                      size_of_image: Option[Int] = None,
-                                      size_of_headers: Option[Int] = None,
+                                      size_of_image: Option[Long] = None,
+                                      size_of_headers: Option[Long] = None,
                                       checksum_hex: Option[String] = None,
                                       dll_characteristics_hex: Option[String] = None,
-                                      size_of_stack_reserve: Option[Int] = None,
-                                      size_of_stack_commit: Option[Int] = None,
-                                      size_of_heap_reserve: Option[Int] = None,
-                                      size_of_heap_commit: Option[Int] = None,
+                                      size_of_stack_reserve: Option[Long] = None,
+                                      size_of_stack_commit: Option[Long] = None,
+                                      size_of_heap_reserve: Option[Long] = None,
+                                      size_of_heap_commit: Option[Long] = None,
                                       loader_flags_hex: Option[String] = None,
-                                      number_of_rva_and_sizes: Option[Int] = None,
+                                      number_of_rva_and_sizes: Option[Long] = None,
                                       hashes: Option[Map[String, String]] = None)
 
 object WindowPEOptionalHeaderType {
-  val `type` = "windows-pe-optional-header-type"
 
-  val part1: OFormat[(String, Option[String], Option[Int], Option[Int], Option[Int], Option[Int],
-    Option[Int], Option[Int], Option[Int], Option[Int], Option[Int], Option[Int], Option[Int],
-    Option[Int], Option[Int])] =
-    ((__ \ "type").format[String] ~
-      (__ \ "magic_hex").formatNullable[String] ~
-      (__ \ "major_linker_version").formatNullable[Int] ~
-      (__ \ "minor_linker_version").formatNullable[Int] ~
-      (__ \ "size_of_code").formatNullable[Int] ~
-      (__ \ "size_of_initialized_data").formatNullable[Int] ~
-      (__ \ "size_of_uninitialized_data").formatNullable[Int] ~
-      (__ \ "address_of_entry_point").formatNullable[Int] ~
-      (__ \ "base_of_code").formatNullable[Int] ~
-      (__ \ "base_of_data").formatNullable[Int] ~
-      (__ \ "image_base").formatNullable[Int] ~
-      (__ \ "section_alignment").formatNullable[Int] ~
-      (__ \ "file_alignment").formatNullable[Int] ~
-      (__ \ "major_os_version").formatNullable[Int] ~
-      (__ \ "minor_os_version").formatNullable[Int]).tupled
+  val part1: OFormat[(Option[String], Option[Long], Option[Long], Option[Long], Option[Long],
+    Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[Long],
+    Option[Long], Option[Long])] =
+    ((__ \ "magic_hex").formatNullable[String] ~
+      (__ \ "major_linker_version").formatNullable[Long] ~
+      (__ \ "minor_linker_version").formatNullable[Long] ~
+      (__ \ "size_of_code").formatNullable[Long] ~
+      (__ \ "size_of_initialized_data").formatNullable[Long] ~
+      (__ \ "size_of_uninitialized_data").formatNullable[Long] ~
+      (__ \ "address_of_entry_point").formatNullable[Long] ~
+      (__ \ "base_of_code").formatNullable[Long] ~
+      (__ \ "base_of_data").formatNullable[Long] ~
+      (__ \ "image_base").formatNullable[Long] ~
+      (__ \ "section_alignment").formatNullable[Long] ~
+      (__ \ "file_alignment").formatNullable[Long] ~
+      (__ \ "major_os_version").formatNullable[Long] ~
+      (__ \ "minor_os_version").formatNullable[Long]).tupled
 
-  val part2: OFormat[(Option[Int], Option[Int], Option[Int], Option[Int], Option[String], Option[Int],
-    Option[Int], Option[String], Option[String], Option[Int], Option[Int], Option[Int], Option[Int],
-    Option[String], Option[Int], Option[Map[String, String]])] =
-    ((__ \ "major_image_version").formatNullable[Int] ~
-      (__ \ "minor_image_version").formatNullable[Int] ~
-      (__ \ "major_subsystem_version").formatNullable[Int] ~
-      (__ \ "minor_subsystem_version").formatNullable[Int] ~
+  val part2: OFormat[(Option[Long], Option[Long], Option[Long], Option[Long], Option[String], Option[Long],
+    Option[Long], Option[String], Option[String], Option[Long], Option[Long], Option[Long], Option[Long],
+    Option[String], Option[Long], Option[Map[String, String]])] =
+    ((__ \ "major_image_version").formatNullable[Long] ~
+      (__ \ "minor_image_version").formatNullable[Long] ~
+      (__ \ "major_subsystem_version").formatNullable[Long] ~
+      (__ \ "minor_subsystem_version").formatNullable[Long] ~
       (__ \ "win32_version_value_hex").formatNullable[String] ~
-      (__ \ "size_of_image").formatNullable[Int] ~
-      (__ \ "size_of_headers").formatNullable[Int] ~
+      (__ \ "size_of_image").formatNullable[Long] ~
+      (__ \ "size_of_headers").formatNullable[Long] ~
       (__ \ "checksum_hex").formatNullable[String] ~
       (__ \ "dll_characteristics_hex").formatNullable[String] ~
-      (__ \ "size_of_stack_reserve").formatNullable[Int] ~
-      (__ \ "size_of_stack_commit").formatNullable[Int] ~
-      (__ \ "size_of_heap_reserve").formatNullable[Int] ~
-      (__ \ "size_of_heap_commit").formatNullable[Int] ~
+      (__ \ "size_of_stack_reserve").formatNullable[Long] ~
+      (__ \ "size_of_stack_commit").formatNullable[Long] ~
+      (__ \ "size_of_heap_reserve").formatNullable[Long] ~
+      (__ \ "size_of_heap_commit").formatNullable[Long] ~
       (__ \ "loader_flags_hex").formatNullable[String] ~
-      (__ \ "number_of_rva_and_sizes").formatNullable[Int] ~
+      (__ \ "number_of_rva_and_sizes").formatNullable[Long] ~
       (__ \ "hashes").formatNullable[Map[String, String]]
       ).tupled
 
   implicit val fmt: Format[WindowPEOptionalHeaderType] = (part1 ~ part2) ({
-    case ((`type`, magic_hex, major_linker_version, minor_linker_version, size_of_code,
+    case ((magic_hex, major_linker_version, minor_linker_version, size_of_code,
     size_of_initialized_data, size_of_uninitialized_data, address_of_entry_point, base_of_code,
     base_of_data, image_base, section_alignment, file_alignment, major_os_version, minor_os_version),
     (major_image_version, minor_image_version, major_subsystem_version, minor_subsystem_version, win32_version_value_hex,
     size_of_image, size_of_headers, checksum_hex, dll_characteristics_hex, size_of_stack_reserve, size_of_stack_commit,
     size_of_heap_reserve, size_of_heap_commit, loader_flags_hex, number_of_rva_and_sizes, hashes)) =>
-      new WindowPEOptionalHeaderType(`type`, magic_hex, major_linker_version, minor_linker_version, size_of_code,
+      new WindowPEOptionalHeaderType(magic_hex, major_linker_version, minor_linker_version, size_of_code,
         size_of_initialized_data, size_of_uninitialized_data, address_of_entry_point, base_of_code,
         base_of_data, image_base, section_alignment, file_alignment, major_os_version, minor_os_version,
         major_image_version, minor_image_version, major_subsystem_version, minor_subsystem_version, win32_version_value_hex,
         size_of_image, size_of_headers, checksum_hex, dll_characteristics_hex, size_of_stack_reserve, size_of_stack_commit,
         size_of_heap_reserve, size_of_heap_commit, loader_flags_hex, number_of_rva_and_sizes, hashes)
-  }, (t: WindowPEOptionalHeaderType) => ((t.`type`, t.magic_hex, t.major_linker_version, t.minor_linker_version, t.size_of_code,
+  }, (t: WindowPEOptionalHeaderType) => ((t.magic_hex, t.major_linker_version, t.minor_linker_version, t.size_of_code,
     t.size_of_initialized_data, t.size_of_uninitialized_data, t.address_of_entry_point, t.base_of_code,
     t.base_of_data, t.image_base, t.section_alignment, t.file_alignment, t.major_os_version, t.minor_os_version),(
     t.major_image_version, t.minor_image_version, t.major_subsystem_version, t.minor_subsystem_version, t.win32_version_value_hex,
@@ -200,14 +195,12 @@ object WindowPEOptionalHeaderType {
 /**
   * The Windows PE Section type specifies metadata about a PE file section.
   */
-case class WindowPESectionType(`type`: String = WindowPESectionType.`type`,
-                               name: String,
-                               size: Option[Int] = None,
+case class WindowPESectionType(name: String,
+                               size: Option[Long] = None,
                                entropy: Option[Float] = None,
                                hashes: Option[Map[String, String]] = None)
 
 object WindowPESectionType {
-  val `type` = "windows-pe-section"
   implicit val fmt = Json.format[WindowPESectionType]
 }
 
@@ -218,11 +211,11 @@ case class WindowPEBinExt(`type`: String = WindowPEBinExt.`type`,
                           pe_type: String,
                           imphash: Option[String] = None,
                           machine_hex: Option[String] = None,
-                          number_of_sections: Option[Int] = None,
+                          number_of_sections: Option[Long] = None,
                           time_date_stamp: Option[Timestamp] = None,
                           pointer_to_symbol_table_hex: Option[String] = None,
-                          number_of_symbols: Option[Int] = None,
-                          size_of_optional_header: Option[Int] = None,
+                          number_of_symbols: Option[Long] = None,
+                          size_of_optional_header: Option[Long] = None,
                           characteristics_hex: Option[String] = None,
                           file_header_hashes: Option[Map[String, String]] = None,
                           optional_header: Option[WindowPEOptionalHeaderType] = None,

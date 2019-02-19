@@ -674,7 +674,7 @@ case class ObservedData(`type`: String = ObservedData.`type`,
                         modified: Timestamp = Timestamp.now(),
                         first_observed: Timestamp,
                         last_observed: Timestamp,
-                        number_observed: Int,
+                        number_observed: Long,
                         objects: Map[String, Observable],
                         description: Option[String] = None,
                         revoked: Option[Boolean] = None,
@@ -695,7 +695,7 @@ object ObservedData {
       (__ \ "modified").format[Timestamp] and
       (__ \ "first_observed").format[Timestamp] and
       (__ \ "last_observed").format[Timestamp] and
-      (__ \ "number_observed").format[Int] and
+      (__ \ "number_observed").format[Long] and
       (__ \ "objects").format[Map[String, Observable]] and
       (__ \ "description").formatNullable[String] and
       (__ \ "revoked").formatNullable[Boolean] and
@@ -868,7 +868,7 @@ object ThreatActor {
   //        (__ \ "secondary_motivations").formatNullable[List[String]] and
   //        (__ \ "personal_motivations").formatNullable[List[String]] and
   //        (__ \ "revoked").formatNullable[Boolean] and
-  //        (__ \ "confidence").formatNullable[Int] and
+  //        (__ \ "confidence").formatNullable[Long] and
   //        (__ \ "external_references").formatNullable[List[ExternalReference]] and
   //        (__ \ "lang").formatNullable[String] and
   //        (__ \ "object_marking_refs").formatNullable[List[Identifier]] and
@@ -1068,7 +1068,7 @@ case class Sighting(`type`: String = Sighting.`type`,
                     sighting_of_ref: Identifier,
                     first_seen: Option[Timestamp] = None,
                     last_seen: Option[Timestamp] = None,
-                    count: Option[Int] = None,
+                    count: Option[Long] = None,
                     observed_data_refs: Option[List[Identifier]] = None,
                     where_sighted_refs: Option[List[Identifier]] = None,
                     summary: Option[Boolean] = None,
@@ -1092,7 +1092,7 @@ object Sighting {
       (__ \ "sighting_of_ref").format[Identifier] and
       (__ \ "first_seen").formatNullable[Timestamp] and
       (__ \ "last_seen").formatNullable[Timestamp] and
-      (__ \ "count").formatNullable[Int] and
+      (__ \ "count").formatNullable[Long] and
       (__ \ "observed_data_refs").formatNullable[List[Identifier]] and
       (__ \ "where_sighted_refs").formatNullable[List[Identifier]] and
       (__ \ "summary").formatNullable[Boolean] and
