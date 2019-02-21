@@ -376,8 +376,8 @@ case class NetworkTraffic(`type`: String = NetworkTraffic.`type`,
                           is_active: Option[Boolean] = None,
                           src_ref: Option[String] = None,
                           dst_ref: Option[String] = None,
-                          src_port: Option[Long] = None,
-                          dst_port: Option[Long] = None,
+                          src_port: Option[Int] = None,
+                          dst_port: Option[Int] = None,
                           protocols: Option[List[String]] = None,
                           src_byte_count: Option[Long] = None,
                           dst_byte_count: Option[Long] = None,
@@ -401,8 +401,8 @@ object NetworkTraffic {
       (__ \ "is_active").formatNullable[Boolean] and
       (__ \ "src_ref").formatNullable[String] and
       (__ \ "dst_ref").formatNullable[String] and
-      (__ \ "src_port").formatNullable[Long] and
-      (__ \ "dst_port").formatNullable[Long] and
+      (__ \ "src_port").formatNullable[Int] and
+      (__ \ "dst_port").formatNullable[Int] and
       (__ \ "protocols").formatNullable[List[String]] and
       (__ \ "src_byte_count").formatNullable[Long] and
       (__ \ "dst_byte_count").formatNullable[Long] and
@@ -608,7 +608,7 @@ case class X509V3ExtenstionsType(basic_constraints: Option[String] = None,
                                  issuer_alternative_name: Option[String] = None,
                                  subject_directory_attributes: Option[String] = None,
                                  crl_distribution_points: Option[String] = None,
-                                 inhibit_any_policy: Option[Long] = None,
+                                 inhibit_any_policy: Option[String] = None,
                                  private_key_usage_period_not_before: Option[Timestamp] = None,
                                  private_key_usage_period_not_after: Option[Timestamp] = None)
 
