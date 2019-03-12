@@ -286,6 +286,82 @@ object SocketExt {
 }
 
 /**
+  * The Windows Process extension specifies a default extension for capturing properties specific to Windows processes.
+  */
+case class WindowsProcessExt(`type`: String = WindowsProcessExt.`type`,
+                             aslr_enabled: Option[Boolean] = None,
+                             dep_enabled: Option[Boolean] = None,
+                             priority: Option[String] = None,
+                             owner_sid: Option[String] = None,
+                             window_title: Option[String] = None,
+                             startup_info: Option[Map[String, String]] = None) extends Extension
+
+object WindowsProcessExt {
+  val `type` = "windows-process-ext"
+  implicit val fmt = Json.format[WindowsProcessExt]
+}
+
+/**
+  * The Windows Service extension specifies a default extension for capturing properties specific to Windows services.
+  */
+case class WindowsServiceExt(`type`: String = WindowsServiceExt.`type`,
+                              service_name: String,
+                              descriptions: Option[List[String]] = None,
+                             display_name: Option[String] = None,
+                             group_name: Option[String] = None,
+                             start_type: Option[String] = None,
+                             service_dll_refs: Option[List[String]] = None,
+                             service_type: Option[String] = None,
+                             service_status: Option[String] = None) extends Extension
+
+object WindowsServiceExt {
+  val `type` = "windows-service-ext"
+  implicit val fmt = Json.format[WindowsServiceExt]
+}
+
+/**
+  * The UNIX account extension specifies a default extension for capturing the additional information for an account on a UNIX system.
+  */
+case class UnixAccountExt(`type`: String = UnixAccountExt.`type`,
+                          gid:  Option[Long] = None,
+                          groups: Option[List[String]] = None,
+                          home_dir: Option[String] = None,
+                          shell: Option[String] = None) extends Extension
+
+object UnixAccountExt {
+  val `type` = "unix-account-ext"
+  implicit val fmt = Json.format[UnixAccountExt]
+}
+
+/**
+  * The X.509 v3 Extensions type captures properties associated with X.509 v3 extensions, which serve as a mechanism for
+  * specifying additional information such as alternative subject names.
+  */
+case class X509V3Ext(`type`: String = X509V3Ext.`type`,
+                     basic_constraints:  Option[String] = None,
+                     name_constraints:  Option[String] = None,
+                     policy_constraints:  Option[String] = None,
+                     key_usage:  Option[String] = None,
+                     extended_key_usage:  Option[String] = None,
+                     subject_key_identifier:  Option[String] = None,
+                     authority_key_identifier:  Option[String] = None,
+                     subject_alternative_name: Option[String] = None,
+                     issuer_alternative_name: Option[String] = None,
+                     subject_directory_attributes: Option[String] = None,
+                     crl_distribution_points: Option[String] = None,
+                     inhibit_any_policy: Option[String] = None,
+                     private_key_usage_period_not_before: Option[Timestamp] = None,
+                     private_key_usage_period_not_after: Option[Timestamp] = None,
+                     certificate_policies: Option[String] = None,
+                     policy_mappings: Option[String] = None) extends Extension
+
+object X509V3Ext {
+  val `type` = "x509-v3-extensions-type"
+  implicit val fmt = Json.format[X509V3Ext]
+}
+
+
+/**
   * represents a Predefined Cyber Observable Object Extension
   */
 object Extension {
@@ -303,6 +379,11 @@ object Extension {
         case ICMPExt.`type` => ICMPExt.fmt.reads(js)
         case TCPExt.`type` => TCPExt.fmt.reads(js)
         case SocketExt.`type` => SocketExt.fmt.reads(js)
+
+        case WindowsProcessExt.`type` => WindowsProcessExt.fmt.reads(js)
+        case WindowsServiceExt.`type` => WindowsServiceExt.fmt.reads(js)
+        case UnixAccountExt.`type` => UnixAccountExt.fmt.reads(js)
+        case X509V3Ext.`type` => X509V3Ext.fmt.reads(js)
 
         case x => CustomExtension.fmt.reads(js)
       }).getOrElse(JsError("Error reading Extension"))
@@ -322,6 +403,11 @@ object Extension {
         case ext: ICMPExt => ICMPExt.fmt.writes(ext)
         case ext: TCPExt => TCPExt.fmt.writes(ext)
         case ext: SocketExt => SocketExt.fmt.writes(ext)
+
+        case ext: WindowsProcessExt => WindowsProcessExt.fmt.writes(ext)
+        case ext: WindowsServiceExt => WindowsServiceExt.fmt.writes(ext)
+        case ext: UnixAccountExt => UnixAccountExt.fmt.writes(ext)
+        case ext: X509V3Ext => X509V3Ext.fmt.writes(ext)
 
         case ext: CustomExtension => CustomExtension.fmt.writes(ext)
         case _ => JsNull

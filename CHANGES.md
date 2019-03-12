@@ -9,7 +9,11 @@ Change Log
 * added HttpRequestExt extention
 * added ICMPExt extention
 * added TCPExt extention
-* added SocketExt extention
+* added SocketExt extention 
+* added WindowsProcessExt extention
+* added WindowsServiceExt extention
+* added UnixAccountExt extention
+* added X509V3Ext extention
 
 
 ### changes in 0.9
