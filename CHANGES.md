@@ -6,6 +6,11 @@ Change Log
 * changed X509V3ExtenstionsType inhibit_any_policy to Option[String]
 * changed NetworkTraffic src_port and dst_port to Option[Int]
 
+* added HttpRequestExt extention
+* added ICMPExt extention
+* added TCPExt extention
+* added SocketExt extention
+
 
 ### changes in 0.9
 

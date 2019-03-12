@@ -226,6 +226,65 @@ object WindowPEBinExt {
   implicit val fmt = Json.format[WindowPEBinExt]
 }
 
+
+/**
+  * The HTTP request extension specifies a default extension for capturing network traffic properties specific to HTTP requests.
+  */
+case class HttpRequestExt(`type`: String = HttpRequestExt.`type`,
+                          request_method: String,
+                          request_value: String,
+                          request_version: Option[String] = None,
+                          request_header: Option[Map[String, String]] = None,
+                          message_body_length: Option[Long] = None,
+                          message_body_data_ref: Option[String] = None) extends Extension
+
+object HttpRequestExt {
+  val `type` = "http-request-ext"
+  implicit val fmt = Json.format[HttpRequestExt]
+}
+
+/**
+  * The ICMP extension specifies a default extension for capturing network traffic properties specific to ICMP.
+  */
+case class ICMPExt(`type`: String = ICMPExt.`type`,
+                   icmp_type_hex: String,
+                   icmp_code_hex: String) extends Extension
+
+object ICMPExt {
+  val `type` = "icmp-ext"
+  implicit val fmt = Json.format[ICMPExt]
+}
+
+/**
+  * The TCP extension specifies a default extension for capturing network traffic properties specific to TCP.
+  */
+case class TCPExt(`type`: String = TCPExt.`type`,
+                  src_flags_hex: Option[String] = None,
+                  dst_flags_hex: Option[String] = None) extends Extension
+
+object TCPExt {
+  val `type` = "tcp-ext"
+  implicit val fmt = Json.format[TCPExt]
+}
+
+/**
+  * The Network Socket extension specifies a default extension for capturing network traffic properties associated with network sockets.
+  */
+case class SocketExt(`type`: String = SocketExt.`type`,
+                     address_family: String,
+                     is_blocking: Option[Boolean] = None,
+                     is_listening: Option[Boolean] = None,
+                     protocol_family: Option[String] = None,
+                     options: Option[Map[String, String]] = None,
+                     socket_type: Option[String] = None,
+                     socket_descriptor: Option[Long] = None,
+                     socket_handle: Option[Long] = None) extends Extension
+
+object SocketExt {
+  val `type` = "socket-ext"
+  implicit val fmt = Json.format[SocketExt]
+}
+
 /**
   * represents a Predefined Cyber Observable Object Extension
   */
@@ -239,6 +298,12 @@ object Extension {
         case PdfFileExt.`type` => PdfFileExt.fmt.reads(js)
         case RasterImgExt.`type` => RasterImgExt.fmt.reads(js)
         case WindowPEBinExt.`type` => WindowPEBinExt.fmt.reads(js)
+
+        case HttpRequestExt.`type` => HttpRequestExt.fmt.reads(js)
+        case ICMPExt.`type` => ICMPExt.fmt.reads(js)
+        case TCPExt.`type` => TCPExt.fmt.reads(js)
+        case SocketExt.`type` => SocketExt.fmt.reads(js)
+
         case x => CustomExtension.fmt.reads(js)
       }).getOrElse(JsError("Error reading Extension"))
     }
@@ -252,6 +317,12 @@ object Extension {
         case ext: PdfFileExt => PdfFileExt.fmt.writes(ext)
         case ext: RasterImgExt => RasterImgExt.fmt.writes(ext)
         case ext: WindowPEBinExt => WindowPEBinExt.fmt.writes(ext)
+
+        case ext: HttpRequestExt => HttpRequestExt.fmt.writes(ext)
+        case ext: ICMPExt => ICMPExt.fmt.writes(ext)
+        case ext: TCPExt => TCPExt.fmt.writes(ext)
+        case ext: SocketExt => SocketExt.fmt.writes(ext)
+
         case ext: CustomExtension => CustomExtension.fmt.writes(ext)
         case _ => JsNull
       }
