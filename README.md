@@ -84,7 +84,7 @@ In a Scala application the creation of a Stix object can be done as follows:
  Reading STIX-2 bundles:
  
      // read a STIX-2 bundle from a file
-     val jsondoc = Source.fromFile("test1.json").mkString
+     val jsondoc = Source.fromFile("test1.json", "UTF-8").mkString
      // create a bundle object from it
      Json.fromJson[Bundle](Json.parse(jsondoc)).asOpt match {
        case Some(bundle) =>
