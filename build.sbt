@@ -6,7 +6,7 @@ version := (version in ThisBuild).value
 scalaVersion in ThisBuild := "2.12.8"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-json" % "2.7.1"
+  "com.typesafe.play" %% "play-json" % "2.7.3"
 )
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G")

@@ -26,7 +26,7 @@ trait Extension
 case class CustomExtension(custom: Option[CustomProps] = None) extends Extension
 
 object CustomExtension {
-  val `type` = "custom_type"
+  val `type` = "custom_ext"
   implicit val fmt = Json.format[CustomExtension]
 }
 
