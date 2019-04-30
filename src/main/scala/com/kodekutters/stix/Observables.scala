@@ -23,7 +23,7 @@ import play.api.libs.functional.syntax._
   */
 trait Observable {
   val `type`: String
-  val extensions: Option[Map[String, Extension]]
+  val extensions: Option[Extensions]
   val custom: Option[CustomProps]
 }
 
@@ -36,15 +36,15 @@ case class Artifact(`type`: String = Artifact.`type`,
                     payload_bin: Option[String] = None, // base64-encoded string
                     url: Option[String] = None,
                     hashes: Option[Map[String, String]] = None,
-                    extensions: Option[Map[String, Extension]] = None,
+                    extensions:  Option[Extensions] = None,
                     custom: Option[CustomProps] = None) extends Observable {
 
   def this(mime_type: Option[String], payload_bin: String,
-           extensions: Option[Map[String, Extension]], custom: Option[CustomProps]) =
+           extensions:  Option[Extensions], custom: Option[CustomProps]) =
     this(Artifact.`type`, mime_type, Option(payload_bin), None, None, extensions, custom)
 
   def this(mime_type: Option[String], url: String, hashes: Map[String, String],
-           extensions: Option[Map[String, Extension]], custom: Option[CustomProps]) =
+           extensions:  Option[Extensions], custom: Option[CustomProps]) =
     this(Artifact.`type`, mime_type, None, Option(url), Option(hashes), extensions, custom)
 
 }
@@ -58,7 +58,7 @@ object Artifact {
       (__ \ "payload_bin").formatNullable[String] and
       (__ \ "url").formatNullable[String] and
       (__ \ "hashes").formatNullable[Map[String, String]] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (Artifact.apply, unlift(Artifact.unapply))
 
@@ -71,7 +71,7 @@ case class AutonomousSystem(`type`: String = AutonomousSystem.`type`,
                             number: Long,
                             name: Option[String] = None,
                             rir: Option[String] = None,
-                            extensions: Option[Map[String, Extension]] = None,
+                            extensions:  Option[Extensions] = None,
                             custom: Option[CustomProps] = None) extends Observable
 
 object AutonomousSystem {
@@ -82,7 +82,7 @@ object AutonomousSystem {
       (__ \ "number").format[Long] and
       (__ \ "name").formatNullable[String] and
       (__ \ "rir").formatNullable[String] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (AutonomousSystem.apply, unlift(AutonomousSystem.unapply))
 
@@ -98,7 +98,7 @@ case class Directory(`type`: String = Directory.`type`,
                      modified: Option[Timestamp] = None,
                      accessed: Option[Timestamp] = None,
                      contains_refs: Option[List[String]] = None, // todo object-ref must be file or directory type
-                     extensions: Option[Map[String, Extension]] = None,
+                     extensions:  Option[Extensions] = None,
                      custom: Option[CustomProps] = None) extends Observable
 
 object Directory {
@@ -112,7 +112,7 @@ object Directory {
       (__ \ "modified").formatNullable[Timestamp] and
       (__ \ "accessed").formatNullable[Timestamp] and
       (__ \ "contains_refs").formatNullable[List[String]] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (Directory.apply, unlift(Directory.unapply))
 
@@ -124,7 +124,7 @@ object Directory {
 case class DomainName(`type`: String = DomainName.`type`,
                       value: String,
                       resolves_to_refs: Option[List[String]] = None, // todo object-ref must be ipv4-addr or ipv6-addr or domain-name
-                      extensions: Option[Map[String, Extension]] = None,
+                      extensions:  Option[Extensions] = None,
                       custom: Option[CustomProps] = None) extends Observable
 
 object DomainName {
@@ -134,7 +134,7 @@ object DomainName {
     (__ \ "type").format[String] and
       (__ \ "value").format[String] and
       (__ \ "resolves_to_refs").formatNullable[List[String]] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (DomainName.apply, unlift(DomainName.unapply))
 
@@ -146,7 +146,7 @@ object DomainName {
 case class EmailAddress(`type`: String = EmailAddress.`type`, value: String,
                         display_name: Option[String] = None,
                         belongs_to_ref: Option[String] = None, // todo  must be of type user-account
-                        extensions: Option[Map[String, Extension]] = None,
+                        extensions:  Option[Extensions] = None,
                         custom: Option[CustomProps] = None) extends Observable
 
 object EmailAddress {
@@ -157,7 +157,7 @@ object EmailAddress {
       (__ \ "value").format[String] and
       (__ \ "display_name").formatNullable[String] and
       (__ \ "belongs_to_ref").formatNullable[String] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (EmailAddress.apply, unlift(EmailAddress.unapply))
 
@@ -203,7 +203,7 @@ case class EmailMessage(`type`: String = EmailMessage.`type`,
                         received_lines: Option[List[String]] = None,
                         additional_header_fields: Option[Map[String, String]] = None,
                         raw_email_ref: Option[String] = None, // todo must be of type artifact
-                        extensions: Option[Map[String, Extension]] = None,
+                        extensions:  Option[Extensions] = None,
                         custom: Option[CustomProps] = None) extends Observable
 
 object EmailMessage {
@@ -225,7 +225,7 @@ object EmailMessage {
       (__ \ "received_lines").formatNullable[List[String]] and
       (__ \ "additional_header_fields").formatNullable[Map[String, String]] and
       (__ \ "raw_email_ref").formatNullable[String] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (EmailMessage.apply, unlift(EmailMessage.unapply))
 
@@ -250,7 +250,7 @@ case class File(`type`: String = File.`type`,
                 decryption_key: Option[String] = None,
                 contains_refs: Option[List[String]] = None,
                 content_ref: Option[String] = None,
-                extensions: Option[Map[String, Extension]] = None,
+                extensions:  Option[Extensions] = None,
                 custom: Option[CustomProps] = None) extends Observable
 
 object File {
@@ -273,7 +273,7 @@ object File {
       (__ \ "decryption_key").formatNullable[String] and
       (__ \ "contains_refs").formatNullable[List[String]] and
       (__ \ "content_ref").formatNullable[String] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (File.apply, unlift(File.unapply))
 
@@ -286,7 +286,7 @@ case class IPv4Address(`type`: String = IPv4Address.`type`,
                        value: String,
                        resolves_to_refs: Option[List[String]] = None,
                        belongs_to_refs: Option[List[String]] = None,
-                       extensions: Option[Map[String, Extension]] = None,
+                       extensions:  Option[Extensions] = None,
                        custom: Option[CustomProps] = None) extends Observable
 
 object IPv4Address {
@@ -297,7 +297,7 @@ object IPv4Address {
       (__ \ "value").format[String] and
       (__ \ "resolves_to_refs").formatNullable[List[String]] and
       (__ \ "belongs_to_refs").formatNullable[List[String]] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (IPv4Address.apply, unlift(IPv4Address.unapply))
 
@@ -310,7 +310,7 @@ case class IPv6Address(`type`: String = IPv6Address.`type`,
                        value: String,
                        resolves_to_refs: Option[List[String]] = None,
                        belongs_to_refs: Option[List[String]] = None,
-                       extensions: Option[Map[String, Extension]] = None,
+                       extensions:  Option[Extensions] = None,
                        custom: Option[CustomProps] = None) extends Observable
 
 object IPv6Address {
@@ -321,7 +321,7 @@ object IPv6Address {
       (__ \ "value").format[String] and
       (__ \ "resolves_to_refs").formatNullable[List[String]] and
       (__ \ "belongs_to_refs").formatNullable[List[String]] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (IPv6Address.apply, unlift(IPv6Address.unapply))
 
@@ -332,7 +332,7 @@ object IPv6Address {
   */
 case class MACAddress(`type`: String = MACAddress.`type`,
                       value: String,
-                      extensions: Option[Map[String, Extension]] = None,
+                      extensions:  Option[Extensions] = None,
                       custom: Option[CustomProps] = None) extends Observable
 
 object MACAddress {
@@ -341,7 +341,7 @@ object MACAddress {
   implicit val fmt: Format[MACAddress] = (
     (__ \ "type").format[String] and
       (__ \ "value").format[String] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (MACAddress.apply, unlift(MACAddress.unapply))
 
@@ -352,7 +352,7 @@ object MACAddress {
   */
 case class Mutex(`type`: String = Mutex.`type`,
                  name: String,
-                 extensions: Option[Map[String, Extension]] = None,
+                 extensions:  Option[Extensions] = None,
                  custom: Option[CustomProps] = None) extends Observable
 
 object Mutex {
@@ -361,7 +361,7 @@ object Mutex {
   implicit val fmt: Format[Mutex] = (
     (__ \ "type").format[String] and
       (__ \ "name").format[String] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (Mutex.apply, unlift(Mutex.unapply))
 
@@ -388,7 +388,7 @@ case class NetworkTraffic(`type`: String = NetworkTraffic.`type`,
                           dst_payload_ref: Option[String] = None,
                           encapsulates_refs: Option[List[String]] = None,
                           encapsulated_by_ref: Option[String] = None,
-                          extensions: Option[Map[String, Extension]] = None,
+                          extensions:  Option[Extensions] = None,
                           custom: Option[CustomProps] = None) extends Observable
 
 object NetworkTraffic {
@@ -413,7 +413,7 @@ object NetworkTraffic {
       (__ \ "dst_payload_ref").formatNullable[String] and
       (__ \ "encapsulates_refs").formatNullable[List[String]] and
       (__ \ "encapsulated_by_ref").formatNullable[String] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (NetworkTraffic.apply, unlift(NetworkTraffic.unapply))
 
@@ -436,7 +436,7 @@ case class Process(`type`: String = Process.`type`,
                    binary_ref: Option[String] = None,
                    parent_ref: Option[String] = None,
                    child_refs: Option[List[String]] = None,
-                   extensions: Option[Map[String, Extension]] = None,
+                   extensions:  Option[Extensions] = None,
                    custom: Option[CustomProps] = None) extends Observable
 
 object Process {
@@ -457,7 +457,7 @@ object Process {
       (__ \ "binary_ref").formatNullable[String] and
       (__ \ "parent_ref").formatNullable[String] and
       (__ \ "child_refs").formatNullable[List[String]] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (Process.apply, unlift(Process.unapply))
 
@@ -472,7 +472,7 @@ case class Software(`type`: String = Software.`type`,
                     languages: Option[List[String]] = None,
                     vendor: Option[String] = None,
                     version: Option[String] = None,
-                    extensions: Option[Map[String, Extension]] = None,
+                    extensions:  Option[Extensions] = None,
                     custom: Option[CustomProps] = None) extends Observable
 
 object Software {
@@ -485,7 +485,7 @@ object Software {
       (__ \ "languages").formatNullable[List[String]] and
       (__ \ "vendor").formatNullable[String] and
       (__ \ "version").formatNullable[String] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (Software.apply, unlift(Software.unapply))
 
@@ -496,7 +496,7 @@ object Software {
   */
 case class URL(`type`: String = URL.`type`,
                value: String,
-               extensions: Option[Map[String, Extension]] = None,
+               extensions:  Option[Extensions] = None,
                custom: Option[CustomProps] = None) extends Observable
 
 object URL {
@@ -505,7 +505,7 @@ object URL {
   implicit val fmt: Format[URL] = (
     (__ \ "type").format[String] and
       (__ \ "value").format[String] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (URL.apply, unlift(URL.unapply))
 
@@ -528,7 +528,7 @@ case class UserAccount(`type`: String = UserAccount.`type`,
                        password_last_changed: Option[Timestamp] = None,
                        account_first_login: Option[Timestamp] = None,
                        account_last_login: Option[Timestamp] = None,
-                       extensions: Option[Map[String, Extension]] = None,
+                       extensions:  Option[Extensions] = None,
                        custom: Option[CustomProps] = None) extends Observable
 
 object UserAccount {
@@ -549,7 +549,7 @@ object UserAccount {
       (__ \ "password_last_changed").formatNullable[Timestamp] and
       (__ \ "account_first_login").formatNullable[Timestamp] and
       (__ \ "account_last_login").formatNullable[Timestamp] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (UserAccount.apply, unlift(UserAccount.unapply))
 
@@ -575,7 +575,7 @@ case class WindowsRegistryKey(`type`: String = WindowsRegistryKey.`type`,
                               modified: Option[Timestamp] = None,
                               creator_user_ref: Option[String] = None,
                               number_of_subkeys: Option[Long] = None,
-                              extensions: Option[Map[String, Extension]] = None,
+                              extensions:  Option[Extensions] = None,
                               custom: Option[CustomProps] = None) extends Observable
 
 object WindowsRegistryKey {
@@ -588,7 +588,7 @@ object WindowsRegistryKey {
       (__ \ "modified").formatNullable[Timestamp] and
       (__ \ "creator_user_ref").formatNullable[String] and
       (__ \ "number_of_subkeys").formatNullable[Long] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (WindowsRegistryKey.apply, unlift(WindowsRegistryKey.unapply))
 
@@ -633,7 +633,7 @@ case class X509Certificate(`type`: String = X509Certificate.`type`,
                            subject_public_key_modulus: Option[String] = None,
                            subject_public_key_exponent: Option[Long] = None,
                            x509_v3_extensions: Option[X509V3ExtenstionsType] = None,
-                           extensions: Option[Map[String, Extension]] = None,
+                           extensions:  Option[Extensions] = None,
                            custom: Option[CustomProps] = None) extends Observable
 
 object X509Certificate {
@@ -654,7 +654,7 @@ object X509Certificate {
       (__ \ "subject_public_key_modulus").formatNullable[String] and
       (__ \ "subject_public_key_exponent").formatNullable[Long] and
       (__ \ "x509_v3_extensions").formatNullable[X509V3ExtenstionsType] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (X509Certificate.apply, unlift(X509Certificate.unapply))
 
@@ -664,7 +664,7 @@ object X509Certificate {
   * A generic custom observable object
   */
 case class CustomObservable(`type`: String = CustomObservable.`type`,
-                            extensions: Option[Map[String, Extension]] = None,
+                            extensions:  Option[Extensions] = None,
                             custom: Option[CustomProps] = None) extends Observable
 
 object CustomObservable {
@@ -672,7 +672,7 @@ object CustomObservable {
 
   implicit val fmt: Format[CustomObservable] = (
     (__ \ "type").format[String] and
-      (__ \ "extensions").formatNullable[Map[String, Extension]] and
+      (__ \ "extensions").formatNullable[Extensions] and
       JsPath.formatNullable[CustomProps]
     ) (CustomObservable.apply, unlift(CustomObservable.unapply))
 }

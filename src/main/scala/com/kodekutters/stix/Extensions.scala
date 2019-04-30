@@ -18,24 +18,22 @@ import Util._
   * represents a Predefined Cyber Observable Object Extension.
   * To create a Custom Object Extension, simply extends this trait
   */
-trait Extension {
-  val `type`: String
-}
+trait Extension
 
 /**
   * a generic unknown custom extension object
   */
-case class CustomExtension(`type`: String, custom: Option[CustomProps] = None) extends Extension
+case class CustomExtension(custom: Option[CustomProps] = None) extends Extension
 
 object CustomExtension {
+  val `type` = "custom_type"
   implicit val fmt = Json.format[CustomExtension]
 }
 
 /**
   * The Archive File extension specifies a default extension for capturing properties specific to archive files.
   */
-case class ArchiveFileExt(`type`: String = ArchiveFileExt.`type`,
-                          contains_refs: Option[List[String]] = None,
+case class ArchiveFileExt(contains_refs: Option[List[String]] = None,
                           version: Option[String] = None,
                           comment: Option[String] = None) extends Extension
 
@@ -58,8 +56,7 @@ object AlternateDataStream {
 /**
   * The NTFS file extension specifies a default extension for capturing properties specific to the storage of the file on the NTFS file system.
   */
-case class NTFSFileExt(`type`: String = NTFSFileExt.`type`,
-                       sid: Option[String] = None,
+case class NTFSFileExt(sid: Option[String] = None,
                        alternate_data_streams: Option[List[AlternateDataStream]] = None) extends Extension
 
 object NTFSFileExt {
@@ -70,9 +67,9 @@ object NTFSFileExt {
 /**
   * The PDF file extension specifies a default extension for capturing properties specific to PDF files.
   */
-case class PdfFileExt(`type`: String = PdfFileExt.`type`,
-                      version: Option[String] = None,
+case class PdfFileExt(version: Option[String] = None,
                       is_optimized: Option[Boolean] = None,
+                      document_info_dict: Option[Map[String, String]] = None,
                       pdfid0: Option[String] = None,
                       pdfid1: Option[String] = None) extends Extension
 
@@ -84,12 +81,11 @@ object PdfFileExt {
 /**
   * The Raster Image file extension specifies a default extension for capturing properties specific to raster image files.
   */
-case class RasterImgExt(`type`: String = RasterImgExt.`type`,
-                        image_height: Option[Long] = None,
+case class RasterImgExt(image_height: Option[Long] = None,
                         image_width: Option[Long] = None,
                         bits_per_pixel: Option[Long] = None,
                         image_compression_algorithm: Option[String] = None,
-                        exif_tags: Option[Map[String, Either[Long, String]]]) extends Extension
+                        exif_tags: Option[Map[String, Either[Long, String]]] = None) extends Extension
 
 object RasterImgExt {
   val `type` = "raster-image-ext"
@@ -186,7 +182,7 @@ object WindowPEOptionalHeaderType {
         size_of_heap_reserve, size_of_heap_commit, loader_flags_hex, number_of_rva_and_sizes, hashes)
   }, (t: WindowPEOptionalHeaderType) => ((t.magic_hex, t.major_linker_version, t.minor_linker_version, t.size_of_code,
     t.size_of_initialized_data, t.size_of_uninitialized_data, t.address_of_entry_point, t.base_of_code,
-    t.base_of_data, t.image_base, t.section_alignment, t.file_alignment, t.major_os_version, t.minor_os_version),(
+    t.base_of_data, t.image_base, t.section_alignment, t.file_alignment, t.major_os_version, t.minor_os_version), (
     t.major_image_version, t.minor_image_version, t.major_subsystem_version, t.minor_subsystem_version, t.win32_version_value_hex,
     t.size_of_image, t.size_of_headers, t.checksum_hex, t.dll_characteristics_hex, t.size_of_stack_reserve, t.size_of_stack_commit,
     t.size_of_heap_reserve, t.size_of_heap_commit, t.loader_flags_hex, t.number_of_rva_and_sizes, t.hashes)))
@@ -207,8 +203,7 @@ object WindowPESectionType {
 /**
   * The Windows™ PE Binary File extension specifies a default extension for capturing properties specific to Windows portable executable (PE) files.
   */
-case class WindowPEBinExt(`type`: String = WindowPEBinExt.`type`,
-                          pe_type: String,
+case class WindowPEBinExt(pe_type: String,
                           imphash: Option[String] = None,
                           machine_hex: Option[String] = None,
                           number_of_sections: Option[Long] = None,
@@ -230,8 +225,7 @@ object WindowPEBinExt {
 /**
   * The HTTP request extension specifies a default extension for capturing network traffic properties specific to HTTP requests.
   */
-case class HttpRequestExt(`type`: String = HttpRequestExt.`type`,
-                          request_method: String,
+case class HttpRequestExt(request_method: String,
                           request_value: String,
                           request_version: Option[String] = None,
                           request_header: Option[Map[String, String]] = None,
@@ -246,8 +240,7 @@ object HttpRequestExt {
 /**
   * The ICMP extension specifies a default extension for capturing network traffic properties specific to ICMP.
   */
-case class ICMPExt(`type`: String = ICMPExt.`type`,
-                   icmp_type_hex: String,
+case class ICMPExt(icmp_type_hex: String,
                    icmp_code_hex: String) extends Extension
 
 object ICMPExt {
@@ -258,8 +251,7 @@ object ICMPExt {
 /**
   * The TCP extension specifies a default extension for capturing network traffic properties specific to TCP.
   */
-case class TCPExt(`type`: String = TCPExt.`type`,
-                  src_flags_hex: Option[String] = None,
+case class TCPExt(src_flags_hex: Option[String] = None,
                   dst_flags_hex: Option[String] = None) extends Extension
 
 object TCPExt {
@@ -270,8 +262,7 @@ object TCPExt {
 /**
   * The Network Socket extension specifies a default extension for capturing network traffic properties associated with network sockets.
   */
-case class SocketExt(`type`: String = SocketExt.`type`,
-                     address_family: String,
+case class SocketExt(address_family: String,
                      is_blocking: Option[Boolean] = None,
                      is_listening: Option[Boolean] = None,
                      protocol_family: Option[String] = None,
@@ -288,8 +279,7 @@ object SocketExt {
 /**
   * The Windows Process extension specifies a default extension for capturing properties specific to Windows processes.
   */
-case class WindowsProcessExt(`type`: String = WindowsProcessExt.`type`,
-                             aslr_enabled: Option[Boolean] = None,
+case class WindowsProcessExt(aslr_enabled: Option[Boolean] = None,
                              dep_enabled: Option[Boolean] = None,
                              priority: Option[String] = None,
                              owner_sid: Option[String] = None,
@@ -304,9 +294,8 @@ object WindowsProcessExt {
 /**
   * The Windows Service extension specifies a default extension for capturing properties specific to Windows services.
   */
-case class WindowsServiceExt(`type`: String = WindowsServiceExt.`type`,
-                              service_name: String,
-                              descriptions: Option[List[String]] = None,
+case class WindowsServiceExt(service_name: String,
+                             descriptions: Option[List[String]] = None,
                              display_name: Option[String] = None,
                              group_name: Option[String] = None,
                              start_type: Option[String] = None,
@@ -322,8 +311,7 @@ object WindowsServiceExt {
 /**
   * The UNIX account extension specifies a default extension for capturing the additional information for an account on a UNIX system.
   */
-case class UnixAccountExt(`type`: String = UnixAccountExt.`type`,
-                          gid:  Option[Long] = None,
+case class UnixAccountExt(gid: Option[Long] = None,
                           groups: Option[List[String]] = None,
                           home_dir: Option[String] = None,
                           shell: Option[String] = None) extends Extension
@@ -337,14 +325,13 @@ object UnixAccountExt {
   * The X.509 v3 Extensions type captures properties associated with X.509 v3 extensions, which serve as a mechanism for
   * specifying additional information such as alternative subject names.
   */
-case class X509V3Ext(`type`: String = X509V3Ext.`type`,
-                     basic_constraints:  Option[String] = None,
-                     name_constraints:  Option[String] = None,
-                     policy_constraints:  Option[String] = None,
-                     key_usage:  Option[String] = None,
-                     extended_key_usage:  Option[String] = None,
-                     subject_key_identifier:  Option[String] = None,
-                     authority_key_identifier:  Option[String] = None,
+case class X509V3Ext(basic_constraints: Option[String] = None,
+                     name_constraints: Option[String] = None,
+                     policy_constraints: Option[String] = None,
+                     key_usage: Option[String] = None,
+                     extended_key_usage: Option[String] = None,
+                     subject_key_identifier: Option[String] = None,
+                     authority_key_identifier: Option[String] = None,
                      subject_alternative_name: Option[String] = None,
                      issuer_alternative_name: Option[String] = None,
                      subject_directory_attributes: Option[String] = None,
@@ -360,60 +347,75 @@ object X509V3Ext {
   implicit val fmt = Json.format[X509V3Ext]
 }
 
-
 /**
-  * represents a Predefined Cyber Observable Object Extension
+  * represents a list of Predefined Cyber Observable Object Extension.
   */
-object Extension {
+case class Extensions(extensions: Map[String, Extension])
 
-  val theReads = new Reads[Extension] {
-    def reads(js: JsValue): JsResult[Extension] = {
-      (js \ "type").asOpt[String].map({
-        case ArchiveFileExt.`type` => ArchiveFileExt.fmt.reads(js)
-        case NTFSFileExt.`type` => NTFSFileExt.fmt.reads(js)
-        case PdfFileExt.`type` => PdfFileExt.fmt.reads(js)
-        case RasterImgExt.`type` => RasterImgExt.fmt.reads(js)
-        case WindowPEBinExt.`type` => WindowPEBinExt.fmt.reads(js)
+object Extensions {
 
-        case HttpRequestExt.`type` => HttpRequestExt.fmt.reads(js)
-        case ICMPExt.`type` => ICMPExt.fmt.reads(js)
-        case TCPExt.`type` => TCPExt.fmt.reads(js)
-        case SocketExt.`type` => SocketExt.fmt.reads(js)
+  val theReads = new Reads[Extensions] {
+    def reads(js: JsValue): JsResult[Extensions] = {
+      val xMap = scala.collection.mutable.Map[String, Extension]()
+      val theMap = js.as[Map[String, JsValue]]
+      for ((k, v) <- theMap) {
+        val res = k match {
+          case ArchiveFileExt.`type` => ArchiveFileExt.fmt.reads(v)
+          case NTFSFileExt.`type` => NTFSFileExt.fmt.reads(v)
+          case PdfFileExt.`type` => PdfFileExt.fmt.reads(v)
+          case RasterImgExt.`type` => RasterImgExt.fmt.reads(v)
+          case WindowPEBinExt.`type` => WindowPEBinExt.fmt.reads(v)
 
-        case WindowsProcessExt.`type` => WindowsProcessExt.fmt.reads(js)
-        case WindowsServiceExt.`type` => WindowsServiceExt.fmt.reads(js)
-        case UnixAccountExt.`type` => UnixAccountExt.fmt.reads(js)
-        case X509V3Ext.`type` => X509V3Ext.fmt.reads(js)
+          case HttpRequestExt.`type` => HttpRequestExt.fmt.reads(v)
+          case ICMPExt.`type` => ICMPExt.fmt.reads(v)
+          case TCPExt.`type` => TCPExt.fmt.reads(v)
+          case SocketExt.`type` => SocketExt.fmt.reads(v)
 
-        case x => CustomExtension.fmt.reads(js)
-      }).getOrElse(JsError("Error reading Extension"))
-    }
-  }
+          case WindowsProcessExt.`type` => WindowsProcessExt.fmt.reads(v)
+          case WindowsServiceExt.`type` => WindowsServiceExt.fmt.reads(v)
+          case UnixAccountExt.`type` => UnixAccountExt.fmt.reads(v)
+          case X509V3Ext.`type` => X509V3Ext.fmt.reads(v)
 
-  val theWrites = new Writes[Extension] {
-    def writes(obj: Extension) = {
-      obj match {
-        case ext: ArchiveFileExt => ArchiveFileExt.fmt.writes(ext)
-        case ext: NTFSFileExt => NTFSFileExt.fmt.writes(ext)
-        case ext: PdfFileExt => PdfFileExt.fmt.writes(ext)
-        case ext: RasterImgExt => RasterImgExt.fmt.writes(ext)
-        case ext: WindowPEBinExt => WindowPEBinExt.fmt.writes(ext)
-
-        case ext: HttpRequestExt => HttpRequestExt.fmt.writes(ext)
-        case ext: ICMPExt => ICMPExt.fmt.writes(ext)
-        case ext: TCPExt => TCPExt.fmt.writes(ext)
-        case ext: SocketExt => SocketExt.fmt.writes(ext)
-
-        case ext: WindowsProcessExt => WindowsProcessExt.fmt.writes(ext)
-        case ext: WindowsServiceExt => WindowsServiceExt.fmt.writes(ext)
-        case ext: UnixAccountExt => UnixAccountExt.fmt.writes(ext)
-        case ext: X509V3Ext => X509V3Ext.fmt.writes(ext)
-
-        case ext: CustomExtension => CustomExtension.fmt.writes(ext)
-        case _ => JsNull
+          case x => CustomExtension.fmt.reads(v)
+        }
+        res.map(x => xMap += (k -> x.asInstanceOf[Extension]))
       }
+      JsSuccess(Extensions(xMap.toMap))
     }
   }
 
-  implicit val fmt: Format[Extension] = Format(theReads, theWrites)
+  val theWrites = new Writes[Extensions] {
+    def writes(obj: Extensions): JsValue = {
+      val xMap = scala.collection.mutable.Map[String, JsValue]()
+      for (ext <- obj.extensions) {
+        val k = ext._1
+        val v = ext._2
+        val res = k match {
+          case ArchiveFileExt.`type` => ArchiveFileExt.fmt.writes(v.asInstanceOf[ArchiveFileExt])
+          case NTFSFileExt.`type` => NTFSFileExt.fmt.writes(v.asInstanceOf[NTFSFileExt])
+          case PdfFileExt.`type` => PdfFileExt.fmt.writes(v.asInstanceOf[PdfFileExt])
+          case RasterImgExt.`type` => RasterImgExt.fmt.writes(v.asInstanceOf[RasterImgExt])
+          case WindowPEBinExt.`type` => WindowPEBinExt.fmt.writes(v.asInstanceOf[WindowPEBinExt])
+
+          case HttpRequestExt.`type` => HttpRequestExt.fmt.writes(v.asInstanceOf[HttpRequestExt])
+          case ICMPExt.`type` => ICMPExt.fmt.writes(v.asInstanceOf[ICMPExt])
+          case TCPExt.`type` => TCPExt.fmt.writes(v.asInstanceOf[TCPExt])
+          case SocketExt.`type` => SocketExt.fmt.writes(v.asInstanceOf[SocketExt])
+
+          case WindowsProcessExt.`type` => WindowsProcessExt.fmt.writes(v.asInstanceOf[WindowsProcessExt])
+          case WindowsServiceExt.`type` => WindowsServiceExt.fmt.writes(v.asInstanceOf[WindowsServiceExt])
+          case UnixAccountExt.`type` => UnixAccountExt.fmt.writes(v.asInstanceOf[UnixAccountExt])
+          case X509V3Ext.`type` => X509V3Ext.fmt.writes(v.asInstanceOf[X509V3Ext])
+
+          case _ => CustomExtension.fmt.writes(v.asInstanceOf[CustomExtension])
+        }
+        xMap += (k -> res)
+      }
+      JsObject(xMap)
+    }
+  }
+
+  implicit val fmt: Format[Extensions] = Format(theReads, theWrites)
 }
+
+

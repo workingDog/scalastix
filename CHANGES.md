@@ -3,6 +3,7 @@ Change Log
 
 ### changes in 1.0-SNAPSHOT
 
+* changes to the Extensions json read and write, removed the type param
 * changed X509V3ExtenstionsType inhibit_any_policy to Option[String]
 * changed NetworkTraffic src_port and dst_port to Option[Int]
 
