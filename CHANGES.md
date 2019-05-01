@@ -1,7 +1,12 @@
 Change Log
 ==========
 
-### changes in 1.0-SNAPSHOT
+### changes in 1.1-SNAPSHOT
+
+
+
+
+### changes in 1.0
 
 * changes to the Extensions json reads and writes, removed the type param
 * changed X509V3ExtenstionsType inhibit_any_policy to Option[String]

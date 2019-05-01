@@ -387,9 +387,7 @@ object Extensions {
   val theWrites = new Writes[Extensions] {
     def writes(obj: Extensions): JsValue = {
       val xMap = scala.collection.mutable.Map[String, JsValue]()
-      for (ext <- obj.extensions) {
-        val k = ext._1
-        val v = ext._2
+      for ((k, v) <- obj.extensions) {
         val res = k match {
           case ArchiveFileExt.`type` => ArchiveFileExt.fmt.writes(v.asInstanceOf[ArchiveFileExt])
           case NTFSFileExt.`type` => NTFSFileExt.fmt.writes(v.asInstanceOf[NTFSFileExt])
