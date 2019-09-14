@@ -3,13 +3,11 @@ name := "scalastix"
 
 version := (version in ThisBuild).value
 
-scalaVersion in ThisBuild := "2.12.8"
+scalaVersion in ThisBuild := "2.12.10"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-json" % "2.7.3"
+  "com.typesafe.play" %% "play-json" % "2.7.4"
 )
-
-javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xmx8G")
 
 scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
 

@@ -3,7 +3,7 @@ Change Log
 
 ### changes in 1.1-SNAPSHOT
 
-
+* updated scala to 2.12.10, sbt to 1.3.0 and associated plugins and dependencies 
 
 
 ### changes in 1.0
