@@ -128,64 +128,108 @@ case class WindowPEOptionalHeaderType(magic_hex: Option[String] = None,
 
 object WindowPEOptionalHeaderType {
 
-  val part1: OFormat[(Option[String], Option[Long], Option[Long], Option[Long], Option[Long],
-    Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[Long], Option[Long],
-    Option[Long], Option[Long])] =
-    ((__ \ "magic_hex").formatNullable[String] ~
-      (__ \ "major_linker_version").formatNullable[Long] ~
-      (__ \ "minor_linker_version").formatNullable[Long] ~
-      (__ \ "size_of_code").formatNullable[Long] ~
-      (__ \ "size_of_initialized_data").formatNullable[Long] ~
-      (__ \ "size_of_uninitialized_data").formatNullable[Long] ~
-      (__ \ "address_of_entry_point").formatNullable[Long] ~
-      (__ \ "base_of_code").formatNullable[Long] ~
-      (__ \ "base_of_data").formatNullable[Long] ~
-      (__ \ "image_base").formatNullable[Long] ~
-      (__ \ "section_alignment").formatNullable[Long] ~
-      (__ \ "file_alignment").formatNullable[Long] ~
-      (__ \ "major_os_version").formatNullable[Long] ~
-      (__ \ "minor_os_version").formatNullable[Long]).tupled
+  implicit object fmt extends Format[WindowPEOptionalHeaderType] {
 
-  val part2: OFormat[(Option[Long], Option[Long], Option[Long], Option[Long], Option[String], Option[Long],
-    Option[Long], Option[String], Option[String], Option[Long], Option[Long], Option[Long], Option[Long],
-    Option[String], Option[Long], Option[Map[String, String]])] =
-    ((__ \ "major_image_version").formatNullable[Long] ~
-      (__ \ "minor_image_version").formatNullable[Long] ~
-      (__ \ "major_subsystem_version").formatNullable[Long] ~
-      (__ \ "minor_subsystem_version").formatNullable[Long] ~
-      (__ \ "win32_version_value_hex").formatNullable[String] ~
-      (__ \ "size_of_image").formatNullable[Long] ~
-      (__ \ "size_of_headers").formatNullable[Long] ~
-      (__ \ "checksum_hex").formatNullable[String] ~
-      (__ \ "dll_characteristics_hex").formatNullable[String] ~
-      (__ \ "size_of_stack_reserve").formatNullable[Long] ~
-      (__ \ "size_of_stack_commit").formatNullable[Long] ~
-      (__ \ "size_of_heap_reserve").formatNullable[Long] ~
-      (__ \ "size_of_heap_commit").formatNullable[Long] ~
-      (__ \ "loader_flags_hex").formatNullable[String] ~
-      (__ \ "number_of_rva_and_sizes").formatNullable[Long] ~
-      (__ \ "hashes").formatNullable[Map[String, String]]
-      ).tupled
+    private val tagField1 = "magic_hex"
+    private val tagField2 = "major_linker_version"
+    private val tagField3 = "minor_linker_version"
+    private val tagField4 = "size_of_code"
+    private val tagField5 = "size_of_initialized_data"
+    private val tagField6 = "size_of_uninitialized_data"
+    private val tagField7 = "address_of_entry_point"
+    private val tagField8 = "base_of_code"
+    private val tagField9 = "base_of_data"
+    private val tagField10 = "image_base"
+    private val tagField11 = "section_alignment"
+    private val tagField12 = "file_alignment"
+    private val tagField13 = "major_os_version"
+    private val tagField14 = "minor_os_version"
+    private val tagField15 = "major_image_version"
+    private val tagField16 = "minor_image_version"
+    private val tagField17 = "major_subsystem_version"
+    private val tagField18 = "minor_subsystem_version"
+    private val tagField19 = "win32_version_value_hex"
+    private val tagField20 = "size_of_image"
+    private val tagField21 = "size_of_headers"
+    private val tagField22 = "checksum_hex"
+    private val tagField23 = "dll_characteristics_hex"
+    private val tagField24 = "size_of_stack_reserve"
+    private val tagField25 = "size_of_stack_commit"
+    private val tagField26 = "size_of_heap_reserve"
+    private val tagField27 = "size_of_heap_commit"
+    private val tagField28 = "loader_flags_hex"
+    private val tagField29 = "number_of_rva_and_sizes"
+    private val tagField30 = "hashes"
 
-  implicit val fmt: Format[WindowPEOptionalHeaderType] = (part1 ~ part2) ({
-    case ((magic_hex, major_linker_version, minor_linker_version, size_of_code,
-    size_of_initialized_data, size_of_uninitialized_data, address_of_entry_point, base_of_code,
-    base_of_data, image_base, section_alignment, file_alignment, major_os_version, minor_os_version),
-    (major_image_version, minor_image_version, major_subsystem_version, minor_subsystem_version, win32_version_value_hex,
-    size_of_image, size_of_headers, checksum_hex, dll_characteristics_hex, size_of_stack_reserve, size_of_stack_commit,
-    size_of_heap_reserve, size_of_heap_commit, loader_flags_hex, number_of_rva_and_sizes, hashes)) =>
-      new WindowPEOptionalHeaderType(magic_hex, major_linker_version, minor_linker_version, size_of_code,
-        size_of_initialized_data, size_of_uninitialized_data, address_of_entry_point, base_of_code,
-        base_of_data, image_base, section_alignment, file_alignment, major_os_version, minor_os_version,
-        major_image_version, minor_image_version, major_subsystem_version, minor_subsystem_version, win32_version_value_hex,
-        size_of_image, size_of_headers, checksum_hex, dll_characteristics_hex, size_of_stack_reserve, size_of_stack_commit,
-        size_of_heap_reserve, size_of_heap_commit, loader_flags_hex, number_of_rva_and_sizes, hashes)
-  }, (t: WindowPEOptionalHeaderType) => ((t.magic_hex, t.major_linker_version, t.minor_linker_version, t.size_of_code,
-    t.size_of_initialized_data, t.size_of_uninitialized_data, t.address_of_entry_point, t.base_of_code,
-    t.base_of_data, t.image_base, t.section_alignment, t.file_alignment, t.major_os_version, t.minor_os_version), (
-    t.major_image_version, t.minor_image_version, t.major_subsystem_version, t.minor_subsystem_version, t.win32_version_value_hex,
-    t.size_of_image, t.size_of_headers, t.checksum_hex, t.dll_characteristics_hex, t.size_of_stack_reserve, t.size_of_stack_commit,
-    t.size_of_heap_reserve, t.size_of_heap_commit, t.loader_flags_hex, t.number_of_rva_and_sizes, t.hashes)))
+    override def reads(json: JsValue): JsResult[WindowPEOptionalHeaderType] = JsSuccess(
+      WindowPEOptionalHeaderType(
+        (json \ tagField1).asOpt[String],
+        (json \ tagField2).asOpt[Long],
+        (json \ tagField3).asOpt[Long],
+        (json \ tagField4).asOpt[Long],
+        (json \ tagField5).asOpt[Long],
+        (json \ tagField6).asOpt[Long],
+        (json \ tagField7).asOpt[Long],
+        (json \ tagField8).asOpt[Long],
+        (json \ tagField9).asOpt[Long],
+        (json \ tagField10).asOpt[Long],
+        (json \ tagField11).asOpt[Long],
+        (json \ tagField12).asOpt[Long],
+        (json \ tagField13).asOpt[Long],
+        (json \ tagField14).asOpt[Long],
+        (json \ tagField15).asOpt[Long],
+        (json \ tagField16).asOpt[Long],
+        (json \ tagField17).asOpt[Long],
+        (json \ tagField18).asOpt[Long],
+        (json \ tagField19).asOpt[String],
+        (json \ tagField20).asOpt[Long],
+        (json \ tagField21).asOpt[Long],
+        (json \ tagField22).asOpt[String],
+        (json \ tagField23).asOpt[String],
+        (json \ tagField24).asOpt[Long],
+        (json \ tagField25).asOpt[Long],
+        (json \ tagField26).asOpt[Long],
+        (json \ tagField27).asOpt[Long],
+        (json \ tagField28).asOpt[String],
+        (json \ tagField29).asOpt[Long],
+        (json \ tagField30).asOpt[Map[String, String]]
+      )
+    )
+
+    override def writes(w: WindowPEOptionalHeaderType): JsValue = Json.obj(
+      tagField1 -> w.magic_hex,
+      tagField2 -> w.major_linker_version,
+      tagField3 -> w.minor_linker_version,
+      tagField4 -> w.size_of_code,
+      tagField5 -> w.size_of_initialized_data,
+      tagField6 -> w.size_of_uninitialized_data,
+      tagField7 -> w.address_of_entry_point,
+      tagField8 -> w.base_of_code,
+      tagField9 -> w.base_of_data,
+      tagField10 -> w.image_base,
+      tagField11 -> w.section_alignment,
+      tagField12 -> w.file_alignment,
+      tagField13 -> w.major_os_version,
+      tagField14 -> w.minor_os_version,
+      tagField15 -> w.major_image_version,
+      tagField16 -> w.minor_image_version,
+      tagField17 -> w.major_subsystem_version,
+      tagField18 -> w.minor_subsystem_version,
+      tagField19 -> w.win32_version_value_hex,
+      tagField20 -> w.size_of_image,
+      tagField21 -> w.size_of_headers,
+      tagField22 -> w.checksum_hex,
+      tagField23 -> w.dll_characteristics_hex,
+      tagField24 -> w.size_of_stack_reserve,
+      tagField25 -> w.size_of_stack_commit,
+      tagField26 -> w.size_of_heap_reserve,
+      tagField27 -> w.size_of_heap_commit,
+      tagField28 -> w.loader_flags_hex,
+      tagField29 -> w.number_of_rva_and_sizes,
+      tagField30 -> w.hashes
+    )
+  }
+
 }
 
 /**

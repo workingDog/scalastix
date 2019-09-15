@@ -1225,7 +1225,7 @@ case class Bundle(`type`: String = Bundle.`type`,
 
   def this(objects: ListBuffer[StixObj]) = this(Bundle.`type`, Identifier(Bundle.`type`), Bundle.spec_version, objects)
 
-  def this(objects: StixObj*) = this(objects.to[ListBuffer])
+  def this(objects: StixObj*) = this(objects.iterator.to(ListBuffer)) //.to([ListBuffer]))
 
 }
 
@@ -1235,7 +1235,7 @@ object Bundle {
 
   def apply(objects: ListBuffer[StixObj]) = new Bundle(objects)
 
-  def apply(objects: StixObj*) = new Bundle(objects.to[ListBuffer])
+  def apply(objects: StixObj*) = new Bundle(objects.iterator.to(ListBuffer)) //.to([ListBuffer]))
 
   implicit val fmt = Json.format[Bundle]
 }

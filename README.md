@@ -32,7 +32,8 @@ To use the latest release add the following dependency to your *build.sbt*:
 
     libraryDependencies += "com.github.workingDog" %% "scalastix" % "1.0"
 
-The current source code version is **1.1-SNAPSHOT** using scala 2.13.0
+The current source code version is **1.1-SNAPSHOT** using scala 2.13.0. 
+
 To compile and package **scalastix** from source use [SBT](http://www.scala-sbt.org/).
 To compile and generate a jar file from source:
 
