@@ -32,12 +32,13 @@ To use the latest release add the following dependency to your *build.sbt*:
 
     libraryDependencies += "com.github.workingDog" %% "scalastix" % "1.0"
 
-The best way to compile and package **scalastix** from source is to use [SBT](http://www.scala-sbt.org/).
+The current source code version is **1.1-SNAPSHOT** using scala 2.13.0
+To compile and package **scalastix** from source use [SBT](http://www.scala-sbt.org/).
 To compile and generate a jar file from source:
 
     sbt package
 
-This will produce a jar file "scalastix_2.12-1.1-SNAPSHOT.jar" in the "./target/scala-2.12" directory 
+This will produce a jar file "scalastix_2.13-1.1-SNAPSHOT.jar" in the "./target/scala-2.13" directory 
 for use in Scala applications.
 
 
