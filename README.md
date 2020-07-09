@@ -1,3 +1,4 @@
+
 ## STIX 2.0 protocol in Scala
 
 [[1]](https://oasis-open.github.io/cti-documentation/) 
@@ -28,18 +29,18 @@ It includes all SDO, SRO, Observables, OpenVocab, Markings and supporting data t
 
 This library attempts to follow the [OASIS published STIX-2.0 specifications](https://oasis-open.github.io/cti-documentation/).
 
-To use the latest release add the following dependency to your *build.sbt*:
+To use the latest release (with scala 2.13.3) add the following dependency to your *build.sbt*:
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "1.0"
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "1.1"
 
-The current source code version is **1.1-SNAPSHOT** using scala 2.13.0. 
+The current source code version is **1.2-SNAPSHOT** using scala 2.13.3. 
 
 To compile and package **scalastix** from source use [SBT](http://www.scala-sbt.org/).
 To compile and generate a jar file from source:
 
     sbt package
 
-This will produce a jar file "scalastix_2.13-1.1-SNAPSHOT.jar" in the "./target/scala-2.13" directory 
+This will produce a jar file "scalastix_2.13-1.2-SNAPSHOT.jar" in the "./target/scala-2.13" directory 
 for use in Scala applications.
 
 
@@ -49,7 +50,7 @@ To publish the library to your local (Ivy) repository, simply type:
 
 Then put this in your Scala app *build.sbt* file:
 
-    libraryDependencies += "com.github.workingDog" %% "scalastix" % "1.1-SNAPSHOT" 
+    libraryDependencies += "com.github.workingDog" %% "scalastix" % "1.2-SNAPSHOT" 
  
 ### Conventions
 

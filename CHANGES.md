@@ -1,11 +1,14 @@
 Change Log
 ==========
 
-### changes in 1.1-SNAPSHOT
 
-* updated scala to 2.13.0, sbt to 1.3.0 and associated plugins and dependencies 
+### changes in 1.2-SNAPSHOT
+
+
+### changes in 1.1
+
+* updated scala to 2.13.3, sbt to 1.3.13 and associated plugins and dependencies 
 * changed WindowPEOptionalHeaderType json format
-
 
 ### changes in 1.0
 
